@@ -111,5 +111,6 @@
   "{n} days": "{n} jours",
   "{n} days ago": "il y a {n} jours",
   "{slot}: {error}": "{slot} : {error}",
-  "✓ Saved": "✓ Enregistré"
+  "✓ Saved": "✓ Enregistré",
+  "Outstanding: {received} received, {given} given": "Outstanding : {received} reçus, {given} donnés"
 }

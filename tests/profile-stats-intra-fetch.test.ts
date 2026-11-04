@@ -61,6 +61,19 @@ describe("fetchProfileStatsViaIntra", () => {
     expect(r.evalStats).toBeNull();
   });
 
+  it("with feedbacks: false reads the history page only (the worker gave the stats)", async () => {
+    const sendMessage = serve();
+    const r = await fetchProfileStatsViaIntra("bob", { feedbacks: false });
+    expect(sendMessage).toHaveBeenCalledTimes(1);
+    expect(sendMessage.mock.calls[0][0].url).toContain("correction_point_historics");
+    expect(r).toEqual({
+      roulette: [expect.objectContaining({ sum: 3, total: 12 })],
+      evalStats: null,
+      complete: true,
+      rouletteLoaded: true,
+    });
+  });
+
   it("the history page failing is reported as not loaded, not as zero wins", async () => {
     serve(["correction_point_historics"]);
     const r = await fetchProfileStatsViaIntra("bob");

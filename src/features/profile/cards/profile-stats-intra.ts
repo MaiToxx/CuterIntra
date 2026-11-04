@@ -177,6 +177,8 @@ export function parseRouletteHistorics(html: string): RouletteEntryLike[] {
 export interface ProfileStatsData {
   roulette: RouletteEntryLike[];
   evalStats: EvalStatsLike | null;
+  /** Your Outstanding flags, from the worker's 42 application only. */
+  outstanding?: { received: number; given: number } | null;
 }
 
 export type ProfileStatsCache = Record<string, { at: number; data: ProfileStatsData }>;
@@ -273,8 +275,14 @@ export interface ProfileStatsFetchResult extends ProfileStatsData {
   rouletteLoaded: boolean;
 }
 
+/**
+ * `feedbacks: false` reads the correction-point history only (the worker's
+ * 42 application gave the stats): `evalStats` is then null and `complete`
+ * means the history was read.
+ */
 export async function fetchProfileStatsViaIntra(
   login: string,
+  { feedbacks: readFeedbacks = true }: { feedbacks?: boolean } = {},
 ): Promise<ProfileStatsFetchResult> {
   const safeLogin = encodeURIComponent(login);
   const feedbackPageUrl = (page: number) =>
@@ -285,6 +293,16 @@ export async function fetchProfileStatsViaIntra(
   const historicsPromise = fetchIntraPage(
     `https://profile.intra.42.fr/users/${safeLogin}/correction_point_historics`,
   );
+
+  if (!readFeedbacks) {
+    const html = await historicsPromise;
+    return {
+      roulette: html ? parseRouletteHistorics(html) : [],
+      evalStats: null,
+      complete: html !== null,
+      rouletteLoaded: html !== null,
+    };
+  }
 
   const pages = new Map<number, CorrectorFeedback[]>();
   let feedbacksComplete = true;

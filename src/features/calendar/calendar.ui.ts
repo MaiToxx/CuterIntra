@@ -11,9 +11,16 @@ import { maybeSyncCalendar } from "./calendar-sync.ts";
 import CALENDAR_PLUS_SVG from "../../assets/svg/calendar-plus.svg?raw";
 import COPY_SVG from "../../assets/svg/copy.svg?raw";
 
-import { WORKER_URL, workerFetch, type WorkerResult } from "../../core/worker.ts";
+import {
+  WORKER_URL,
+  getWorkerFeatures,
+  workerFetch,
+  type WorkerResult,
+} from "../../core/worker.ts";
 import { msg, t } from "../../core/i18n/i18n.ts";
 const TOKEN_KEY = "CALENDAR_SYNC_TOKEN";
+const ALL_EVENTS_KEY = "CALENDAR_ALL_CAMPUS_EVENTS";
+const EVALUATIONS_KEY = "CALENDAR_EVALUATIONS";
 
 /**
  * The live link in the worker's answer to GET calendar/token: its token,
@@ -126,8 +133,15 @@ function renderPanel(el: Element | undefined) {
       TOKEN_KEY,
       "CLOUD_TOKEN",
       "CLOUD_LOGIN",
+      ALL_EVENTS_KEY,
+      EVALUATIONS_KEY,
     ]);
     const token = store[TOKEN_KEY] as string | undefined;
+    const allEvents = store[ALL_EVENTS_KEY] === true;
+    const withEvaluations = store[EVALUATIONS_KEY] !== false;
+    // Only with a link: the switch is drawn there, and a student without one
+    // costs the worker no request.
+    const evaluationsOffered = token ? (await getWorkerFeatures()).evaluations === true : false;
     const signedIn = !!store.CLOUD_TOKEN && !!store.CLOUD_LOGIN;
 
     const qrUrl = token
@@ -242,6 +256,40 @@ function renderPanel(el: Element | undefined) {
                     </div>
                   </div>
 
+                  <label class="label cursor-pointer justify-start gap-3 text-sm whitespace-normal">
+                    <input
+                      type="checkbox"
+                      class="toggle toggle-sm toggle-info"
+                      .checked=${allEvents}
+                      @change="${(e: Event) =>
+                        void setFlag(ALL_EVENTS_KEY, (e.target as HTMLInputElement).checked)}"
+                    />
+                    <span>
+                      ${t("Also add the campus events and exams I am not registered for")}
+                      <span class="block text-xs opacity-60"
+                        >${t("Shown as free time, without a reminder. Applied on your next visit to your profile.")}</span
+                      >
+                    </span>
+                  </label>
+
+                  ${evaluationsOffered
+                    ? html`<label class="label cursor-pointer justify-start gap-3 text-sm whitespace-normal">
+                        <input
+                          type="checkbox"
+                          class="toggle toggle-sm toggle-info"
+                          .checked=${withEvaluations}
+                          @change="${(e: Event) =>
+                            void setFlag(EVALUATIONS_KEY, (e.target as HTMLInputElement).checked)}"
+                        />
+                        <span>
+                          ${t("Add my booked evaluations, with a reminder 15 minutes before")}
+                          <span class="block text-xs opacity-60"
+                            >${t("Read from 42 by the Cuter Intra server when you visit your profile. Your calendar app may take a few hours to show a new one.")}</span
+                          >
+                        </span>
+                      </label>`
+                    : ""}
+
                   <div class="flex justify-center pt-1">
                     <img
                       src="${qrDataUrl}"
@@ -307,6 +355,15 @@ function renderPanel(el: Element | undefined) {
       `,
       container,
     );
+  };
+
+  // On the profile itself the feed is rebuilt at once; elsewhere
+  // maybeSyncCalendar() returns and the next profile visit uploads it (the
+  // event list, hence its hash, changed).
+  const setFlag = async (key: string, on: boolean) => {
+    await chrome.storage.local.set({ [key]: on });
+    await update();
+    void maybeSyncCalendar();
   };
 
   // The copy used to give no sign of success and did nothing when the

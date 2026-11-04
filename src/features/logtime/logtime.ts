@@ -32,7 +32,7 @@ import type { CalendarEvent, EventsByDate, LogtimeConfig } from "./types.ts";
 // Declared in types.ts so the renderers need not import this module back.
 export type { CalendarEvent, EventsByDate, LogtimeConfig } from "./types.ts";
 
-import { AUTH_MODE, workerFetch } from "../../core/worker.ts";
+import { AUTH_MODE, getWorkerFeatures, workerFetch } from "../../core/worker.ts";
 import { sanitizeHexColor } from "../../core/security/css-sanitize.ts";
 const historyCache = new Map<string, Record<string, number>>();
 const fetchPromiseMap = new Map<string, Promise<void>>();
@@ -47,23 +47,6 @@ let viewOverflow = false;
 /** The records badge is out of the header line: no room even folded. */
 let recordsHidden = false;
 let headerResizeObserver: ResizeObserver | null = null;
-
-let workerFeatures: Promise<{ logtimeHistory?: boolean }> | null = null;
-
-/**
- * What this worker can do beyond the routes every build relies on (one
- * request per page, cached 5 minutes by the worker). A worker that does not
- * know the route, or does not answer, offers nothing.
- */
-function getWorkerFeatures(): Promise<{ logtimeHistory?: boolean }> {
-  workerFeatures ??= workerFetch("/api/v1/public/features", { timeoutMs: 5_000 }).then(
-    (res) => {
-      const features = (res.json as { features?: unknown } | null)?.features;
-      return res.ok && features && typeof features === "object" ? features : {};
-    },
-  );
-  return workerFeatures;
-}
 
 /**
  * Whether "Load older months" can get an answer for `target`. The worker

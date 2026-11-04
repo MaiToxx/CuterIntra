@@ -1,5 +1,9 @@
 {
   "If you already made a link in another browser, this replaces it.": "Si tu as déjà créé un lien dans un autre navigateur, le nouveau remplace l’ancien.",
   "Sharing was stopped from another browser.": "Le partage a été arrêté depuis un autre navigateur.",
-  "The link was replaced in another browser: this is the new one.": "Le lien a été remplacé dans un autre navigateur : voici le nouveau."
+  "The link was replaced in another browser: this is the new one.": "Le lien a été remplacé dans un autre navigateur : voici le nouveau.",
+  "Also add the campus events and exams I am not registered for": "Ajouter aussi les événements et examens du campus où je ne suis pas inscrit·e",
+  "Shown as free time, without a reminder. Applied on your next visit to your profile.": "Affichés comme temps libre, sans rappel. Appliqué à ta prochaine visite de ton profil.",
+  "Add my booked evaluations, with a reminder 15 minutes before": "Ajouter mes évaluations réservées, avec un rappel 15 minutes avant",
+  "Read from 42 by the Cuter Intra server when you visit your profile. Your calendar app may take a few hours to show a new one.": "Lues sur 42 par le serveur de Cuter Intra quand tu visites ton profil. Ton application de calendrier peut mettre quelques heures à afficher une nouvelle évaluation."
 }

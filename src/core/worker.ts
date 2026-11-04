@@ -215,3 +215,35 @@ export async function workerFetch(
   if (response.status === 401 && options.auth) await markAuthFailed();
   return result;
 }
+
+/** What this worker can do beyond the routes every build relies on. */
+export interface WorkerFeatures {
+  /** Your own logtime history ("Load older months"). */
+  logtimeHistory?: boolean;
+  /** Your own evaluations: correction stats, Outstanding counts, upcoming evaluations. */
+  evaluations?: boolean;
+}
+
+let workerFeatures: Promise<WorkerFeatures> | null = null;
+
+/**
+ * GET /api/v1/public/features, once per page (the worker caches it 5
+ * minutes). A worker that does not know the route, or does not answer,
+ * offers nothing.
+ */
+export function getWorkerFeatures(): Promise<WorkerFeatures> {
+  workerFeatures ??= workerFetch("/api/v1/public/features", { timeoutMs: 5_000 }).then(
+    (res) => {
+      const features = (res.json as { features?: unknown } | null)?.features;
+      return res.ok && features && typeof features === "object"
+        ? (features as WorkerFeatures)
+        : {};
+    },
+  );
+  return workerFeatures;
+}
+
+/** For the tests: forget the features read on this page. */
+export function resetWorkerFeatures(): void {
+  workerFeatures = null;
+}

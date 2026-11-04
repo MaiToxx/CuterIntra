@@ -20,6 +20,7 @@ import {
   readProfileStatsCache,
   writeProfileStatsCache,
 } from "./profile-stats-intra.ts";
+import { fetchOwnEvaluationStats, type OutstandingCounts } from "./evaluations-api.ts";
 const CARD_ID = "ft-roulette-card";
 
 let rouletteStatsInitialized = false;
@@ -50,9 +51,17 @@ interface EvalStatsData {
 interface ProfileStats {
   roulette: RouletteEntry[] | null;
   evalStats: EvalStatsData | null;
+  /** Your Outstanding flags; null when unknown (not your profile, no 42 application). */
+  outstanding?: OutstandingCounts | null;
 }
 
 const UNAVAILABLE: ProfileStats = { roulette: null, evalStats: null };
+
+function isOutstanding(v: unknown): v is OutstandingCounts {
+  if (!v || typeof v !== "object") return false;
+  const o = v as { received?: unknown; given?: unknown };
+  return typeof o.received === "number" && typeof o.given === "number";
+}
 
 function formatRouletteDate(dateStr: string): string {
   const d = new Date(dateStr);
@@ -162,18 +171,27 @@ async function fetchProfileStats(targetLogin: string): Promise<ProfileStats> {
       return {
         roulette: Array.isArray(cached.roulette) ? cached.roulette : null,
         evalStats: cached.evalStats ?? null,
+        outstanding: isOutstanding(cached.outstanding) ? cached.outstanding : null,
       };
     }
-    const data = await fetchProfileStatsViaIntra(targetLogin);
+    // On your own profile the worker's 42 application gives the stats in a
+    // request or two, instead of up to 40 v2 pages; the roulette history
+    // still comes from its Intra page. Anything else falls back to the pages.
+    const api = await fetchOwnEvaluationStats(targetLogin).catch(() => null);
+    const data = await fetchProfileStatsViaIntra(targetLogin, { feedbacks: !api });
+    const evalStats = api ? api.stats : data.evalStats;
+    const outstanding = api ? api.outstanding : null;
     if (data.complete) {
       await writeProfileStatsCache(targetLogin, {
         roulette: data.roulette,
-        evalStats: data.evalStats,
+        evalStats,
+        outstanding,
       });
     }
     return {
       roulette: data.rouletteLoaded ? data.roulette : null,
-      evalStats: data.evalStats,
+      evalStats,
+      outstanding,
     };
   }
 
@@ -364,7 +382,10 @@ function buildRouletteSection(
   return section;
 }
 
-function buildEvalStatsSection(data: EvalStatsData): HTMLElement {
+function buildEvalStatsSection(
+  data: EvalStatsData,
+  outstanding: OutstandingCounts | null = null,
+): HTMLElement {
   const section = document.createElement("div");
 
   const titleRow = document.createElement("div");
@@ -456,6 +477,19 @@ function buildEvalStatsSection(data: EvalStatsData): HTMLElement {
   titleRow.appendChild(badgesWrap);
 
   section.appendChild(titleRow);
+
+  // Only from the worker's 42 application, on your own profile: the Intra
+  // pages the stats are otherwise read from do not say it.
+  if (outstanding) {
+    const line = document.createElement("div");
+    line.className = "text-sm";
+    line.style.cssText = "margin-bottom: 8px; color: rgb(234,179,8); font-weight: 600;";
+    line.textContent = `★ ${t("Outstanding: {received} received, {given} given", {
+      received: outstanding.received,
+      given: outstanding.given,
+    })}`;
+    section.appendChild(line);
+  }
 
   const tableWrap = document.createElement("div");
 
@@ -603,6 +637,7 @@ function renderCard(
   evalStats: EvalStatsData | null,
   showRouletteHistory: boolean,
   loading: boolean,
+  outstanding: OutstandingCounts | null = null,
 ) {
   if (stopCountdown !== null) {
     stopCountdown();
@@ -640,7 +675,7 @@ function renderCard(
     bottomSection.style.cssText =
       "flex: 1; min-height: 0; overflow-y: scroll; padding: 12px 24px 24px 24px;";
     bottomSection.appendChild(
-      evalStats ? buildEvalStatsSection(evalStats) : buildEvalStatsSkeleton(),
+      evalStats ? buildEvalStatsSection(evalStats, outstanding) : buildEvalStatsSkeleton(),
     );
     card.appendChild(bottomSection);
   }
@@ -722,10 +757,10 @@ export async function initRouletteStats() {
     // the worker values go, so nothing pops in once the request resolves.
     renderCard(card, null, null, showHistory, true);
 
-    statsPromise.then(({ roulette, evalStats }) => {
+    statsPromise.then(({ roulette, evalStats, outstanding }) => {
       rouletteStatsInitialized = true;
       rouletteStatsPolling = false;
-      renderCard(card, roulette, evalStats, showHistory, false);
+      renderCard(card, roulette, evalStats, showHistory, false, outstanding ?? null);
     });
   };
   requestAnimationFrame(poll);

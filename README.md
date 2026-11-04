@@ -56,7 +56,7 @@ Data that upstream fetched through the 42 API is rebuilt from what the Intra alr
 - correction statistics and Thursday Roulette history are parsed from the v2 Intra pages;
 - cluster occupancy comes from `meta.intra.42.fr`.
 
-Since 1.19.0 the worker also has its own 42 API application, used read-only and only where the Intra offers nothing: **Load older months** on your own profile (signed in) fetches your whole logtime history from 42's `locations_stats`. The worker keeps it in memory for an hour and stores nothing.
+Since 1.19.0 the worker also has its own 42 API application, used read-only and only where the Intra offers nothing: **Load older months** on your own profile (signed in) fetches your whole logtime history from 42's `locations_stats`. The worker keeps it in memory for an hour and stores nothing. Since 1.20.0 the same application gives your own **correction statistics** and **Outstanding counts** in a request or two (instead of up to 40 Intra pages) and puts your **booked evaluations** in your calendar feed, with a reminder 15 minutes before. The Calendar tab can also add every campus event and exam, not only the ones you registered for.
 
 The worker is deployed at `betterintra-remake.maitox.workers.dev`. Besides it and `*.intra.42.fr`, the extension only contacts `api.github.com` (release check, not in the Chrome Web Store build), the image hosts other students chose for their visuals, and, for a shortcut without an emoji, that site's favicon (or DuckDuckGo's icon service when it has none).
 

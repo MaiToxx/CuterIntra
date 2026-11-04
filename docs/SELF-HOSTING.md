@@ -66,8 +66,10 @@ sync work.
 
 No R2 bucket, no Discord bot. A 42 application is optional: with one (its UID
 and secret as the worker secrets `FT_CLIENT_ID` and `FT_CLIENT_SECRET`), the
-worker also serves your own logtime history ("Load older months"); without
-one that route answers 404 and the card stays hidden.
+worker also serves your own logtime history ("Load older months") and your
+own evaluations (correction statistics, Outstanding counts, booked evaluations
+in the calendar feed); without one those routes answer 404, the history card
+stays hidden and the statistics come from the Intra pages as before.
 
 ## 2. Get the worker code
 

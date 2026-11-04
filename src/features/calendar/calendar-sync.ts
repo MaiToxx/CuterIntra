@@ -1,5 +1,10 @@
-import { workerFetch } from "../../core/worker.ts";
+import { getWorkerFeatures, workerFetch } from "../../core/worker.ts";
 import { fetchOwnEvents, isOwnProfilePage } from "./own-events.ts";
+import type { CalendarEvent } from "../logtime/types.ts";
+import {
+  fetchUpcomingEvaluations,
+  type UpcomingEvaluation,
+} from "../profile/cards/evaluations-api.ts";
 
 /** What an event of the feed is built from (a subset of the Intra event). */
 interface IcsEvent {
@@ -9,6 +14,33 @@ interface IcsEvent {
   begin_at: string;
   end_at: string;
   location?: string;
+  /**
+   * false for a campus event you are not registered for (the "all campus
+   * events" option): it gets no reminder and says so in its description.
+   * Absent counts as registered, as every event of the feed used to be.
+   */
+  is_subscribed?: boolean;
+}
+
+/** kind of the feed entries made from your booked evaluations. */
+export const EVALUATION_KIND = "evaluation";
+
+/**
+ * Your booked evaluations as feed entries, with the same 15-minute reminder.
+ * The feed is not translated (one feed serves every device) and names no
+ * other student: it is stored on the worker.
+ */
+export function evaluationEvents(list: UpcomingEvaluation[]): IcsEvent[] {
+  return list.map((e) => ({
+    id: e.id,
+    kind: EVALUATION_KIND,
+    name:
+      e.role === "corrector"
+        ? `Evaluation: you evaluate ${e.project ?? "a project"}`
+        : `Evaluation: you are evaluated on ${e.project ?? "your project"}`,
+    begin_at: e.beginAt,
+    end_at: e.endAt,
+  }));
 }
 
 function escapeIcs(text: string): string {
@@ -62,7 +94,9 @@ export function foldIcsLine(line: string): string {
 function computeHash(events: IcsEvent[]): string {
   let h = 0;
   for (const e of events) {
-    const key = `${e.id}|${e.kind}|${e.begin_at}|${e.end_at}|${e.name}|${e.location ?? ""}`;
+    // The registration flag only when false: a feed of registered events
+    // hashes as it always did, and is not uploaded again after an update.
+    const key = `${e.id}|${e.kind}|${e.begin_at}|${e.end_at}|${e.name}|${e.location ?? ""}${e.is_subscribed === false ? "|0" : ""}`;
     for (let i = 0; i < key.length; i++) {
       h = ((h << 5) - h + key.charCodeAt(i)) | 0;
     }
@@ -88,24 +122,37 @@ export function generateIcs(events: IcsEvent[], now: Date = new Date()): string 
   );
 
   for (const ev of events) {
-    const url =
-      ev.kind === "exam"
+    // An evaluation has its own UID space: its id is a scale team id, which
+    // may equal an event id.
+    const isEvaluation = ev.kind === EVALUATION_KIND;
+    const url = isEvaluation
+      ? "https://profile.intra.42.fr/"
+      : ev.kind === "exam"
         ? `https://profile.intra.42.fr/exams/${ev.id}`
         : `https://profile.intra.42.fr/events/${ev.id}`;
+    const registered = ev.is_subscribed !== false;
     lines.push(
       "BEGIN:VEVENT",
-      `UID:${ev.id}@better-intra`,
+      isEvaluation ? `UID:eval-${ev.id}@better-intra` : `UID:${ev.id}@better-intra`,
       `DTSTAMP:${stamp}`,
       `DTSTART:${formatIcsDate(ev.begin_at)}`,
       `DTEND:${formatIcsDate(ev.end_at)}`,
       `SUMMARY:${escapeIcs(ev.name)}`,
       ev.location ? `LOCATION:${escapeIcs(ev.location)}` : "",
       `URL:${url}`,
-      "BEGIN:VALARM",
-      "TRIGGER:-PT15M",
-      "ACTION:DISPLAY",
-      "DESCRIPTION:15 min before",
-      "END:VALARM",
+      // The feed's text is not translated: one feed serves every device.
+      registered ? "" : "DESCRIPTION:Not registered (campus event)",
+      // Shown as free time: you have not said you are going.
+      registered ? "" : "TRANSP:TRANSPARENT",
+      ...(registered
+        ? [
+            "BEGIN:VALARM",
+            "TRIGGER:-PT15M",
+            "ACTION:DISPLAY",
+            "DESCRIPTION:15 min before",
+            "END:VALARM",
+          ]
+        : []),
       "END:VEVENT",
     );
   }
@@ -159,6 +206,20 @@ export async function syncCalendarIcs(
   }
 }
 
+async function evaluationsAnnounced(): Promise<boolean> {
+  return (await getWorkerFeatures()).evaluations === true;
+}
+
+/**
+ * The events of the feed: those you are registered for, or with `all`, every
+ * event and exam of your campus the Intra lists (the same list the logtime
+ * calendar marks in red), the unregistered ones flagged.
+ */
+export function feedEvents(events: CalendarEvent[], all: boolean): IcsEvent[] {
+  if (!all) return events.filter((e) => e.is_subscribed);
+  return events.map((e) => ({ ...e, is_subscribed: e.is_subscribed === true }));
+}
+
 /**
  * Refresh the feed from your subscribed events. Called by main.ts on every
  * Intra page, whatever features are switched on: the Calendar tab promises a
@@ -177,13 +238,28 @@ export async function maybeSyncCalendar(): Promise<void> {
       "CLOUD_TOKEN",
       "CLOUD_LOGIN",
       "CALENDAR_SYNC_TOKEN",
+      "CALENDAR_ALL_CAMPUS_EVENTS",
+      "CALENDAR_EVALUATIONS",
     ]);
     if (!store.CLOUD_TOKEN || !store.CLOUD_LOGIN || !store.CALENDAR_SYNC_TOKEN) {
       return;
     }
-    const events = await fetchOwnEvents();
+    // Absent means on: the default of the setting.
+    const withEvaluations = store.CALENDAR_EVALUATIONS !== false;
+    const [events, evaluations] = await Promise.all([
+      fetchOwnEvents(),
+      withEvaluations ? fetchUpcomingEvaluations().catch(() => null) : Promise.resolve([]),
+    ]);
     if (!events) return;
-    await syncCalendarIcs(events.filter((e) => e.is_subscribed));
+    // null is "unknown" (no 42 application on the worker, an older worker, a
+    // failed read): the feed is then built from the events alone, as before.
+    // Uploading it would drop evaluations a previous visit put there, so a
+    // failed read on a worker that has the route leaves the feed alone.
+    if (evaluations === null && withEvaluations && (await evaluationsAnnounced())) return;
+    await syncCalendarIcs([
+      ...feedEvents(events, store.CALENDAR_ALL_CAMPUS_EVENTS === true),
+      ...evaluationEvents(evaluations ?? []),
+    ]);
   } catch {
     // The feed keeps serving what it had; the next visit tries again.
   }
