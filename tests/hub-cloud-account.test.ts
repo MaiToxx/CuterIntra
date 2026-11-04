@@ -187,7 +187,7 @@ describe("the Advanced tab", () => {
     const host = mount("cloud-export");
     host.querySelector("button")!.click();
     await settle();
-    expect(downloaded).toMatch(/^better-intra-cloud-data-\d{4}-\d{2}-\d{2}\.json$/);
+    expect(downloaded).toMatch(/^cuter-intra-cloud-data-\d{4}-\d{2}-\d{2}\.json$/);
     expect(JSON.parse(await created[0].text())).toEqual({
       exportedAt: 1,
       settings: { CALENDAR_SYNC_TOKEN: "[redacted]" },

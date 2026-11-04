@@ -186,7 +186,7 @@ reviewer does not have, which is this case: every feature runs behind a 42
 student sign-in. Fill it once; it stays for later versions, and every
 auto-published version is reviewed again. Paste:
 
-> Better Intra only runs on https://*.intra.42.fr, the intranet of the 42
+> Cuter Intra only runs on https://*.intra.42.fr, the intranet of the 42
 > schools. Using it needs a personal 42 student account, and the school's
 > rules forbid sharing one, so we cannot provide test credentials. Off the
 > Intra, the toolbar popup only offers to open the Intra, and the extension

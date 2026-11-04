@@ -3,7 +3,7 @@
  * @vitest-environment-options { "url": "https://profile-v3.intra.42.fr/" }
  *
  * The Intra's Pending evaluations card and its own Hide button. With the
- * "Pending evaluations" extra off (the default) Better Intra leaves both
+ * "Pending evaluations" extra off (the default) Cuter Intra leaves both
  * alone: the button used to be taken over for everyone, and a click on it
  * regrouped the rows and switched the extra on in the hub.
  */

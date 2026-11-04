@@ -190,7 +190,7 @@ function exportBackup(): void {
     const a = document.createElement("a");
     a.href = url;
     const n = new Date();
-    a.download = `better-intra-settings-${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, "0")}-${String(n.getDate()).padStart(2, "0")}_${String(n.getHours()).padStart(2, "0")}-${String(n.getMinutes()).padStart(2, "0")}-${String(n.getSeconds()).padStart(2, "0")}.json`;
+    a.download = `cuter-intra-settings-${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, "0")}-${String(n.getDate()).padStart(2, "0")}_${String(n.getHours()).padStart(2, "0")}-${String(n.getMinutes()).padStart(2, "0")}-${String(n.getSeconds()).padStart(2, "0")}.json`;
     a.click();
     URL.revokeObjectURL(url);
   });
@@ -225,7 +225,7 @@ function importBackup(): void {
 
 /**
  * "12 settings exported on 3 Sep 2026 (v1.12.1)" for the confirmation. The
- * date is in the browser's format, or in French when Better Intra is.
+ * date is in the browser's format, or in French when Cuter Intra is.
  */
 export function describeBackup(
   count: number,
@@ -310,7 +310,7 @@ export async function reloadCampusConfig(
 }
 
 /**
- * Clears every Better Intra setting, after a confirmation, and reloads.
+ * Clears every Cuter Intra setting, after a confirmation, and reloads.
  *
  * The question used to say "settings" only: the reset also signs out, and
  * the shortcuts, friends list and calendar link that were never pushed are
@@ -324,10 +324,10 @@ export async function resetAllData(
   const signedIn = !!(await chrome.storage.local.get("CLOUD_TOKEN")).CLOUD_TOKEN;
   const message = signedIn
     ? t(
-        "Reset all data? This clears every Better Intra setting on this browser and signs you out. What was never pushed to the cloud (shortcuts, friends list, calendar link) is lost; your cloud copy stays, and is offered back when you sign in again.",
+        "Reset all data? This clears every Cuter Intra setting on this browser and signs you out. What was never pushed to the cloud (shortcuts, friends list, calendar link) is lost; your cloud copy stays, and is offered back when you sign in again.",
       )
     : t(
-        "Reset all data? This clears every Better Intra setting on this browser, shortcuts, friends list and calendar link included. Export first to keep a copy.",
+        "Reset all data? This clears every Cuter Intra setting on this browser, shortcuts, friends list and calendar link included. Export first to keep a copy.",
       );
   if (!ask(message)) return;
   if (signedIn) {

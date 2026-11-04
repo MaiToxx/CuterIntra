@@ -117,7 +117,7 @@ export async function loadInitialData(): Promise<WidgetData> {
     addOpen: false,
     lastFetch: null,
     theme: daisyTheme,
-    // In intra mode nothing the widget loads uses the Better Intra session
+    // In intra mode nothing the widget loads uses the Cuter Intra session
     // (see loadFriendsData), so neither a missing nor an expired sign-in may
     // lock it behind a Connect or Reconnect screen.
     needsReconnect: AUTH_MODE !== "intra" && !!token && authFailed,

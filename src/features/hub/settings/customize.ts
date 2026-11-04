@@ -22,7 +22,7 @@ export const CUSTOMIZE_SETTINGS: readonly HubSettingDef[] = [
     key: "CUSTOM_SHARE_LOOK",
     live: true,
     label: "Publish my look on my profile",
-    desc: "On by default: other Better Intra users see your theme, accent, palette, background and card style when they open your profile. Fonts, size, scrollbar and custom CSS are never shared. Needs the cloud account.",
+    desc: "On by default: other Cuter Intra users see your theme, accent, palette, background and card style when they open your profile. Fonts, size, scrollbar and custom CSS are never shared. Needs the cloud account.",
     kind: "toggle",
     defaultValue: CONFIG_DEFAULT.CUSTOM_SHARE_LOOK,
     requiresCloud: true,

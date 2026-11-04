@@ -140,7 +140,7 @@ export function createHandlers(state: AccountState, updateUI: () => void) {
     if (
       !confirm(
         t(
-          "This permanently deletes everything the Better Intra server holds for you: your pushed settings, every signed-in session, your calendar link and your entry in the community counter. Your local settings stay. Continue?",
+          "This permanently deletes everything the Cuter Intra server holds for you: your pushed settings, every signed-in session, your calendar link and your entry in the community counter. Your local settings stay. Continue?",
         ),
       )
     )

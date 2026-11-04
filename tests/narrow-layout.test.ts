@@ -1,5 +1,5 @@
 /**
- * Better Intra's own widgets at phone widths (and, for some, narrow desktop
+ * Cuter Intra's own widgets at phone widths (and, for some, narrow desktop
  * windows). jsdom does no layout, so these pin the rules that keep each one
  * inside its card, measured in Chrome on a copy of the real Intra page:
  *  - the friends panel header held the online filter, four sort buttons and

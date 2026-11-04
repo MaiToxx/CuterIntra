@@ -104,7 +104,7 @@ export function renderPresetsPanel() {
     };
 
     const onPaste = async () => {
-      const code = window.prompt(t("Paste a Better Intra theme code:"));
+      const code = window.prompt(t("Paste a Cuter Intra theme code:"));
       if (code === null) return;
       const values = decodePresetCode(code);
       if (!values) return say(t("This is not a valid theme code."), false);

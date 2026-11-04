@@ -132,7 +132,7 @@ export function warnOnQuota(err: unknown): void {
   const msg = err instanceof Error ? err.message : String(err);
   if (!/quota/i.test(msg)) return;
   quotaWarned = true;
-  console.warn("[Better Intra] cluster map not cached: storage is full", msg);
+  console.warn("[Cuter Intra] cluster map not cached: storage is full", msg);
 }
 
 /**

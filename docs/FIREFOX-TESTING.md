@@ -1,6 +1,6 @@
 # Firefox (and Chrome) testing
 
-`scripts/firefox-smoke.mjs` loads a build of Better Intra into a real Firefox
+`scripts/firefox-smoke.mjs` loads a build of Cuter Intra into a real Firefox
 (or, with `--browser chrome`, a real Chrome: see [Chrome](#chrome)), opens a
 synthetic Intra v3 page that the browser believes is
 `https://profile-v3.intra.42.fr/`, checks that the extension works there, and
@@ -78,7 +78,7 @@ be served under that origin, with a certificate Firefox accepts.
   `cdn.intra.42.fr`, `meta.intra.42.fr`, `profile.intra.42.fr`,
   `projects.intra.42.fr`, `intra.42.fr`, plus `api.github.com` (listed by
   name: the extension reaches it without a host permission, as a CORS
-  request) and the Better Intra worker, taken from the build's
+  request) and the Cuter Intra worker, taken from the build's
   `host_permissions` and from `package.json` `config.workerUrl`
   (`harnessHosts()` in `scripts/firefox-smoke/server.mjs`, checked by
   `tests/smoke-harness.test.ts`). `network.trr.mode` is set to 5 so that DNS
@@ -145,7 +145,7 @@ Intra does, in the same order:
    so a token left in sessionStorage by an earlier load cannot pass for a
    fresh capture.
 2. **The app.** It inserts into `#root` only the parts of the Intra DOM that
-   Better Intra hooks into, with the classes its selectors expect:
+   Cuter Intra hooks into, with the classes its selectors expect:
    - the sidebar: `<a href="https://profile-v3.intra.42.fr">` inside
      `div.flex.flex-col.w-full` (`findSidebarMainGroup`), the bottom group
      (`.pb-16`) and the slots link;

@@ -1,5 +1,5 @@
 name: Bug report
-description: Report a bug or unexpected behaviour in Better Intra
+description: Report a bug or unexpected behaviour in Cuter Intra
 title: "[Bug] "
 labels: [bug]
 body:
@@ -32,7 +32,7 @@ body:
     id: area
     attributes:
       label: Affected area
-      description: Which part of Better Intra is affected?
+      description: Which part of Cuter Intra is affected?
       multiple: false
       options:
         - Profile

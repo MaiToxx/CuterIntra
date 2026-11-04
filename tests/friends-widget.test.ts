@@ -176,7 +176,7 @@ describe("keyboard and screen readers", () => {
   });
 
   // The reconnect prompt itself is oauth mode's (friends-widget-oauth.test.ts).
-  it("keeps the normal button when the Better Intra session expired", async () => {
+  it("keeps the normal button when the Cuter Intra session expired", async () => {
     await chrome.storage.local.set({ CLOUD_AUTH_FAILED: true });
     const root = await mount();
     expect(fab(root).getAttribute("aria-label")).toBe("Friends");
@@ -185,7 +185,7 @@ describe("keyboard and screen readers", () => {
   });
 });
 
-describe("without a Better Intra sign-in", () => {
+describe("without a Cuter Intra sign-in", () => {
   // Nothing the widget loads in intra mode uses that session: the Intra is
   // read with the page's own session, the visuals route is public.
   it("loads the rows and offers Add when the session expired", async () => {

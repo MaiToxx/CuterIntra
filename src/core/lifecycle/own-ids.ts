@@ -1,5 +1,5 @@
 /**
- * Ids (or id prefixes) of the nodes Better Intra injects itself.
+ * Ids (or id prefixes) of the nodes Cuter Intra injects itself.
  *
  * Two readers, which is why the list lives in core: the profile watcher uses
  * it to tell our own DOM writes apart from the ones the React app makes

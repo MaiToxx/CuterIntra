@@ -25,7 +25,7 @@ export function openEditor(onSave: (updatedVisuals: VisualUrls) => void): Promis
   opening = Promise.resolve()
     .then(() => createSettingsModal(onSave))
     .catch((err: unknown) => {
-      console.warn("Better Intra: the profile editor could not be opened.", err);
+      console.warn("Cuter Intra: the profile editor could not be opened.", err);
     })
     .finally(() => {
       opening = null;

@@ -1,5 +1,5 @@
 /**
- * Clears what an earlier instance of Better Intra left in this tab, before
+ * Clears what an earlier instance of Cuter Intra left in this tab, before
  * this instance mounts anything.
  *
  * WHY: when Firefox applies an add-on update (it checks about once a day and
@@ -110,7 +110,7 @@ export function claimPage(doc: Document = document): void {
     if (hasStaleInstance(doc)) removeStaleInstance(doc);
   } catch (e) {
     // A leftover must never stop this instance from starting.
-    console.warn("Better Intra: could not clear the previous instance", e);
+    console.warn("Cuter Intra: could not clear the previous instance", e);
   }
   doc.documentElement?.setAttribute(INSTANCE_ATTR, "");
 }

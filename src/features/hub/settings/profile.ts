@@ -21,7 +21,7 @@ export const PROFILE_SETTINGS: readonly HubSettingDef[] = [
     // the settings search.
     feature: "profile",
     label: "Edit avatar, banner and background",
-    desc: "Custom images and colours for your profile, which other Better Intra users see too. Needs the cloud account. Shortcut: click your avatar on your own profile page.",
+    desc: "Custom images and colours for your profile, which other Cuter Intra users see too. Needs the cloud account. Shortcut: click your avatar on your own profile page.",
     kind: "action",
     actionType: "open-visuals-editor",
   },

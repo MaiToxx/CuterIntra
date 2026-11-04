@@ -4,7 +4,7 @@
  *
  * The Intra shell fix: below 768 px the v3 shell leaves its transparent
  * sidebar column (80 px wide, full height, fixed) over the left edge of the
- * page, and it swallowed every click and tap there, Better Intra's controls
+ * page, and it swallowed every click and tap there, Cuter Intra's controls
  * included. jsdom cannot hit-test, so these check the rule itself and that it
  * matches the shell as the Intra bundle builds it.
  */

@@ -274,7 +274,7 @@ describe("the requests of each new flow (worker contract C1-C5)", () => {
       images: [],
       publicVisuals: {},
     };
-    serve(() => json(data, 200, { "Content-Disposition": 'attachment; filename="better-intra-cloud-data.json"' }));
+    serve(() => json(data, 200, { "Content-Disposition": 'attachment; filename="cuter-intra-cloud-data.json"' }));
     const result = await fetchCloudExport();
     expect(result.ok && result.data).toEqual(data);
 

@@ -3,7 +3,7 @@
  * @vitest-environment-options { "url": "https://profile-v3.intra.42.fr/" }
  */
 /**
- * The two Better Intra entries in the Intra sidebar (settings gear, Clusters):
+ * The two Cuter Intra entries in the Intra sidebar (settings gear, Clusters):
  * an accessible name for screen readers, and a way out when the script
  * outlived its extension (Chrome after an update) instead of a dead click.
  */
@@ -66,8 +66,8 @@ describe("sidebar buttons are labelled", () => {
   it("the gear has a name, a hover label, and a decorative icon", async () => {
     const { gear } = await mountBoth();
     // Before: an <a> around an SVG with no title, announced as an unnamed link.
-    expect(gear.getAttribute("aria-label")).toBe("Better Intra settings");
-    expect(gear.dataset.tip).toBe("Better Intra settings");
+    expect(gear.getAttribute("aria-label")).toBe("Cuter Intra settings");
+    expect(gear.dataset.tip).toBe("Cuter Intra settings");
     expect(gear.dataset.tipPos).toBe("right");
     expect(gear.querySelector("svg")?.getAttribute("aria-hidden")).toBe("true");
     // A real link: reachable with Tab, activated by Enter.

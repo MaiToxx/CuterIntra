@@ -24,7 +24,7 @@ import {
   LIMITS,
 } from "../src/features/profile/extras/extras";
 
-const SECTION_LABEL = "Public profile (visible to every Better Intra user)";
+const SECTION_LABEL = "Public profile (visible to every Cuter Intra user)";
 const VIEWER_KEY = "PROFILE_SHOW_OTHERS_EXTRAS";
 const FORM_KEYS: readonly ConfigKey[] = [...EXTRAS_KEYS, VIEWER_KEY];
 

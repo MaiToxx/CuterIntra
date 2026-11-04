@@ -1,8 +1,8 @@
-# Better Intra — 42 Mulhouse edition
+# Cuter Intra — 42 Mulhouse edition
 
 Browser extension that improves the 42 Intra (v3 profile pages): logtime calendar, cluster map, custom profiles and looks, shortcuts, friends widget, correction stats, and a few secrets.
 
-This is a fork of [nicopasla/better-intra](https://github.com/nicopasla/better-intra) (MIT), rebuilt for the **42 Mulhouse** campus and run on its own server. It keeps the upstream features that work without a 42 API application, reimplements the ones that used to need one on top of the Intra's own APIs, and adds a large customization layer. Nothing depends on the Belgium campus or on the upstream cloud any more.
+Cuter Intra is a fork of [Better Intra](https://github.com/nicopasla/better-intra) by nicopasla (MIT), renamed so the two cannot be confused, rebuilt for the **42 Mulhouse** campus and run on its own server. It keeps the upstream features that work without a 42 API application, reimplements the ones that used to need one on top of the Intra's own APIs, and adds a large customization layer. Nothing depends on the Belgium campus or on the upstream cloud any more.
 
 ---
 
@@ -66,9 +66,9 @@ The worker is deployed at `betterintra-remake.maitox.workers.dev`. Besides it an
 
 ### 👤 Profile
 
-* **Custom visuals** — your own avatar, banner and background images (fill, fit, stretch, center, tile). Click your avatar on your profile, or *Edit* in the Profile tab of the hub, to open the editor: zoom, drag to reposition, live preview. Paste an image link, or **Upload** one from your computer (PNG, JPEG, GIF or WebP, 2 MB; it is stored on the Better Intra server, one per field). Link history keeps the last 10 URLs per field.
+* **Custom visuals** — your own avatar, banner and background images (fill, fit, stretch, center, tile). Click your avatar on your profile, or *Edit* in the Profile tab of the hub, to open the editor: zoom, drag to reposition, live preview. Paste an image link, or **Upload** one from your computer (PNG, JPEG, GIF or WebP, 2 MB; it is stored on the Cuter Intra server, one per field). Link history keeps the last 10 URLs per field.
 * **Avatar decoration** — transparent or solid colour behind the avatar, optional solid border.
-* **Visuals sync ☁️** — other Better Intra users see your custom images on your profile. Click a custom avatar to see the original.
+* **Visuals sync ☁️** — other Cuter Intra users see your custom images on your profile. Click a custom avatar to see the original.
 * **Instant visuals** — visuals are cached locally and refreshed silently.
 * **Dashboard cards** — drag to reorder Logtime, Agenda, Evaluations, Projects, Achievements and Thursday Roulette; hide the ones you don't use.
 * **Project badges** — projects as colour-coded badges (green normal, red exams).
@@ -87,7 +87,7 @@ The worker is deployed at `betterintra-remake.maitox.workers.dev`. Besides it an
 * **Nav bar avatar** — your custom avatar in the site navigation.
 * **Phoenix / Pegasus tracker** — hover or click the badge (or Tab to it and press Enter) for days and hours done vs required, what is left of the Saturday-to-Friday week and the hours per day it takes; pick your phase there.
 
-**Public profile ☁️** — a *Public profile* section at the end of the Profile tab. What you put there is shown to every Better Intra user who opens your page, and on your own page straight away:
+**Public profile ☁️** — a *Public profile* section at the end of the Profile tab. What you put there is shown to every Cuter Intra user who opens your page, and on your own page straight away:
 
 * **Identity** — status with an emoji, pronouns, a 160-character bio, up to six flair emoji, and a greeting shown once to each visitor.
 * **Links** — GitHub, GitLab, LinkedIn, a personal site (https only) and a Discord handle that visitors copy in one click.
@@ -103,7 +103,7 @@ Only presentation values and short texts travel: never your custom CSS, fonts, s
 
 A **Customize** tab in the hub restyles every Intra page live, and syncs with your cloud settings.
 
-* **Show your look to others ☁️** — on by default: every Better Intra user who opens your profile sees your theme, accent, palette, background, card styles and per-card colours (turn off *Publish my look on my profile* to keep them to yourself). A small badge says whose look it is, with a button to get your own style back for that visit. Fonts, size, density, scrollbar and custom CSS never leave your browser; every received value is validated before it touches the page. *Show other people's looks* turns it off on the viewer side.
+* **Show your look to others ☁️** — on by default: every Cuter Intra user who opens your profile sees your theme, accent, palette, background, card styles and per-card colours (turn off *Publish my look on my profile* to keep them to yourself). A small badge says whose look it is, with a button to get your own style back for that visit. Fonts, size, density, scrollbar and custom CSS never leave your browser; every received value is validated before it touches the page. *Show other people's looks* turns it off on the viewer side.
 * **Accent colour** — any colour for buttons, links, highlights and progress bars, with an optional two-colour gradient.
 * **Colours** — your own page, card and text colours; borders, muted text and inputs are derived.
 * **Background** — an image behind every page with a dark overlay and card opacity, or one of 13 built-in gradients (Aurora, Sunset, Ocean, Forest, Monochrome, Midnight, Candy, Lava, Nord, Dracula, 42 teal, Space, Mesh), optionally animated.
@@ -193,7 +193,7 @@ See [PRIVACY.md](./PRIVACY.md).
 - Settings live in `chrome.storage.local`. Signed out, the extension only talks to the worker for the public visuals of the profiles you open (by login hash), campus and announcement data, and to GitHub for the update check.
 - With the cloud account, the settings you push (friends list included), custom visuals and (if enabled) your public look are stored on the fork's worker under a hash of your login, plus a users row (login hash, first sign-in date) for the public counters and, for each signed-in browser, a hash of its session token (365 days at most). Signed in, you can download a copy of what the worker keeps about you; *Wipe All Data* deletes it (PRIVACY.md lists the few bookkeeping rows that stay).
 - Signing in sends your current Intra session token to the worker once, for verification against 42's public keys. It is not stored.
-- Other users' profiles: their public visuals and look are fetched from the worker when they use Better Intra; their images load from wherever they are hosted.
+- Other users' profiles: their public visuals and look are fetched from the worker when they use Cuter Intra; their images load from wherever they are hosted.
 - No analytics, tracking or advertising. Permissions: `storage`, `alarms` (not in the Chrome Web Store build), `activeTab` (Firefox only), and access to `*.intra.42.fr` and the worker. No host permission is needed for `api.github.com`: the update check is an ordinary cross-origin request.
 
 ## Self-hosting
@@ -220,7 +220,7 @@ Personal project, not affiliated with 42. It modifies the appearance of the Intr
 
 ## Credits
 
-Upstream project by [nicopasla](https://github.com/nicopasla/better-intra). Intra v2 dark mode from [Improved Intra](https://github.com/FreekBes/improved_intra). Icons from [Font Awesome](https://fontawesome.com/icons) and [Lucide](https://lucide.dev/); 42 logo and robot icons from Wikimedia Commons.
+Original project: [Better Intra](https://github.com/nicopasla/better-intra) by nicopasla. Intra v2 dark mode from [Improved Intra](https://github.com/FreekBes/improved_intra). Icons from [Font Awesome](https://fontawesome.com/icons) and [Lucide](https://lucide.dev/); 42 logo and robot icons from Wikimedia Commons.
 
 ## License
 

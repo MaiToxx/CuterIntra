@@ -4,7 +4,7 @@
  * The Intra v3 front-end authenticates its API calls with a Keycloak token
  * that hook.js captures on every page (sessionStorage "ft_intrapy_token").
  * The self-hosted worker verifies that token's signature against Keycloak's
- * public keys and opens a Better Intra session for its login. No popup, no
+ * public keys and opens a Cuter Intra session for its login. No popup, no
  * redirect, no application to register on the Intra.
  *
  * Only usable from a content script on an Intra page (the token lives there);
@@ -89,9 +89,9 @@ async function signIn(): Promise<IntraLoginResult> {
     return {
       ok: false,
       error: `${t(
-        "Could not reach the Better Intra server ({host}). If the extension asked for access to that site, click Allow, then retry.",
+        "Could not reach the Cuter Intra server ({host}). If the extension asked for access to that site, click Allow, then retry.",
         { host: WORKER_HOST },
-      )}\nBetter Intra ${__APP_VERSION__}`,
+      )}\nCuter Intra ${__APP_VERSION__}`,
     };
   }
   if (res.status === 429) {
@@ -110,7 +110,7 @@ async function signIn(): Promise<IntraLoginResult> {
     const details = `${t("Server refused the login ({status}): {text}", {
       status: res.status,
       text: text.slice(0, 200),
-    })}\nBetter Intra ${__APP_VERSION__} · ${location.hostname}`;
+    })}\nCuter Intra ${__APP_VERSION__} · ${location.hostname}`;
     // The client already skips an expired JWT, so a 401 means the signature,
     // a claim or the clock did not check out, and a fresh token usually does.
     // Say what to do first; the raw answer stays below it for bug reports.
@@ -126,7 +126,7 @@ async function signIn(): Promise<IntraLoginResult> {
       return {
         ok: false,
         error: `${t(
-          "42's key server did not answer the Better Intra server. Try again in a minute.",
+          "42's key server did not answer the Cuter Intra server. Try again in a minute.",
         )}\n${details}`,
       };
     }
@@ -166,7 +166,7 @@ export async function requestIntraLoginFromActiveTab(): Promise<IntraLoginResult
     return {
       ok: false,
       error: t(
-        "Sign in from the Intra v3 profile page (just opened in a new tab): click the Better Intra toolbar icon again there.",
+        "Sign in from the Intra v3 profile page (just opened in a new tab): click the Cuter Intra toolbar icon again there.",
       ),
     };
   }
@@ -189,7 +189,7 @@ export async function requestIntraLoginFromActiveTab(): Promise<IntraLoginResult
     return {
       ok: false,
       error: t(
-        "Better Intra is not running on this tab yet (it was installed or updated after the tab was opened). Reload the tab, then try again.",
+        "Cuter Intra is not running on this tab yet (it was installed or updated after the tab was opened). Reload the tab, then try again.",
       ),
     };
   }

@@ -107,7 +107,7 @@ async function runIntraLogin(
   if (!result.ok) {
     const message = result.error || t("Unknown error.");
     if (options.onFailure) options.onFailure(message);
-    else alert(`${t("Better Intra sign-in failed.")}\n${message}`);
+    else alert(`${t("Cuter Intra sign-in failed.")}\n${message}`);
     return result;
   }
   if (onSuccess) await onSuccess();
@@ -116,7 +116,7 @@ async function runIntraLogin(
 }
 
 /**
- * Signs in to the Better Intra server. In intra mode (this deployment) it
+ * Signs in to the Cuter Intra server. In intra mode (this deployment) it
  * shows the sign-in notice once per browser, then sends the page's Intra
  * token (see intra-login.ts); in oauth mode it opens the worker's 42 OAuth
  * window and listens for its answer.
@@ -532,7 +532,7 @@ export function describeCloudFailure(
       return t("Your session expired: sign in again.");
     case "network":
       return t(
-        "The Better Intra server ({host}) did not answer. Your settings are kept on this browser.",
+        "The Cuter Intra server ({host}) did not answer. Your settings are kept on this browser.",
         { host: WORKER_HOST },
       );
     case "busy":

@@ -1,6 +1,6 @@
 # Performance
 
-What Better Intra costs on an Intra page, what it gives back, and how to keep
+What Cuter Intra costs on an Intra page, what it gives back, and how to keep
 the numbers from creeping up.
 
 ## What it costs today

@@ -1,6 +1,6 @@
 /**
  * The strip above the account card that answers "where are the settings, and
- * is Better Intra even running on this tab?".
+ * is Cuter Intra even running on this tab?".
  *
  * Chrome does not inject content scripts into tabs that were open before the
  * extension was installed or updated, so a new user clicks the icon on an
@@ -106,7 +106,7 @@ export function renderTabStatus(
           class="flex items-center justify-between gap-3 px-4 py-2 bg-warning text-warning-content text-sm"
         >
           <span>
-            <strong>${t("Better Intra is not running on this tab yet.")}</strong>
+            <strong>${t("Cuter Intra is not running on this tab yet.")}</strong>
             ${t("It was installed or updated after the tab was opened.")}
           </span>
           <button

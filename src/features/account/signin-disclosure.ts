@@ -42,7 +42,7 @@ export async function acceptSignInDisclosure(): Promise<void> {
 export function signInDisclosureText(): TemplateResult {
   // One sentence for the translation, {host} drawn in bold where it falls.
   const [beforeHost, afterHost = ""] = t(
-    "Signing in sends the Intra session token this page already holds, once, to {host}, the Better Intra server. It checks the token against 42's public keys and does not keep it.",
+    "Signing in sends the Intra session token this page already holds, once, to {host}, the Cuter Intra server. It checks the token against 42's public keys and does not keep it.",
   ).split("{host}");
   return html`
     <p>${beforeHost}<strong>${WORKER_HOST}</strong>${afterHost}</p>
@@ -53,7 +53,7 @@ export function signInDisclosureText(): TemplateResult {
     </p>
     <p>
       ${t(
-        "Once you are signed in, other Better Intra users see the profile visuals, look and public profile you set, project pages you open report their subject link to the community tracker, and the settings you push are stored under your login hash. You can clear or switch off each of these in the settings.",
+        "Once you are signed in, other Cuter Intra users see the profile visuals, look and public profile you set, project pages you open report their subject link to the community tracker, and the settings you push are stored under your login hash. You can clear or switch off each of these in the settings.",
       )}
     </p>
     <p>

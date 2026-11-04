@@ -1,6 +1,6 @@
 # Self-hosting the cloud worker
 
-Better Intra's cloud features (sign-in, settings sync, custom profile visuals
+Cuter Intra's cloud features (sign-in, settings sync, custom profile visuals
 shared with other users, cluster map proxy, calendar sync, subject tracker)
 talk to a Cloudflare Worker. This edition uses
 `https://betterintra-remake.maitox.workers.dev`. If that instance is down or

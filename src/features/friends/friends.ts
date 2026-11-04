@@ -249,7 +249,7 @@ export async function loadFriendsData(
   // Only the oauth branch asks the worker for the friends, with the Better
   // Intra session. The intra branch reads the Intra with the page's own
   // session and the public visuals route, which needs no sign-in: a student
-  // who never signed in, or whose Better Intra session expired, still gets
+  // who never signed in, or whose Cuter Intra session expired, still gets
   // the list.
   const token = await getConfig("CLOUD_TOKEN");
   const cloudLogin = await getConfig("CLOUD_LOGIN");

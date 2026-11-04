@@ -5,7 +5,7 @@
  *
  *  - FT_INTRA_LOGIN: sign in with this page's Intra token (the popup cannot
  *    see it). Answers an IntraLoginResult.
- *  - FT_PING: "is Better Intra running here?". Chrome does not inject content
+ *  - FT_PING: "is Cuter Intra running here?". Chrome does not inject content
  *    scripts into tabs opened before an install or an update, so the popup
  *    needs to know whether to offer a reload. Answers a PingAnswer.
  *  - FT_OPEN_HUB: open the settings hub, then answer, so the popup can close

@@ -33,7 +33,7 @@ import { ADVANCED_SETTINGS } from "./settings/advanced.ts";
 
 // Repository links come from package.json "repository" (see scripts/repo-info.js)
 export const HUB_INFO = {
-  name: "Better Intra",
+  name: "Cuter Intra",
   version: __APP_VERSION__,
   author: __REPO_URL__.replace(/\/[^/]+$/, ""),
   github: __REPO_URL__,
@@ -120,7 +120,7 @@ export const FEATURE_DEFS = [
     id: "about",
     name: msg("About"),
     icon: ABOUT,
-    desc: msg("Information about Better Intra and its technical stack."),
+    desc: msg("Information about Cuter Intra and its technical stack."),
     toggleable: false,
   },
 ] as const;

@@ -19,7 +19,7 @@
  *    active cursus id) and /campus (hook.js dispatches 42_CAMPUS_DETECTED; the
  *    extension stores the campus and mounts its Clusters button).
  *
- * 2. The "React app": only the parts of the Intra v3 DOM that Better Intra
+ * 2. The "React app": only the parts of the Intra v3 DOM that Cuter Intra
  *    hooks into, with the exact classes its selectors expect:
  *    - the sidebar main group: <a href="https://profile-v3.intra.42.fr">
  *      inside div.flex.flex-col.w-full (hubSettings.ts findSidebarMainGroup),

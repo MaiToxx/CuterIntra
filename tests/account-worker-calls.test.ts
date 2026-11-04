@@ -63,7 +63,7 @@ describe("loginWithIntraSession", () => {
     await vi.advanceTimersByTimeAsync(20_001);
     const res = await pending;
     expect(res.ok).toBe(false);
-    expect(res.error).toMatch(/Could not reach the Better Intra server/);
+    expect(res.error).toMatch(/Could not reach the Cuter Intra server/);
   });
 
   it("quotes the worker's message when it refuses the login", async () => {

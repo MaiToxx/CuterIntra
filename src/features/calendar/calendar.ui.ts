@@ -36,7 +36,7 @@ export const REGENERATE_CONFIRM = msg(
 
 /** msg(): shown with t(STOP_SHARING_CONFIRM). */
 export const STOP_SHARING_CONFIRM = msg(
-  "Stop sharing your calendar? Calendars subscribed to this link stop updating, and the copy of your events on the Better Intra server is deleted.",
+  "Stop sharing your calendar? Calendars subscribed to this link stop updating, and the copy of your events on the Cuter Intra server is deleted.",
 );
 
 function calUrl(token: string): string {
@@ -55,7 +55,7 @@ export function googleCalendarUrl(token: string): string {
 
 /** What a failed link request tells the student, by status (0: no answer). */
 export function generateError(status: number): string {
-  if (status === 401) return t("Your Better Intra session has expired. Sign in again to create the link.");
+  if (status === 401) return t("Your Cuter Intra session has expired. Sign in again to create the link.");
   if (status === 429) return t("Too many requests in a row. Wait a minute and try again.");
   if (status === 0) return t("Could not reach the server. Try again.");
   return t("The server could not create the link (error {status}). Try again later.", { status });
@@ -67,7 +67,7 @@ export function generateError(status: number): string {
  * there says "to create the link").
  */
 export function stopError(status: number): string {
-  if (status === 401) return t("Your Better Intra session has expired. Sign in again to stop sharing.");
+  if (status === 401) return t("Your Cuter Intra session has expired. Sign in again to stop sharing.");
   if (status === 429 || status === 0) return generateError(status);
   return t("The server could not stop sharing (error {status}). Try again later.", { status });
 }
@@ -344,7 +344,7 @@ function renderPanel(el: Element | undefined) {
     const sessionToken = String(store.CLOUD_TOKEN || "");
     const cloudLogin = String(store.CLOUD_LOGIN || "");
     if (!sessionToken || !cloudLogin) {
-      error = t("Sign in to Better Intra first (Sign in with 42 in the footer).");
+      error = t("Sign in to Cuter Intra first (Sign in with 42 in the footer).");
       await update();
       return;
     }
@@ -389,7 +389,7 @@ function renderPanel(el: Element | undefined) {
     const cloudLogin = String(store.CLOUD_LOGIN || "");
     if (!sessionToken || !cloudLogin) {
       stopping = false;
-      error = t("Sign in to Better Intra first (Sign in with 42 in the footer).");
+      error = t("Sign in to Cuter Intra first (Sign in with 42 in the footer).");
       await update();
       return;
     }

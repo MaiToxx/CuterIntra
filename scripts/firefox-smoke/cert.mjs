@@ -95,7 +95,7 @@ export function makeSelfSignedCert(dnsNames) {
   });
   const spki = publicKey.export({ type: "spki", format: "der" });
   const algorithm = seq(oid(OID_ECDSA_SHA256));
-  const name = seq(set(seq(oid(OID_CN), utf8("Better Intra smoke test (throwaway)"))));
+  const name = seq(set(seq(oid(OID_CN), utf8("Cuter Intra smoke test (throwaway)"))));
 
   const now = Date.now();
   const notBefore = new Date(now - 24 * 3600 * 1000);

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Smoke test and timing harness for a Better Intra build.
+ * Smoke test and timing harness for a Cuter Intra build.
  *
  *   node scripts/firefox-smoke.mjs <build-folder> [options]
  *   node scripts/firefox-smoke.mjs --compare <folderA> <folderB> [options]
@@ -764,7 +764,7 @@ const pad = (s, n) => String(s).padEnd(n);
 
 function printReport(summary, opts, net, out) {
   const b = summary.build;
-  out(`\nBetter Intra smoke test: ${b.label} (${b.name} ${b.version}, content scripts: ${b.contentScripts.join(", ")})`);
+  out(`\nCuter Intra smoke test: ${b.label} (${b.name} ${b.version}, content scripts: ${b.contentScripts.join(", ")})`);
   out(`${summary.browser || `${opts.browser} ?`} ${opts.headful ? "headful" : "headless"}; ${net.mode}; ${summary.loads.cold} cold + ${summary.loads.warm} warm loads\n`);
   out("Checks");
   for (const c of summary.checks) {

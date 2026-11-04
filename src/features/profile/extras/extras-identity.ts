@@ -302,7 +302,7 @@ function template(view: IdentityView): TemplateResult {
     ${view.links.length
       ? html`<div class="ft-x-row ft-x-links">${view.links.map(linkTemplate)}</div>`
       : nothing}
-    <div class="ft-x-via">${t("added by this student with Better Intra")}</div>`;
+    <div class="ft-x-via">${t("added by this student with Cuter Intra")}</div>`;
 }
 
 function renderBlock(): void {
@@ -325,7 +325,7 @@ function ensureHost(login: string): HTMLElement {
     host.setAttribute("role", "note");
   }
   // so that nobody mistakes the block for official Intra content
-  host.title = t("Added by {login} with Better Intra", { login });
+  host.title = t("Added by {login} with Cuter Intra", { login });
   return host;
 }
 
@@ -396,7 +396,7 @@ export function showGreeting(extras: ProfileExtras | null, opts: IdentityOptions
     // storage blocked: greetedThisLoad still limits it to once per page load
   }
   // The login comes first and the source is named: a greeting must not be
-  // mistakable for a message from Better Intra or from the Intra itself.
+  // mistakable for a message from Cuter Intra or from the Intra itself.
   toast(
     t("{login} wrote on their profile: “{greeting}”", { login: opts.login, greeting }),
     GREETING_MS,

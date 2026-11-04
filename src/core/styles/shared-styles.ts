@@ -444,7 +444,7 @@ async function readMotionSetting(): Promise<void> {
 
 /**
  * Everywhere this module runs: a root is a root, and the switch promises
- * "across all Better Intra features".
+ * "across all Cuter Intra features".
  */
 function watchMotionSetting(): void {
   void readMotionSetting();

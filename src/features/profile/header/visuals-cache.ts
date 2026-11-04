@@ -222,7 +222,7 @@ async function listCacheKeys(): Promise<string[]> {
  * Remove the records older than VISUALS_CACHE_MAX_AGE_MS (or without a stamp,
  * from builds before it), then the oldest beyond VISUALS_CACHE_MAX_ENTRIES.
  *
- * WHY: every Better Intra profile a student opened and every friend they
+ * WHY: every Cuter Intra profile a student opened and every friend they
  * followed stayed in chrome.storage.local for the life of the install (bio,
  * pronouns, status and links included), against a 10 MB quota the settings
  * share. Runs at most once a day, after a write: a page that only reads the

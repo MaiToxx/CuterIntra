@@ -112,7 +112,7 @@ function createDialog(): HTMLDialogElement {
   dialog.id = "hub-dialog";
   // Its visible title is inside the shadow root, where aria-labelledby on
   // this light-DOM element cannot reach: name it directly.
-  dialog.setAttribute("aria-label", t("Better Intra settings"));
+  dialog.setAttribute("aria-label", t("Cuter Intra settings"));
   dialog.className =
     "modal-box hub-modal-box p-0 overflow-hidden bg-base-100 rounded-3xl shadow-2xl border-none outline-none";
 
@@ -221,7 +221,7 @@ async function createModal(active: FeatureId[]): Promise<void> {
     });
   };
   const signOut = async () => {
-    if (!window.confirm(t("Sign out of Better Intra on this browser?"))) return;
+    if (!window.confirm(t("Sign out of Cuter Intra on this browser?"))) return;
     await logoutCloud();
     window.location.reload();
   };
@@ -341,7 +341,7 @@ async function createModal(active: FeatureId[]): Promise<void> {
           >
             <span class="text-sm font-semibold"
               >${t(
-                "Your Better Intra sign-in expired: cloud sync is paused until you sign in again.",
+                "Your Cuter Intra sign-in expired: cloud sync is paused until you sign in again.",
               )}</span
             >
             <button
@@ -424,7 +424,7 @@ async function createModal(active: FeatureId[]): Promise<void> {
                     </button>
                     <span id="hub-cloud-about" class="opacity-70 max-w-sm">
                       ${t(
-                        "Optional: syncs your settings, friends and published look through the Better Intra server ({host}).",
+                        "Optional: syncs your settings, friends and published look through the Cuter Intra server ({host}).",
                         { host: WORKER_HOST },
                       )}
                       <a
@@ -626,7 +626,7 @@ export function pushFailureText(reason: string): string {
     case "auth":
       return t("Push failed: your sign-in expired");
     case "network":
-      return t("Push failed: the Better Intra server did not answer");
+      return t("Push failed: the Cuter Intra server did not answer");
     case "too-large":
       return t("Push failed: too large for the cloud (custom CSS, presets)");
     case "conflict":

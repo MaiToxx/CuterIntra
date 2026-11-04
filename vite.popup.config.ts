@@ -36,7 +36,7 @@ export default defineConfig({
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Better Intra</title>
+  <title>Cuter Intra</title>
   <!-- The Tailwind/daisyUI sheet as a file: a render-blocking <link> here is
        ~300 KB the popup bundle no longer has to carry and re-parse. -->
   <link rel="stylesheet" href="${SHARED_CSS_FILE}" />

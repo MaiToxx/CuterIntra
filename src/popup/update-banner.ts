@@ -42,7 +42,7 @@ export async function renderUpdateBanner(
         class="flex items-center justify-between gap-3 px-4 py-2 bg-[#00babc] text-white text-sm"
       >
         <span>
-          <strong>Better Intra ${info.version}</strong> ${t("is available")}
+          <strong>Cuter Intra ${info.version}</strong> ${t("is available")}
           <span class="opacity-80"
             >${t("(you have {version})", { version: current })}</span
           >

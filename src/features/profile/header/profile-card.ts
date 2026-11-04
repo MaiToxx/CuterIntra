@@ -317,7 +317,7 @@ const SVG_LENGTH = /^\d+(\.\d+)?(px|em|rem|%)?$/;
  * The Intra's icon rebuilt in a new <svg>, with a real size. Its own svg
  * carries height="auto", which is not an SVG length: every clone of it made
  * Chrome log "<svg> attribute height: Expected length, 'auto'" against
- * Better Intra. Its shapes are copied as they are.
+ * Cuter Intra. Its shapes are copied as they are.
  */
 function iconCopy(source: SVGElement): SVGSVGElement {
   const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");

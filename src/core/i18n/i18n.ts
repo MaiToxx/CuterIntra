@@ -1,5 +1,5 @@
 /**
- * Better Intra in English or in French.
+ * Cuter Intra in English or in French.
  *
  * The English text IS the key: code writes t("Reload to apply") and the
  * French catalog (src/core/i18n/fr/*.json, English → French) gives the

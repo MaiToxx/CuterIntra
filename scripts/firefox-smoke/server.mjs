@@ -61,7 +61,7 @@ export const INTRA_HOSTS = [
  * extension reaches it as a plain CORS request, without a host permission,
  * and the worker is taken from both places in case a build predates one.
  * Returns { hosts, workerHosts }: every host, and the ones that answer like
- * the Better Intra worker.
+ * the Cuter Intra worker.
  */
 export function harnessHosts(manifest, workerOrigin) {
   const hosts = new Set([GITHUB_API_HOST]);
@@ -148,7 +148,7 @@ export function buildPage({ appDelay = 0, inlineProbe = true } = {}) {
 ${inlineProbe ? `<script>${INLINE_PROBE}</script>
 ` : ""}<link rel="icon" type="image/png" href="/favicon.ico" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>42 | Profile (Better Intra smoke test)</title>
+<title>42 | Profile (Cuter Intra smoke test)</title>
 <script type="module" crossorigin src="${bundlePath}"></script>
 <link rel="stylesheet" href="/assets/index.css">
 </head>
@@ -177,7 +177,7 @@ function isoDay(offsetDays) {
   return d.toISOString().slice(0, 10);
 }
 
-/** The intrapy endpoints a profile page (the Intra and Better Intra) calls. */
+/** The intrapy endpoints a profile page (the Intra and Cuter Intra) calls. */
 function intrapyRoute(pathname) {
   const p = pathname.replace(/\/+$/, "");
   const user = { id: 4242, login: LOGIN, displayname: "Smoke Test", wallet: 42, correction_point: 3 };
@@ -201,7 +201,7 @@ function intrapyRoute(pathname) {
  * @param {object} o
  * @param {{key: string, cert: string}} o.tls
  * @param {string[]} [o.extraHosts]   the builds' other host_permissions hosts
- * @param {string[]} [o.workerHosts]  hosts that answer like the Better Intra worker
+ * @param {string[]} [o.workerHosts]  hosts that answer like the Cuter Intra worker
  * @param {number} [o.port]           443 by default; 0 = any free port (proxy mode)
  * @param {string} [o.host]
  * @param {number} [o.appDelay]

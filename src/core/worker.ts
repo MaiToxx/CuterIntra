@@ -2,7 +2,7 @@ import { hashLogin } from "./crypto.ts";
 import { getLang, intlLocale, t } from "./i18n/i18n.ts";
 
 /**
- * Base URL of the Better Intra cloud worker.
+ * Base URL of the Cuter Intra cloud worker.
  *
  * Injected at build time from package.json -> "config.workerUrl" (see
  * scripts/repo-info.js). Defaults to the upstream instance; point it at your

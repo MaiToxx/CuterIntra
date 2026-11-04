@@ -1,5 +1,5 @@
 /**
- * What the Better Intra server keeps about the signed-in student, seen from
+ * What the Cuter Intra server keeps about the signed-in student, seen from
  * the hub's Advanced tab: the browsers signed in to the account (and signing
  * out the others), and the whole of it as a file (Download my cloud data).
  *

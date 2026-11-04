@@ -60,7 +60,7 @@ export function renderSetting(
 ) {
   if (def.kind === "divider") {
     // daisyUI's divider is one 1rem line: on a phone the long titles
-    // ("Public profile (visible to all Better Intra users)") were cut. There
+    // ("Public profile (visible to all Cuter Intra users)") were cut. There
     // they wrap, the divider grows with them, and its rules start at 1rem to
     // leave the title the width. [&::before], not before: — that variant
     // also sets content: var(--tw-content), whose default comes from an

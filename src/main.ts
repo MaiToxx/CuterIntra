@@ -36,7 +36,7 @@ import { initI18n, t } from "./core/i18n/i18n.ts";
 import { installOrphanErrorFilter } from "./core/lifecycle/orphan-errors.ts";
 
 // The toolbar popup asks this page: sign in with its Intra token (the popup
-// cannot see it), "is Better Intra running here?", and open the hub.
+// cannot see it), "is Cuter Intra running here?", and open the hub.
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) =>
   answerPopupMessage(message, sendResponse, { openHub }),
 );
@@ -106,7 +106,7 @@ void i18nReady.then(function v2Warning() {
   banner.id = "ft-v2-warning";
   // One sentence for the word order; the bold "v3" goes where {v3} stands.
   const [beforeV3, afterV3 = ""] = t(
-    "Better Intra is designed for the {v3} profile. You are on the old v2.",
+    "Cuter Intra is designed for the {v3} profile. You are on the old v2.",
   ).split("{v3}");
 
   render(
@@ -186,7 +186,7 @@ void i18nReady.then(function v2Warning() {
     // Otherwise any intra link with ?token=&login= could hijack the account.
     if (!(await consumeAuthFlow("cloud"))) {
       console.warn(
-        "Better Intra: ignoring unexpected auth callback (no login in progress).",
+        "Cuter Intra: ignoring unexpected auth callback (no login in progress).",
       );
       history.replaceState(null, "", window.location.pathname);
       return;
@@ -249,7 +249,7 @@ void i18nReady.then(function v2Warning() {
 
         await maybePromptRestore();
       } catch (error) {
-        console.error("Error during init of Better Intra :", error);
+        console.error("Error during init of Cuter Intra :", error);
         // A failed start-up must not leave the avatar hidden.
         releaseAvatar();
       }

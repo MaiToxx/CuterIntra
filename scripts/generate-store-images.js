@@ -29,7 +29,7 @@ export const ICON_SVG = resolve(root, "src/assets/svg/icon.svg");
 export const SCREENSHOTS_DIR = resolve(root, "store-screenshots");
 export const OUT_DIR = resolve(root, "images-store");
 
-export const NAME = "Better Intra";
+export const NAME = "Cuter Intra";
 export const TAGLINE = "Your Intra, improved";
 
 export const SCREENSHOT = { width: 1280, height: 800 };

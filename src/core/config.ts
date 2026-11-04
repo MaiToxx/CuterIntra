@@ -1,5 +1,5 @@
 /**
- * Manages all configuration for the Better Intra extension: the one public
+ * Manages all configuration for the Cuter Intra extension: the one public
  * entry point for settings. Every feature imports from here, never from
  * src/core/config/ directly.
  *

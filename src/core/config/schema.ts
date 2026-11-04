@@ -1,5 +1,5 @@
 /**
- * The shape of every Better Intra setting: BetterIntraConfig and ConfigKey.
+ * The shape of every Cuter Intra setting: BetterIntraConfig and ConfigKey.
  *
  * Types only, so that the defaults, the key lists and the storage code share
  * one definition without depending on each other. Import them from
@@ -126,7 +126,7 @@ export interface BetterIntraConfig {
   ADVANCED_OPEN_LINKS_NEW_TAB: boolean;
   /** Seven small secrets hidden in the Intra (see features/eggs). */
   EASTER_EGGS_ENABLED: boolean;
-  /** Language of Better Intra: "auto" follows the browser (core/i18n). */
+  /** Language of Cuter Intra: "auto" follows the browser (core/i18n). */
   UI_LANGUAGE: "auto" | "en" | "fr";
   EGGS_FOUND: string[];
 
@@ -178,13 +178,13 @@ export interface BetterIntraConfig {
   /** Per-card overrides keyed by card id (see CARD_IDS in customize.ts). */
   CUSTOM_CARDS: Record<string, { bg?: string; border?: string; title?: string; glow?: boolean }>;
   CUSTOM_PRESETS: { name: string; values: Record<string, unknown> }[];
-  /** Publish my look (accent, palette, background, cards) on my profile for other Better Intra users. */
+  /** Publish my look (accent, palette, background, cards) on my profile for other Cuter Intra users. */
   CUSTOM_SHARE_LOOK: boolean;
   /** Apply the look other users publish when I visit their profile. */
   CUSTOM_SHOW_OTHERS_LOOK: boolean;
 
   // Public profile extras (features/profile/extras): visible to every
-  // Better Intra user who opens my profile.
+  // Cuter Intra user who opens my profile.
   PROFILE_PUB_ENABLED: boolean;
   PROFILE_PUB_BIO: string;
   PROFILE_PUB_STATUS_EMOJI: string;

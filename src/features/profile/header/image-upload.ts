@@ -107,7 +107,7 @@ export async function uploadProfileImage(
     auth: { login: CLOUD_LOGIN, token: CLOUD_TOKEN },
     timeoutMs: 30_000,
   });
-  if (res.status === 0) return { ok: false, error: t("Could not reach the Better Intra server.") };
+  if (res.status === 0) return { ok: false, error: t("Could not reach the Cuter Intra server.") };
   if (res.status === 401) return { ok: false, error: t("Your session expired: reconnect, then retry.") };
   if (res.status === 413) return { ok: false, error: t("The image is over 2 MB.") };
   if (res.status === 429) return { ok: false, error: t("Too many uploads: wait a minute.") };

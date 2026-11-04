@@ -57,7 +57,7 @@ function showStatus(title: string, lines: string[], ok: boolean) {
       </style>
       <strong>${title}</strong>
       ${lines.map((l) => html`<div>${l}</div>`)}
-      <small>Better Intra ${VERSION}</small>
+      <small>Cuter Intra ${VERSION}</small>
     `,
     box,
   );
@@ -65,7 +65,7 @@ function showStatus(title: string, lines: string[], ok: boolean) {
 }
 
 (async () => {
-  console.info(`Better Intra ${VERSION}: auth callback script running`);
+  console.info(`Cuter Intra ${VERSION}: auth callback script running`);
   // The status texts below in the language of the settings.
   await initI18n();
   const browser = navigator.userAgent.includes("Firefox") ? "Firefox" : "Chromium";
@@ -77,7 +77,7 @@ function showStatus(title: string, lines: string[], ok: boolean) {
   }
   if (!creds) {
     showStatus(
-      t("Better Intra could not read the login result"),
+      t("Cuter Intra could not read the login result"),
       [
         t("This page does not contain the expected credentials."),
         t("Close this window and try Connect with 42 again."),
@@ -99,10 +99,10 @@ function showStatus(title: string, lines: string[], ok: boolean) {
         ? `marker age ${Math.round((Date.now() - marker) / 1000)}s (limit ${AUTH_FLOW_TTL_MS / 1000}s)`
         : `marker absent (${String(marker)})`;
     console.warn(
-      `Better Intra: auth callback page reached without a login in progress; ignoring. ${diag}`,
+      `Cuter Intra: auth callback page reached without a login in progress; ignoring. ${diag}`,
     );
     showStatus(
-      t("Login not started from Better Intra"),
+      t("Login not started from Cuter Intra"),
       [
         t(
           "For your safety this window is ignored: the extension did not start a login in the last 10 minutes.",

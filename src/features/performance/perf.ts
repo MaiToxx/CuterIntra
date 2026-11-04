@@ -1,7 +1,7 @@
 /**
  * "Lighten the Intra" (features/performance).
  *
- * Every other feature of Better Intra *adds* something to the Intra. This one
+ * Every other feature of Cuter Intra *adds* something to the Intra. This one
  * is the opposite: it makes the Intra's own pages cheaper for the browser.
  *
  *   1. PERF_DEFER_OFFSCREEN - the long repeated lists (project rows,

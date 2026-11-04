@@ -1,6 +1,6 @@
 /**
  * The friends widget in the dormant "oauth" auth mode, where the list comes
- * from the worker's friends endpoint with the Better Intra session: signed
+ * from the worker's friends endpoint with the Cuter Intra session: signed
  * out it shows Connect, with that session expired it turns into a reconnect
  * button. Intra mode needs neither (friends-widget.test.ts).
  */

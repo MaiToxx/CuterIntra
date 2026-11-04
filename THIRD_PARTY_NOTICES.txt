@@ -1,6 +1,6 @@
-Third-party notices for Better Intra
+Third-party notices for Cuter Intra
 
-Better Intra itself is under the MIT licence in the file LICENSE next to this
+Cuter Intra itself is under the MIT licence in the file LICENSE next to this
 one. The package also contains the work below, each under its own licence,
 whose notice has to travel with every copy.
 
@@ -210,5 +210,5 @@ From Wikimedia Commons (https://commons.wikimedia.org).
 ==============================================================================
 
 The 42 name and logo belong to 42 (Association 42) and are used only to
-refer to the school whose intranet this extension works with. Better Intra is
+refer to the school whose intranet this extension works with. Cuter Intra is
 a student project, not affiliated with or endorsed by 42.

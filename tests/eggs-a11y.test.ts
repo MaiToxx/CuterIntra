@@ -1,6 +1,6 @@
 /**
  * Easter eggs and the people they must not bother: someone typing in one of
- * Better Intra's own fields (they live in shadow roots, where a document
+ * Cuter Intra's own fields (they live in shadow roots, where a document
  * listener only sees the host), someone who asked for less motion (the OS
  * preference or the Advanced "Disable animations" switch), and someone who
  * uses a screen reader (the toast is a live region).
@@ -103,7 +103,7 @@ afterEach(() => {
   delete (window as unknown as { matchMedia?: unknown }).matchMedia;
 });
 
-describe("typing in Better Intra's own fields", () => {
+describe("typing in Cuter Intra's own fields", () => {
   it("does not trigger a secret from a field inside a shadow root", async () => {
     await startEggs();
     const input = shadowInput();

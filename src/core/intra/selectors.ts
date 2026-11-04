@@ -136,7 +136,7 @@ export function reportMissingSelector(
   if (document.querySelector(selector)) return;
   missingSelectorReported = true;
   console.warn(
-    `Better Intra ${__APP_VERSION__}: ${name} (${selector}) not found on this page after ${Math.round(afterMs / 1000)}s. ` +
+    `Cuter Intra ${__APP_VERSION__}: ${name} (${selector}) not found on this page after ${Math.round(afterMs / 1000)}s. ` +
       "If the page looks normal, the Intra layout may have changed: please report this line.",
   );
 }

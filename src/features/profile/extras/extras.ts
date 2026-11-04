@@ -1,6 +1,6 @@
 /**
  * "Public profile" extras: everything a student can add to their own profile
- * page that every other Better Intra user sees when visiting it.
+ * page that every other Cuter Intra user sees when visiting it.
  *
  *   identity   bio, status (emoji + text), pronouns, flair emoji, links,
  *              a greeting shown once to visitors

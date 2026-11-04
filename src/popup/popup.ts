@@ -24,7 +24,7 @@ function renderPlaceholder(container: HTMLElement) {
           >
             ${unsafeHTML(ICON_SVG)}
           </span>
-          <h2 class="text-2xl font-bold mt-2">Better Intra</h2>
+          <h2 class="text-2xl font-bold mt-2">Cuter Intra</h2>
           <p class="opacity-70 mt-1">${t("Works on Intra pages only.")}</p>
         </div>
         <button
@@ -75,7 +75,7 @@ async function renderPermissionBanner(root: HTMLElement) {
       >
         <span>
           <strong>${t("Site access required.")}</strong>
-          ${t("Better Intra needs access to intra.42.fr and {host}.", {
+          ${t("Cuter Intra needs access to intra.42.fr and {host}.", {
             host: WORKER_HOST,
           })}
         </span>

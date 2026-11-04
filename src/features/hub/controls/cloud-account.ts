@@ -99,7 +99,7 @@ export async function downloadCloudData(out: HTMLElement): Promise<void> {
   // date before 02:00 in Paris)
   const d = new Date();
   const two = (n: number) => String(n).padStart(2, "0");
-  a.download = `better-intra-cloud-data-${d.getFullYear()}-${two(d.getMonth() + 1)}-${two(d.getDate())}.json`;
+  a.download = `cuter-intra-cloud-data-${d.getFullYear()}-${two(d.getMonth() + 1)}-${two(d.getDate())}.json`;
   a.click();
   URL.revokeObjectURL(url);
 }

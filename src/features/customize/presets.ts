@@ -103,7 +103,7 @@ export function encodePresetCode(values: CustomizeConfig): string {
   return CODE_PREFIX + b64urlEncode(JSON.stringify(diff));
 }
 
-/** Returns null when the code is not a valid Better Intra theme code. */
+/** Returns null when the code is not a valid Cuter Intra theme code. */
 export function decodePresetCode(code: unknown): CustomizeConfig | null {
   if (typeof code !== "string") return null;
   const trimmed = code.trim();

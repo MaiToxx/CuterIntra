@@ -424,7 +424,7 @@ export function showVisitorLook(
         #${LOOK_BADGE_ID} button:hover { opacity: 1; background: hsl(var(--muted, 220 20% 15%)); }
       </style>
       <span
-        title="${t("This profile is shown with the look and extras its owner published with Better Intra")}"
+        title="${t("This profile is shown with the look and extras its owner published with Cuter Intra")}"
         >🎨 ${t("{login}'s style", { login: login! })}</span
       >
       ${look

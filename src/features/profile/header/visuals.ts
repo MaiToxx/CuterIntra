@@ -99,7 +99,7 @@ const fetchPeerVisuals = (login: string, avatarEl: HTMLElement): void => {
         rememberNoVisuals(login);
       }
     })
-    .catch((e) => console.warn("Better Intra: visuals", e))
+    .catch((e) => console.warn("Cuter Intra: visuals", e))
     .finally(() => {
       // Another profile's pass owns the flag and the avatar by now.
       if (login !== pageState.lastUser) return;

@@ -1,6 +1,6 @@
 /**
  * Public profile section of the Profile tab: what a student publishes on
- * their profile for every Better Intra user to see, plus the viewer switch
+ * their profile for every Cuter Intra user to see, plus the viewer switch
  * for other people's extras.
  *
  * src/features/profile/extras/extras.ts is the contract. Everything typed
@@ -39,7 +39,7 @@ type _LimitsChecked = TextsFollow<typeof LIMITS>;
 export const PUBLIC_PROFILE_SETTINGS: readonly HubSettingDef[] = [
   {
     feature: "profile",
-    label: "Public profile (visible to every Better Intra user)",
+    label: "Public profile (visible to every Cuter Intra user)",
     kind: "divider",
   },
   {
@@ -48,7 +48,7 @@ export const PUBLIC_PROFILE_SETTINGS: readonly HubSettingDef[] = [
     feature: "profile",
     key: "PROFILE_PUB_ENABLED",
     label: "Publish my profile extras",
-    desc: "Everything below is shown to every Better Intra user who opens your profile. It needs the cloud account to reach them; on your own page it shows immediately.",
+    desc: "Everything below is shown to every Cuter Intra user who opens your profile. It needs the cloud account to reach them; on your own page it shows immediately.",
     kind: "toggle",
     defaultValue: CONFIG_DEFAULT.PROFILE_PUB_ENABLED,
   },

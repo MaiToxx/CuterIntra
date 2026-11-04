@@ -1,5 +1,5 @@
 /**
- * The Better Intra entries in the Intra's left sidebar: the gear that opens
+ * The Cuter Intra entries in the Intra's left sidebar: the gear that opens
  * the settings hub (loaded on demand) and the Clusters button that opens the
  * live cluster map. Mounted when React renders the sidebar, not on a timer.
  */
@@ -40,8 +40,8 @@ function renderGearButton(
     id="hub-gear-btn"
     class="py-5 w-full flex justify-center hover:opacity-100 opacity-40"
     href="#"
-    aria-label="${t("Better Intra settings")}"
-    data-tip="${t("Better Intra settings")}"
+    aria-label="${t("Cuter Intra settings")}"
+    data-tip="${t("Cuter Intra settings")}"
     data-tip-pos="right"
     @click="${(e: Event) => {
       e.preventDefault();
@@ -154,7 +154,7 @@ function offerReload(): void {
   // A native dialog: our own ones read settings, which is exactly what an
   // orphaned script can no longer do.
   // t() only reads the language this script already knows: no settings read.
-  if (window.confirm(t("Better Intra was updated. Reload the page to use it?"))) {
+  if (window.confirm(t("Cuter Intra was updated. Reload the page to use it?"))) {
     location.reload();
   }
 }

@@ -26,12 +26,12 @@ type Handlers = ReturnType<typeof createHandlers>;
 
 /**
  * The words used for the account, everywhere in the popup: "Sign in with 42",
- * "Sign in again", "Sign out", and "the cloud" for the Better Intra server,
+ * "Sign in again", "Sign out", and "the cloud" for the Cuter Intra server,
  * named by its host so it is clear it is not 42's.
  */
 const privacyLine = () => html`
   <p class="text-xs opacity-70 text-center">
-    ${t("Your account lives on the Better Intra server ({host}), not at 42.", {
+    ${t("Your account lives on the Cuter Intra server ({host}), not at 42.", {
       host: WORKER_HOST,
     })}
     <a

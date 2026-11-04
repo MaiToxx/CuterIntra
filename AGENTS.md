@@ -1,4 +1,4 @@
-# Better Intra — Agent Guide
+# Cuter Intra — Agent Guide
 
 ## Quick start
 

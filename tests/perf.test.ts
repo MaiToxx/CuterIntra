@@ -312,7 +312,7 @@ describe("benchmark on an Intra-sized page", () => {
     console.log(
       [
         "",
-        "  Better Intra - Lighten the Intra, synthetic jsdom page",
+        "  Cuter Intra - Lighten the Intra, synthetic jsdom page",
         "  ---------------------------------------------------------------",
         `  list rows on the page ......... ${covered}`,
         `  elements in <body> ............ ${totalNodes}`,

@@ -91,7 +91,7 @@ describe("mountIdentity", () => {
     expect(el.previousElementSibling).toBe(loginLine);
     expect(el.parentElement).toBe(loginLine.parentElement);
     expect(el.getAttribute("role")).toBe("note");
-    expect(el.title).toBe("Added by bob with Better Intra");
+    expect(el.title).toBe("Added by bob with Cuter Intra");
 
     const status = el.querySelector(".ft-x-status")!;
     expect(status.textContent).toContain("🚀");
@@ -312,7 +312,7 @@ describe("mountIdentity", () => {
     expect(first.querySelector(".ft-x-pronouns")!.textContent).toBe("she/her");
 
     mountIdentity(makeExtras({ bio: "bye", pronouns: "she/her" }), { login: "alice", own: false });
-    expect(block()!.title).toBe("Added by alice with Better Intra");
+    expect(block()!.title).toBe("Added by alice with Cuter Intra");
   });
 
   it("puts the block back when React dropped it or rebuilt the header", () => {

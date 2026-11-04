@@ -11,10 +11,10 @@
   "Show streak": "Afficher la série",
   "Shows your days in a row next to the Active badge, with your records in its tooltip.": "Affiche tes jours de présence d’affilée à côté du badge Actif, avec tes records dans son info-bulle.",
   "Stop sharing": "Arrêter le partage",
-  "Stop sharing your calendar? Calendars subscribed to this link stop updating, and the copy of your events on the Better Intra server is deleted.": "Arrêter de partager ton calendrier ? Les calendriers abonnés à ce lien cesseront de se mettre à jour, et la copie de tes événements sur le serveur Better Intra sera supprimée.",
+  "Stop sharing your calendar? Calendars subscribed to this link stop updating, and the copy of your events on the Cuter Intra server is deleted.": "Arrêter de partager ton calendrier ? Les calendriers abonnés à ce lien cesseront de se mettre à jour, et la copie de tes événements sur le serveur Cuter Intra sera supprimée.",
   "The server could not stop sharing (error {status}). Try again later.": "Le serveur n’a pas pu arrêter le partage (erreur {status}). Réessaie plus tard.",
   "Weekly goal": "Objectif hebdomadaire",
-  "Your Better Intra session has expired. Sign in again to stop sharing.": "Ta session Better Intra a expiré. Reconnecte-toi pour arrêter le partage.",
+  "Your Cuter Intra session has expired. Sign in again to stop sharing.": "Ta session Cuter Intra a expiré. Reconnecte-toi pour arrêter le partage.",
   "{n} more day with logtime to go": "Encore {n} jour de logtime à faire",
   "{n} more days with logtime to go": "Encore {n} jours de logtime à faire"
 }

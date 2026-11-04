@@ -193,8 +193,8 @@ export async function initProfile() {
         // Fire-and-forget: features with >2s timeouts or slow network fetches
         // Fire-and-forget, but never unhandled: with the worker unreachable
         // (offline, or down) the friends widget's campus lookup rejects.
-        void initFreezeCard().catch((e) => console.warn("Better Intra: freeze card", e));
-        void injectFriendsWidget().catch((e) => console.warn("Better Intra: friends widget", e));
+        void initFreezeCard().catch((e) => console.warn("Cuter Intra: freeze card", e));
+        void injectFriendsWidget().catch((e) => console.warn("Cuter Intra: friends widget", e));
         if (location.pathname === "/") colorTrackerBadge();
       }
     } finally {

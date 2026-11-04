@@ -12,7 +12,7 @@ export const ADVANCED_SETTINGS: readonly HubSettingDef[] = [
     feature: "advanced",
     key: "UI_LANGUAGE",
     label: "Language",
-    desc: "The language of Better Intra. Auto follows your browser.",
+    desc: "The language of Cuter Intra. Auto follows your browser.",
     kind: "radio-group",
     defaultValue: CONFIG_DEFAULT.UI_LANGUAGE,
     // The two languages are written in their own language, whatever the
@@ -49,7 +49,7 @@ export const ADVANCED_SETTINGS: readonly HubSettingDef[] = [
     feature: "advanced",
     key: "DISABLE_ANIMATIONS",
     label: "Disable animations",
-    desc: "Removes transition effects across all Better Intra features.",
+    desc: "Removes transition effects across all Cuter Intra features.",
     kind: "toggle",
     defaultValue: CONFIG_DEFAULT.DISABLE_ANIMATIONS,
     grid: true,
@@ -67,7 +67,7 @@ export const ADVANCED_SETTINGS: readonly HubSettingDef[] = [
   {
     feature: "advanced",
     label: "Backup & Restore",
-    desc: "Export or import your Better Intra settings as a JSON file.",
+    desc: "Export or import your Cuter Intra settings as a JSON file.",
     kind: "action",
     actionType: "backup",
     // the button labels are shown through t() (controls/actions.ts)
@@ -85,7 +85,7 @@ export const ADVANCED_SETTINGS: readonly HubSettingDef[] = [
     grid: true,
     colSpan: 1,
   },
-  // What the Better Intra server keeps about the student, and the browsers
+  // What the Cuter Intra server keeps about the student, and the browsers
   // signed in to the account (controls/cloud-account.ts).
   { feature: "advanced", label: "Cloud account", kind: "divider" },
   {
@@ -101,7 +101,7 @@ export const ADVANCED_SETTINGS: readonly HubSettingDef[] = [
   {
     feature: "advanced",
     label: "Download my cloud data",
-    desc: "Everything the Better Intra server keeps about you, as a JSON file.",
+    desc: "Everything the Cuter Intra server keeps about you, as a JSON file.",
     kind: "action",
     actionType: "cloud-export",
     grid: true,
@@ -143,7 +143,7 @@ export const ADVANCED_SETTINGS: readonly HubSettingDef[] = [
   {
     feature: "advanced",
     label: "Reset all data",
-    desc: "Clears every Better Intra setting on this browser and signs you out. This cannot be undone.",
+    desc: "Clears every Cuter Intra setting on this browser and signs you out. This cannot be undone.",
     kind: "action",
     actionType: "reset",
     actionLabel: msg("Reset"),

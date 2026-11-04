@@ -1,4 +1,4 @@
-# Better Intra — Campus Data
+# Cuter Intra — Campus Data
 
 ## How to add your campus
 

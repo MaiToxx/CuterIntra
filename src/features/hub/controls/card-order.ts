@@ -18,7 +18,7 @@ import { saveSetting, settingIds } from "./context.ts";
 /**
  * The name a chip shows for a stored card name. The Intra's own cards keep
  * their headings as the Intra writes them (in English, whatever the hub's
- * language), but the roulette card is Better Intra's: roulette-stats.ts
+ * language), but the roulette card is Cuter Intra's: roulette-stats.ts
  * titles it in the hub's language, and its chip follows. The stored value
  * itself never changes.
  */

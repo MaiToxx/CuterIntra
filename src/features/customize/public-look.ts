@@ -1,6 +1,6 @@
 /**
  * The "public look": the part of a user's Customize settings that they can
- * publish on their profile so that other Better Intra users see their
+ * publish on their profile so that other Cuter Intra users see their
  * profile page the way they styled it.
  *
  * Only presentation values that are safe to receive from a stranger are

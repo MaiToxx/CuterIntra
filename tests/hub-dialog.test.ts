@@ -65,7 +65,7 @@ function keyboardClick(target: Element) {
 
 describe("the hub dialog", () => {
   it("has a name, and a close button that says what it does", () => {
-    expect(dialog.getAttribute("aria-label")).toBe("Better Intra settings");
+    expect(dialog.getAttribute("aria-label")).toBe("Cuter Intra settings");
     const close = [...shadow.querySelectorAll("button")].find(
       (b) => b.getAttribute("aria-label") === "Close settings",
     );

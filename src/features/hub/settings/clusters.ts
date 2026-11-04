@@ -24,7 +24,7 @@ export const CLUSTERS_SETTINGS: readonly HubSettingDef[] = [
     feature: "clusters",
     key: "CLUSTERS_OPEN_NEW_TAB",
     label: "Open profiles in new tab",
-    desc: "On the Intra's own cluster page (meta.intra.42.fr), clicking a student opens their profile in a new tab. The Better Intra map always does.",
+    desc: "On the Intra's own cluster page (meta.intra.42.fr), clicking a student opens their profile in a new tab. The Cuter Intra map always does.",
     kind: "toggle",
     defaultValue: CONFIG_DEFAULT.CLUSTERS_OPEN_NEW_TAB,
     grid: true,

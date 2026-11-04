@@ -194,7 +194,7 @@ function checkRouteAndHighlight() {
         }
       } catch (err) {
         // never let a bad seat id keep this watcher alive
-        console.warn("Better Intra: could not highlight seat", err);
+        console.warn("Cuter Intra: could not highlight seat", err);
         return true;
       }
       return false;
