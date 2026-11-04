@@ -64,7 +64,10 @@ sync work.
   rate limit bindings).
 - **Node.js** and `npx wrangler` (installed by the worker's `npm ci`).
 
-No 42 application, no R2 bucket, no Discord bot.
+No R2 bucket, no Discord bot. A 42 application is optional: with one (its UID
+and secret as the worker secrets `FT_CLIENT_ID` and `FT_CLIENT_SECRET`), the
+worker also serves your own logtime history ("Load older months"); without
+one that route answers 404 and the card stays hidden.
 
 ## 2. Get the worker code
 
@@ -219,8 +222,8 @@ README (the *Rolling back* notes under *Sessions* and *Operations notes*, and
 
 ## Notes
 
-- Logins are stored hashed (SHA-256). The worker never sees a 42 API token:
-  the Intra session JWT is verified once against `auth.42.fr`'s public keys,
+- Logins are stored hashed (SHA-256). The worker never holds a student's 42
+  API token: the Intra session JWT is verified once against `auth.42.fr`'s public keys,
   and the worker keeps only the SHA-256 of the random session token it
   answers (in D1, 10 per login, refused after 365 days).
 - Limits (rate limits, the daily KV write budget, size caps, what "Wipe all

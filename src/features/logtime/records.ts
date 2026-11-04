@@ -105,7 +105,7 @@ export function recordsLines(records: LogtimeRecords): string[] {
       hours: fmtHours(records.bestWeek.secs),
       date: date(records.bestWeek.monday),
     }),
-    // older months are not loaded (the history loader is off in intra mode)
+    // older months only count once "Load older months" has fetched them
     t("Over the days shown"),
   ];
 }

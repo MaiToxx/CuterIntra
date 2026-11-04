@@ -56,6 +56,8 @@ Data that upstream fetched through the 42 API is rebuilt from what the Intra alr
 - correction statistics and Thursday Roulette history are parsed from the v2 Intra pages;
 - cluster occupancy comes from `meta.intra.42.fr`.
 
+Since 1.19.0 the worker also has its own 42 API application, used read-only and only where the Intra offers nothing: **Load older months** on your own profile (signed in) fetches your whole logtime history from 42's `locations_stats`. The worker keeps it in memory for an hour and stores nothing.
+
 The worker is deployed at `betterintra-remake.maitox.workers.dev`. Besides it and `*.intra.42.fr`, the extension only contacts `api.github.com` (release check, not in the Chrome Web Store build), the image hosts other students chose for their visuals, and, for a shortcut without an emoji, that site's favicon (or DuckDuckGo's icon service when it has none).
 
 ---
@@ -168,7 +170,6 @@ These upstream features cannot work on this fork's worker, so they were removed 
 * **Discord evaluation reminders** — need a Discord bot and a 42 API token on the server.
 * **Students directory** — the worker builds it with a 42 API application token, for the Belgium campus only.
 * **⭐ Outstanding flag** — the worker reads it from the 42 API with a token that Intra sign-in sessions do not have.
-* **Older logtime months** — "Load older months" reads the whole history through the 42 API, which also needs an application on the worker. The card stays hidden (its code is kept for workers that have one), and the calendar shows the months the Intra page itself loads.
 
 The **transcript download** is still in the extension but only shows up on campuses whose campus file lists their transcript templates, which today is only Belgium ([campuses/belgium.json](campuses/belgium.json)). It needs no server: adding the Mulhouse records to [campuses/mulhouse.json](campuses/mulhouse.json) would be enough to turn it on.
 

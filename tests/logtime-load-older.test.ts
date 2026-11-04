@@ -3,11 +3,12 @@
  * @vitest-environment-options { "url": "https://profile-v3.intra.42.fr/" }
  *
  * "Load older months" asks the worker for the history, and the worker reads it
- * from the 42 API with its 42 application. An "intra" build's worker has no
- * such application (it always answers an empty history), and a signed-out
- * user never even reaches the worker: in both cases the card was offered
- * anyway, spun a spinner, then vanished without adding a month. It is only
- * offered where it can answer: an "oauth" build, signed in.
+ * from the 42 API with its 42 application. A worker without one (here: its
+ * /api/v1/public/features answers 404), and a signed-out user who never even
+ * reaches the worker: in both cases the card was offered anyway, spun a
+ * spinner, then vanished without adding a month. It is only offered where it
+ * can answer: an "oauth" build, signed in, or an "intra" build whose worker
+ * says it serves the history (tests/logtime-load-older-worker.test.ts).
  *
  * One module instance for the whole file (the data listener logtime.ts puts
  * on `document` cannot be removed); AUTH_MODE is switched through the mock.
@@ -84,7 +85,7 @@ beforeEach(async () => {
   await chrome.storage.local.remove(["CLOUD_LOGIN", "CLOUD_TOKEN"]);
 });
 
-describe("Load older months, intra build", () => {
+describe("Load older months, intra build, worker without the 42 application", () => {
   beforeEach(() => {
     mode.value = "intra";
   });

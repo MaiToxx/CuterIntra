@@ -1,7 +1,6 @@
 import { render } from "lit-html";
 import { CONFIG_DEFAULT, getConfig, getConfigMany } from "../../core/config.ts";
 import { resolveRainbowColors } from "./rainbow-presets.ts";
-import { hashLogin } from "../../core/crypto.ts";
 import {
   findLogtimeMount,
   hideOldLogtime,
@@ -33,7 +32,7 @@ import type { CalendarEvent, EventsByDate, LogtimeConfig } from "./types.ts";
 // Declared in types.ts so the renderers need not import this module back.
 export type { CalendarEvent, EventsByDate, LogtimeConfig } from "./types.ts";
 
-import { WORKER_URL, AUTH_MODE } from "../../core/worker.ts";
+import { AUTH_MODE, workerFetch } from "../../core/worker.ts";
 import { sanitizeHexColor } from "../../core/security/css-sanitize.ts";
 const historyCache = new Map<string, Record<string, number>>();
 const fetchPromiseMap = new Map<string, Promise<void>>();
@@ -49,20 +48,40 @@ let viewOverflow = false;
 let recordsHidden = false;
 let headerResizeObserver: ResizeObserver | null = null;
 
+let workerFeatures: Promise<{ logtimeHistory?: boolean }> | null = null;
+
 /**
- * Whether "Load older months" can get an answer. The worker builds the history
- * from the 42 API with its own 42 application, which the worker of an "intra"
- * build does not have (it answers an empty history every time), and
- * fetchHistoricalLogtime() does not even ask the worker without a session.
- * Offering the card anyway showed a spinner, then nothing.
+ * What this worker can do beyond the routes every build relies on (one
+ * request per page, cached 5 minutes by the worker). A worker that does not
+ * know the route, or does not answer, offers nothing.
  */
-async function canLoadOlder(): Promise<boolean> {
-  if (AUTH_MODE !== "oauth") return false;
+function getWorkerFeatures(): Promise<{ logtimeHistory?: boolean }> {
+  workerFeatures ??= workerFetch("/api/v1/public/features", { timeoutMs: 5_000 }).then(
+    (res) => {
+      const features = (res.json as { features?: unknown } | null)?.features;
+      return res.ok && features && typeof features === "object" ? features : {};
+    },
+  );
+  return workerFeatures;
+}
+
+/**
+ * Whether "Load older months" can get an answer for `target`. The worker
+ * builds the history from the 42 API with its own 42 application: this fork's
+ * worker does when its application is configured, and only for your own login
+ * (it keeps nothing about students who did not ask); upstream's worker, in
+ * an "oauth" build, for any profile. Without a session fetchHistoricalLogtime()
+ * does not even ask. Offering the card anyway showed a spinner, then nothing.
+ */
+async function canLoadOlder(target: string): Promise<boolean> {
   const { CLOUD_LOGIN, CLOUD_TOKEN } = await getConfigMany([
     "CLOUD_LOGIN",
     "CLOUD_TOKEN",
   ] as const);
-  return !!CLOUD_LOGIN && !!CLOUD_TOKEN;
+  if (!CLOUD_LOGIN || !CLOUD_TOKEN) return false;
+  if (AUTH_MODE === "oauth") return true;
+  if (target.toLowerCase() !== CLOUD_LOGIN.toLowerCase()) return false;
+  return (await getWorkerFeatures()).logtimeHistory === true;
 }
 
 /**
@@ -101,19 +120,17 @@ async function fetchHistoricalLogtime(
         return;
       }
 
-      const hashed = await hashLogin(cloudLogin);
-      let url = `${WORKER_URL}/api/v1/private/logtime/history?login=${encodeURIComponent(hashed)}&user=${encodeURIComponent(login)}`;
-      if (before) url += `&before=${encodeURIComponent(before)}`;
+      let path = `/api/v1/private/logtime/history?user=${encodeURIComponent(login)}`;
+      if (before) path += `&before=${encodeURIComponent(before)}`;
 
-      const res = await fetch(url, {
-        headers: { Authorization: `Bearer ${sessionToken}` },
+      // workerFetch: a deadline, and a 401 marks the session for "Sign in again"
+      const res = await workerFetch(path, {
+        auth: { login: cloudLogin, token: sessionToken },
       });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.days) {
-          historyCache.set(login, data.days as Record<string, number>);
-          return;
-        }
+      const days = (res.json as { days?: unknown } | null)?.days;
+      if (res.ok && days && typeof days === "object") {
+        historyCache.set(login, days as Record<string, number>);
+        return;
       }
     } catch {}
 
@@ -719,15 +736,14 @@ function installFetchHook() {
 
     if (isOwnProfile()) {
       // Signed out too: the events come from the Intra with the page's own
-      // token. The cloud login only keys the history loader, dormant in intra
-      // mode. Gating the whole branch on it (a leftover of the days this
+      // token. The cloud login only keys the history loader. Gating the whole branch on it (a leftover of the days this
       // handler also uploaded the calendar feed, which calendar-sync.ts now
       // does behind its own cloud check) hid every event and exam marker
       // from students who never signed in.
       const cloudLogin = await getConfig("CLOUD_LOGIN");
       const hasHistory = !!cloudLogin && historyCache.has(cloudLogin);
       armLoadOlder(
-        cloudLogin && !hasHistory && (await canLoadOlder()) ? cloudLogin : null,
+        cloudLogin && !hasHistory && (await canLoadOlder(cloudLogin)) ? cloudLogin : null,
         before,
       );
       renderLogtime(
@@ -751,7 +767,7 @@ function installFetchHook() {
     if (targetLogin) {
       const hasHistory = historyCache.has(targetLogin);
       armLoadOlder(
-        !hasHistory && (await canLoadOlder()) ? targetLogin : null,
+        !hasHistory && (await canLoadOlder(targetLogin)) ? targetLogin : null,
         before,
       );
       const stats = hasHistory
