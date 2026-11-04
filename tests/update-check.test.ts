@@ -61,7 +61,7 @@ describe("parseLatestRelease", () => {
 describe("a release is announced once its browser's file is attached", () => {
   const release = (names: string[]) => ({
     tag_name: "v9.9.9",
-    html_url: "https://github.com/MaiToxx/BetterIntraRemake/releases/tag/v9.9.9",
+    html_url: "https://github.com/MaiToxx/CuterIntra/releases/tag/v9.9.9",
     assets: names.map((name) => ({ name })),
   });
 

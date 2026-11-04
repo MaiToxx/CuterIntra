@@ -30,7 +30,7 @@ updated and redeployed.
 
 Creating a 42 API application requires student status (pisciners get
 "YOU ARE NOT ALLOWED TO CREATE A NEW APP"). The fork of the worker at
-[MaiToxx/BetterIntraRemake-worker](https://github.com/MaiToxx/BetterIntraRemake-worker)
+[MaiToxx/CuterIntra-worker](https://github.com/MaiToxx/CuterIntra-worker)
 adds `POST /auth/intra`: the extension sends the Keycloak session token the
 Intra v3 front-end already uses, the worker verifies its signature against
 `auth.42.fr`'s public keys and opens a session for that login. No popup, no
@@ -72,7 +72,7 @@ one that route answers 404 and the card stays hidden.
 ## 2. Get the worker code
 
 ```bash
-git clone https://github.com/MaiToxx/BetterIntraRemake-worker.git better-intra-worker
+git clone https://github.com/MaiToxx/CuterIntra-worker.git better-intra-worker
 cd better-intra-worker
 npm ci
 npx wrangler login

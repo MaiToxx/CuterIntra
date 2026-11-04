@@ -85,4 +85,4 @@ When this policy changes, the "Last updated" date at the top is updated in the s
 
 ## Contact
 
-Your login never needs to appear in public to use your rights over your data: the export above gives you a copy of what the worker keeps and *Wipe All Data* deletes it, both answered only to your own session. For other questions and requests, open an issue at https://github.com/MaiToxx/BetterIntraRemake/issues; issues are public, so leave your login and its hash out of them.
+Your login never needs to appear in public to use your rights over your data: the export above gives you a copy of what the worker keeps and *Wipe All Data* deletes it, both answered only to your own session. For other questions and requests, open an issue at https://github.com/MaiToxx/CuterIntra/issues; issues are public, so leave your login and its hash out of them.

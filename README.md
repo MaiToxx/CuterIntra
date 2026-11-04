@@ -8,7 +8,7 @@ Cuter Intra is a fork of [Better Intra](https://github.com/nicopasla/better-intr
 
 ## Install
 
-Ready-made builds are attached to every [GitHub release](https://github.com/MaiToxx/BetterIntraRemake/releases/latest):
+Ready-made builds are attached to every [GitHub release](https://github.com/MaiToxx/CuterIntra/releases/latest):
 
 | File                      | For                                   |
 | ------------------------- | ------------------------------------- |
@@ -36,8 +36,8 @@ Then open your profile on https://profile-v3.intra.42.fr, click the extension ic
 ### Build it yourself
 
 ```bash
-git clone https://github.com/MaiToxx/BetterIntraRemake.git
-cd BetterIntraRemake
+git clone https://github.com/MaiToxx/CuterIntra.git
+cd CuterIntra
 npm install
 npm run build:chrome    # -> dist-chrome/
 npm run build:firefox   # -> dist-firefox/
@@ -199,7 +199,7 @@ See [PRIVACY.md](./PRIVACY.md).
 
 ## Self-hosting
 
-The worker is a fork of the upstream one, at [MaiToxx/BetterIntraRemake-worker](https://github.com/MaiToxx/BetterIntraRemake-worker). Pointing the extension at another instance is a single setting (`package.json` → `config.workerUrl`): see [docs/SELF-HOSTING.md](docs/SELF-HOSTING.md).
+The worker is a fork of the upstream one, at [MaiToxx/CuterIntra-worker](https://github.com/MaiToxx/CuterIntra-worker). Pointing the extension at another instance is a single setting (`package.json` → `config.workerUrl`): see [docs/SELF-HOSTING.md](docs/SELF-HOSTING.md).
 
 ## Development
 

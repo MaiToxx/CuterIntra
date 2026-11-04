@@ -58,7 +58,7 @@ update check (`RELEASE_ASSET_CHROME`) look for.
    turns `CHROME_LISTING.md` into `images-store/description.txt`), category
    *Productivity*, language, the images (see [Store images](#store-images)),
    and the privacy policy URL:
-   `https://github.com/MaiToxx/BetterIntraRemake/blob/main/PRIVACY.md` (the
+   `https://github.com/MaiToxx/CuterIntra/blob/main/PRIVACY.md` (the
    file tests/privacy-doc.test.ts checks against the manifests).
 4. Fill the **Privacy practices** tab: see [Privacy practices](#privacy-practices-tab).
 5. Fill the **Test instructions** tab: see [Test instructions](#test-instructions-tab).
@@ -194,8 +194,8 @@ auto-published version is reviewed again. Paste:
 > profile. Signing in is optional: it sends the user's Intra session token
 > once to our server at betterintra-remake.maitox.workers.dev, which checks
 > it against 42's public keys and returns a random session token (privacy
-> policy: https://github.com/MaiToxx/BetterIntraRemake/blob/main/PRIVACY.md).
-> Source code: https://github.com/MaiToxx/BetterIntraRemake. This package is
+> policy: https://github.com/MaiToxx/CuterIntra/blob/main/PRIVACY.md).
+> Source code: https://github.com/MaiToxx/CuterIntra. This package is
 > built with `npm run build:chrome-store` (output: dist-chrome-store/).
 
 Optional: a 2-3 minute unlisted walkthrough video, with its link added to

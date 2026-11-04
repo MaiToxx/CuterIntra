@@ -4,7 +4,7 @@
   "version": "1.19.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/MaiToxx/BetterIntraRemake.git"
+    "url": "https://github.com/MaiToxx/CuterIntra.git"
   },
   "config": {
     "workerUrl": "https://betterintra-remake.maitox.workers.dev",
