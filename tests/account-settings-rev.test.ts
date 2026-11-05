@@ -133,7 +133,9 @@ describe("full push", () => {
   });
 
   it("the day's write budget and a busy KV get their own reasons; only the busy one is retried", async () => {
-    vi.useFakeTimers();
+    // Midday UTC: an hour later is still the same UTC day. With the real clock the
+    // test failed between 23:00 and 24:00 UTC (the v1.20.0 release run).
+    vi.useFakeTimers({ now: new Date("2026-11-04T12:00:00Z") });
     reply = () => json({ error: "daily_write_budget", message: "Daily write budget spent" }, 503);
     await expect(syncToCloud()).resolves.toBe(false);
     await expect(getPushFailure()).resolves.toMatchObject({ reason: "daily-limit" });
