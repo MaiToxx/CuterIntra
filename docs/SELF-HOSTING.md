@@ -43,9 +43,8 @@ redirect, no application to register. Enable it in `package.json`:
 }
 ```
 
-What needs a 42 application stays out of this edition: evaluation reminders
-and Discord, the students directory, outstanding stars, logtime history beyond
-what the Intra page provides. Since 1.13.0 the worker fork no longer carries
+What needed upstream's per-user 42 tokens stays out of this edition: Discord
+reminders and the students directory. Since 1.13.0 the worker fork no longer carries
 those routes at all: they answered 404 or errors on a deployment without an
 application, so they were removed with their crons, D1 tables and secrets. What
 the worker does today is listed in its README (`Routes`, `Limits`, `Data kept

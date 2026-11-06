@@ -13,7 +13,9 @@ export default defineConfig({
       "https://api.github.com/repos/test/better-intra/releases/latest",
     ),
     __WORKER_URL__: JSON.stringify("https://api.betterintra.com"),
-    __AUTH_MODE__: JSON.stringify("oauth"),
+    // The mode that ships (package.json config.authMode); a test of the
+    // dormant "oauth" mode mocks AUTH_MODE itself.
+    __AUTH_MODE__: JSON.stringify("intra"),
     __STORE_BUILD__: JSON.stringify(false),
       __TARGET__: JSON.stringify("firefox"),
     __TS_VERSION__: JSON.stringify("test"),

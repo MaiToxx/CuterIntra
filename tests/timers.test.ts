@@ -933,6 +933,18 @@ describe("profile extras navigation watcher", () => {
 });
 
 describe("OAuth login poll", () => {
+  // The poll belongs to the dormant "oauth" mode; tests default to "intra".
+  beforeEach(() => {
+    vi.resetModules();
+    vi.doMock("../src/core/worker.ts", async (importOriginal) => {
+      const actual = await importOriginal<typeof import("../src/core/worker.ts")>();
+      return { ...actual, AUTH_MODE: "oauth" };
+    });
+  });
+  afterEach(() => {
+    vi.doUnmock("../src/core/worker.ts");
+  });
+
   async function startLogin(popup: { closed: boolean; close: () => void }) {
     vi.spyOn(window, "open").mockReturnValue(popup as unknown as Window);
     const { loginWith42 } = await import("../src/features/account/account.ts");

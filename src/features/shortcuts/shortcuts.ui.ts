@@ -123,7 +123,7 @@ export function renderShortcutRow(
         aria-label="${labels.emoji}"
         .value="${live(link.emoji || "")}"
         placeholder="🐝"
-        maxlength="2"
+        maxlength="16"
       />
       <input
         type="text"

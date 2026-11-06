@@ -74,7 +74,8 @@ describe("PRIVACY.md matches the build", () => {
     expect(privacy).not.toContain("nicopasla/better-intra/issues");
     expect(listing).toContain(`${repo.url}/blob/main/PRIVACY.md`);
     // Upstream features this build does not ship (README, "Not available").
-    expect(listing).not.toMatch(/Discord DM|Le Bassin|Belgium|Students directory|Outstanding/);
+    // Outstanding counts are back since 1.20.0 (the worker's 42 application).
+    expect(listing).not.toMatch(/Discord DM|Le Bassin|Belgium|Students directory/);
     expect(readme).not.toContain("Nothing leaves the browser until you connect");
   });
 

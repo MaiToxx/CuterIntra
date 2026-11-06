@@ -241,8 +241,8 @@ async function createModal(active: FeatureId[]): Promise<void> {
         display: block;
         height: 100%;
         width: 100%;
+        font-family: ${INTRA_FONT};
       }
-      font-family: ${INTRA_FONT};
       input,
       button,
       select,

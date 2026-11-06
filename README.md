@@ -167,9 +167,8 @@ Everything the extension adds works from the keyboard and with a screen reader: 
 
 These upstream features cannot work on this fork's worker, so they were removed from the extension and their code no longer ships:
 
-* **Discord evaluation reminders** — need a Discord bot and a 42 API token on the server.
+* **Discord evaluation reminders** — need a Discord bot. Your evaluations reach your calendar feed instead, with a reminder (1.20.0).
 * **Students directory** — the worker builds it with a 42 API application token, for the Belgium campus only.
-* **⭐ Outstanding flag** — the worker reads it from the 42 API with a token that Intra sign-in sessions do not have.
 
 The **transcript download** is still in the extension but only shows up on campuses whose campus file lists their transcript templates, which today is only Belgium ([campuses/belgium.json](campuses/belgium.json)). It needs no server: adding the Mulhouse records to [campuses/mulhouse.json](campuses/mulhouse.json) would be enough to turn it on.
 

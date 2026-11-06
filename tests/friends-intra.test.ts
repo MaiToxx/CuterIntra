@@ -201,7 +201,7 @@ describe("fetchFriendsDataViaIntra", () => {
 });
 
 describe("friends cache TTL", () => {
-  it("is 30 s in oauth mode (tests run with __AUTH_MODE__ = oauth)", () => {
-    expect(FRIENDS_CACHE_TTL).toBe(30_000);
+  it("is 5 minutes in the shipped intra mode (the tests' default)", () => {
+    expect(FRIENDS_CACHE_TTL).toBe(5 * 60_000);
   });
 });

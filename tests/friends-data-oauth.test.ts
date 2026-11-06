@@ -1,9 +1,14 @@
 /**
  * friends.ts in "oauth" auth mode (the upstream worker's friends endpoint;
- * tests run with __AUTH_MODE__ = oauth).
+ * set by the mock below).
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
+// The dormant "oauth" mode, said here: tests default to the shipped "intra".
+vi.mock("../src/core/worker.ts", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../src/core/worker.ts")>();
+  return { ...actual, AUTH_MODE: "oauth" };
+});
 vi.mock("../src/features/account/account.ts", () => ({
   hashLogin: vi.fn(async (login: string) => `hashed-${login}`),
 }));

@@ -4,6 +4,11 @@
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
+// The dormant "oauth" mode, said here: tests default to the shipped "intra".
+vi.mock("../src/core/worker.ts", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../src/core/worker.ts")>();
+  return { ...actual, AUTH_MODE: "oauth" };
+});
 vi.mock("../src/core/config.ts", () => ({
   getConfig: vi.fn(async (key: string) =>
     key === "PROFILE_SHOW_ROULETTE" || key === "PROFILE_SHOW_ROULETTE_HISTORY"
