@@ -222,6 +222,10 @@ export interface WorkerFeatures {
   logtimeHistory?: boolean;
   /** Your own evaluations: correction stats, Outstanding counts, upcoming evaluations. */
   evaluations?: boolean;
+  /** Your own correction point balance over time (the dashboard's Campus card). */
+  correctionPoints?: boolean;
+  /** The standings of your coalitions (the dashboard's Campus card). */
+  coalitions?: boolean;
 }
 
 let workerFeatures: Promise<WorkerFeatures> | null = null;

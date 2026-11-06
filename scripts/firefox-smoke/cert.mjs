@@ -115,7 +115,9 @@ export function makeSelfSignedCert(dnsNames) {
   );
 
   const serial = crypto.randomBytes(16);
-  serial[0] &= 0x7f;
+  // Positive, and never a leading zero byte: DER integers are minimal, and
+  // a 0x00 followed by a byte below 0x80 failed the parse (about 1 run in 512).
+  serial[0] = (serial[0] & 0x7f) | 0x01;
   const tbs = seq(
     explicit(0, integer(Buffer.from([2]))), // v3
     integer(serial),

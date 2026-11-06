@@ -54,6 +54,13 @@ export const EXTRAS_SETTINGS: readonly HubSettingDef[] = [
         desc: "Organizes the pending evaluations card into Evaluator and Evaluated sections.",
       },
       {
+        label: "Campus card",
+        value: "PROFILE_SHOW_CAMPUS",
+        color: "success",
+        big: true,
+        desc: "Adds a card to your dashboard with your next exam and, when signed in, your coalition standings and correction points over time.",
+      },
+      {
         label: "Thursday Roulette",
         value: "PROFILE_SHOW_ROULETTE",
         color: "info",

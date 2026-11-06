@@ -112,5 +112,19 @@
   "{n} days ago": "il y a {n} jours",
   "{slot}: {error}": "{slot} : {error}",
   "✓ Saved": "✓ Enregistré",
-  "Outstanding: {received} received, {given} given": "Outstanding : {received} reçus, {given} donnés"
+  "Outstanding: {received} received, {given} given": "Outstanding : {received} reçus, {given} donnés",
+  "Next exam": "Prochain examen",
+  "Now": "Maintenant",
+  "In {d} d {h} h": "Dans {d} j {h} h",
+  "In {h} h {m} min": "Dans {h} h {m} min",
+  "In {m} min": "Dans {m} min",
+  "Registered": "Inscrit",
+  "Not registered": "Pas inscrit",
+  "Coalitions": "Coalitions",
+  "Your coalition": "Ta coalition",
+  "Correction points": "Points de correction",
+  "{delta} in {days} days": "{delta} en {days} jours",
+  "Correction points over {days} days: from {from} to {to}, lowest {lo}, highest {hi}": "Points de correction sur {days} jours : de {from} à {to}, au plus bas {lo}, au plus haut {hi}",
+  "Low {n}": "Min. {n}",
+  "High {n}": "Max. {n}"
 }

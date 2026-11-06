@@ -67,7 +67,8 @@ No R2 bucket, no Discord bot. A 42 application is optional: with one (its UID
 and secret as the worker secrets `FT_CLIENT_ID` and `FT_CLIENT_SECRET`), the
 worker also serves your own logtime history ("Load older months") and your
 own evaluations (correction statistics, Outstanding counts, booked evaluations
-in the calendar feed); without one those routes answer 404, the history card
+in the calendar feed, correction points over time) and your coalitions'
+standings for the dashboard's Campus card; without one those routes answer 404, the history card
 stays hidden and the statistics come from the Intra pages as before.
 
 ## 2. Get the worker code

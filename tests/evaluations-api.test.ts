@@ -15,6 +15,8 @@ vi.mock("../src/core/worker.ts", async (importOriginal) => {
 
 import { resetWorkerFeatures } from "../src/core/worker";
 import {
+  fetchCorrectionPoints,
+  fetchOwnCoalitions,
   fetchOwnEvaluationStats,
   fetchUpcomingEvaluations,
 } from "../src/features/profile/cards/evaluations-api";
@@ -23,7 +25,8 @@ import { evaluationEvents, generateIcs } from "../src/features/calendar/calendar
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
 
-let features: Record<string, boolean> = { evaluations: true };
+const ALL = { evaluations: true, correctionPoints: true, coalitions: true };
+let features: Record<string, boolean> = { ...ALL };
 const STATS = {
   stats: {
     byMonth: { "2026-10": { total: 3, failed: 1, successPercentage: 66.7 } },
@@ -44,12 +47,28 @@ const fetchMock = vi.fn(async (url: string) => {
   if (u.includes("/api/v1/public/features")) return json({ features });
   if (u.includes("part=stats")) return json(STATS);
   if (u.includes("part=upcoming")) return json(UPCOMING);
+  if (u.includes("part=points")) return json({ points: [{ at: "2026-11-01T10:00:00.000Z", total: 8 }, { at: "bad", total: 1 }] });
+  if (u.includes("/api/v1/private/coalitions")) {
+    return json({
+      blocs: [
+        {
+          id: 136,
+          cursusId: 9,
+          coalitions: [
+            { id: 612, name: "Decepticons", score: 10954, color: "#E70200", imageUrl: "https://evil.example/x.svg", mine: true },
+            { id: 613, name: "Autobot", score: 9257, color: "blue", imageUrl: "https://cdn.intra.42.fr/a.svg" },
+          ],
+        },
+        { id: 1, coalitions: [] },
+      ],
+    });
+  }
   return json({}, 404);
 });
 
 beforeEach(async () => {
   resetWorkerFeatures();
-  features = { evaluations: true };
+  features = { ...ALL };
   fetchMock.mockClear();
   vi.stubGlobal("fetch", fetchMock);
   await chrome.storage.local.clear();
@@ -99,5 +118,31 @@ describe("fetchUpcomingEvaluations and the feed", () => {
     expect(ics).toContain("DTSTART:20261105T090000Z");
     expect(ics).toContain("DTEND:20261106T143000Z");
     expect(ics.match(/BEGIN:VALARM/g)).toHaveLength(2);
+  });
+});
+
+describe("fetchCorrectionPoints and fetchOwnCoalitions", () => {
+  it("keep the well-formed points", async () => {
+    expect(await fetchCorrectionPoints()).toEqual([{ at: "2026-11-01T10:00:00.000Z", total: 8 }]);
+  });
+
+  it("keep Intra CDN images and hex colours only, and drop empty blocs", async () => {
+    expect(await fetchOwnCoalitions()).toEqual([
+      {
+        id: 136,
+        cursusId: 9,
+        coalitions: [
+          { id: 612, name: "Decepticons", score: 10954, color: "#E70200", imageUrl: null, mine: true },
+          { id: 613, name: "Autobot", score: 9257, color: null, imageUrl: "https://cdn.intra.42.fr/a.svg", mine: false },
+        ],
+      },
+    ]);
+  });
+
+  it("are null when the worker does not announce them", async () => {
+    features = { evaluations: true };
+    expect(await fetchCorrectionPoints()).toBeNull();
+    expect(await fetchOwnCoalitions()).toBeNull();
+    expect(fetchMock.mock.calls.some(([u]) => /points|coalitions/.test(String(u)))).toBe(false);
   });
 });

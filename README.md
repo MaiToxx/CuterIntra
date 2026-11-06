@@ -56,7 +56,7 @@ Data that upstream fetched through the 42 API is rebuilt from what the Intra alr
 - correction statistics and Thursday Roulette history are parsed from the v2 Intra pages;
 - cluster occupancy comes from `meta.intra.42.fr`.
 
-Since 1.19.0 the worker also has its own 42 API application, used read-only and only where the Intra offers nothing: **Load older months** on your own profile (signed in) fetches your whole logtime history from 42's `locations_stats`. The worker keeps it in memory for an hour and stores nothing. Since 1.20.0 the same application gives your own **correction statistics** and **Outstanding counts** in a request or two (instead of up to 40 Intra pages) and puts your **booked evaluations** in your calendar feed, with a reminder 15 minutes before. The Calendar tab can also add every campus event and exam, not only the ones you registered for.
+Since 1.19.0 the worker also has its own 42 API application, used read-only and only where the Intra offers nothing: **Load older months** on your own profile (signed in) fetches your whole logtime history from 42's `locations_stats`. The worker keeps it in memory for an hour and stores nothing. Since 1.20.0 the same application gives your own **correction statistics** and **Outstanding counts** in a request or two (instead of up to 40 Intra pages) and puts your **booked evaluations** in your calendar feed, with a reminder 15 minutes before. The Calendar tab can also add every campus event and exam, not only the ones you registered for. Since 1.21.0 a **Campus card** on your own dashboard shows your next exam (from your Intra events, signed out too) and, signed in, your **coalition standings** and your **correction points** over the last 90 days.
 
 The worker is deployed at `betterintra-remake.maitox.workers.dev`. Besides it and `*.intra.42.fr`, the extension only contacts `api.github.com` (release check, not in the Chrome Web Store build), the image hosts other students chose for their visuals, and, for a shortcut without an emoji, that site's favicon (or DuckDuckGo's icon service when it has none).
 
@@ -82,6 +82,7 @@ The worker is deployed at `betterintra-remake.maitox.workers.dev`. Besides it an
 * **Freeze alerts** — a card with a live countdown on frozen students' profiles and on your own dashboard; a frozen friend's row in the friends widget says until when.
 * **Clickable seat** — click someone's seat to open the cluster map with that seat highlighted.
 * **Thursday Roulette ☁️** — the profile's roulette history and points, with a countdown to the next draw (rebuilt from the Intra pages).
+* **Campus card** — on your dashboard: your next exam with a countdown and whether you are registered; signed in ☁️, your coalitions' standings and a graph of your correction points over 90 days.
 * **Correction stats ☁️** — monthly evaluations as a corrector: total, failures, success rate (rebuilt from the Intra pages).
 * **Moulinette robots** — the moulinette image on corrected pages becomes a robot (broken when failed).
 * **Info card badges** — wallet, level, rank, score and seat as coloured badges under the header; the wallet badge opens the shop.

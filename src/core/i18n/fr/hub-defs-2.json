@@ -183,5 +183,7 @@
   "{n} setting": "{n} réglage",
   "{n} setting exported on {date}": "{n} réglage exporté le {date}",
   "{n} settings": "{n} réglages",
-  "{n} settings exported on {date}": "{n} réglages exportés le {date}"
+  "{n} settings exported on {date}": "{n} réglages exportés le {date}",
+  "Campus card": "Carte Campus",
+  "Adds a card to your dashboard with your next exam and, when signed in, your coalition standings and correction points over time.": "Ajoute à ton tableau de bord une carte avec ton prochain examen et, connecté, le classement de tes coalitions et l’évolution de tes points de correction."
 }

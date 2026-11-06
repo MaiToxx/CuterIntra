@@ -78,6 +78,7 @@ export interface BetterIntraConfig {
   PROFILE_SHOW_MARKS: boolean;
   PROFILE_SHOW_ROULETTE: boolean;
   PROFILE_SHOW_ROULETTE_HISTORY: boolean;
+  PROFILE_SHOW_CAMPUS: boolean;
   PROFILE_MARKS_SORT_ORDER: "newest_first" | "oldest_first";
   PROFILE_PROJECTS_SORT: boolean;
   PROFILE_MARKS_SHOW_REAL_DATE: boolean;
