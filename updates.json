@@ -3,6 +3,10 @@
     "better-intra@maitoxx.github": {
       "updates": [
         {
+          "version": "1.21.0",
+          "update_link": "https://github.com/MaiToxx/CuterIntra/releases/download/v1.21.0/better-intra.xpi"
+        },
+        {
           "version": "1.20.0",
           "update_link": "https://github.com/MaiToxx/CuterIntra/releases/download/v1.20.0/better-intra.xpi"
         },
