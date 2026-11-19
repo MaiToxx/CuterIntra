@@ -313,6 +313,68 @@ describe("auto push", () => {
     expect(account.pushSettings).toHaveBeenCalledTimes(1);
   });
 
+  it("a hub left open in a background tab leaves the push to the tab in use", async () => {
+    // both tabs hear the change: two pushes raced, one came back a conflict
+    const { dialog } = await openAuto();
+    const hidden = vi.spyOn(document, "visibilityState", "get").mockReturnValue("hidden");
+    vi.useFakeTimers();
+    storageChanged({ LOGTIME_GOAL_HOURS: 100 });
+    await vi.advanceTimersByTimeAsync(AUTO_PUSH_DELAY_MS * 3);
+    expect(account.pushSettings).not.toHaveBeenCalled();
+    hidden.mockRestore();
+    // still counted as not pushed: it goes when this hub closes
+    dialog.close();
+    await vi.advanceTimersByTimeAsync(0);
+    expect(account.pushSettings).toHaveBeenCalledTimes(1);
+  });
+
+  it("text typed just before the hub closes is stored, then pushed", async () => {
+    // the editor stores 300 ms after the last key: that write landed on a
+    // closed hub, and stayed out of the cloud
+    const { dialog } = await openAuto();
+    const { renderShortcutsPanel } = await import("../src/features/hub/controls/shortcuts.ts");
+    const panel = renderShortcutsPanel();
+    document.body.appendChild(panel);
+    await settle();
+    panel.querySelector<HTMLButtonElement>("button.btn-success")!.click();
+    const row = panel.querySelector(".link-group")!;
+    row.querySelector<HTMLInputElement>("[data-shortcuts-name]")!.value = "Docs";
+    const url = row.querySelector<HTMLInputElement>("[data-shortcuts-url]")!;
+    url.value = "https://example.com/docs";
+    vi.useFakeTimers();
+    url.dispatchEvent(new Event("input", { bubbles: true }));
+    dialog.close();
+    await vi.advanceTimersByTimeAsync(0);
+    const stored = (await chrome.storage.local.get("SHORTCUTS_LINKS")).SHORTCUTS_LINKS as string;
+    expect(stored).toContain("https://example.com/docs");
+    expect(account.pushSettings).toHaveBeenCalledTimes(1);
+    panel.remove();
+  });
+
+  it("Reload just after typing stores the text first", async () => {
+    const { shadow } = await openAuto();
+    const { renderShortcutsPanel } = await import("../src/features/hub/controls/shortcuts.ts");
+    const panel = renderShortcutsPanel();
+    document.body.appendChild(panel);
+    await settle();
+    panel.querySelector<HTMLButtonElement>("button.btn-success")!.click();
+    const row = panel.querySelector(".link-group")!;
+    row.querySelector<HTMLInputElement>("[data-shortcuts-name]")!.value = "Wiki";
+    const url = row.querySelector<HTMLInputElement>("[data-shortcuts-url]")!;
+    url.value = "https://example.com/wiki";
+    url.dispatchEvent(new Event("input", { bubbles: true }));
+    (shadow.querySelector("#hub-reload") as HTMLButtonElement).click();
+    // well within the 300 ms: the reload must not have run before the write
+    await new Promise((r) => setTimeout(r, 0));
+    await new Promise((r) => setTimeout(r, 0));
+    const stored = (await chrome.storage.local.get("SHORTCUTS_LINKS")).SHORTCUTS_LINKS as string;
+    expect(stored).toContain("https://example.com/wiki");
+    await settle();
+    expect(account.pushSettings).toHaveBeenCalledTimes(1);
+    expect(reload).toHaveBeenCalledTimes(1);
+    panel.remove();
+  });
+
   it("closing the hub after a failed push sends it again", async () => {
     account.pushSettings.mockImplementationOnce(async () => "network");
     const { dialog } = await openAuto();

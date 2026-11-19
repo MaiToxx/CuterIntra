@@ -107,6 +107,24 @@ describe("full push", () => {
     expect(await storedRev()).toBe(7);
   });
 
+  it("a conflict with this browser's own other tab is pushed again over the revision that tab left", async () => {
+    // two hubs open: each answers the same change with a push, and the
+    // second was refused as "changed in another browser"
+    await chrome.storage.local.set({ CLOUD_SETTINGS_REV: 100 });
+    reply = (c) => {
+      if (c.body.baseRev === 100) {
+        // the other tab's push landed and stored its revision meanwhile
+        void chrome.storage.local.set({ CLOUD_SETTINGS_REV: 200 });
+        return conflict(200);
+      }
+      return json({ ok: true, rev: 300 });
+    };
+    await expect(pushSettings()).resolves.toBe("ok");
+    expect(posts().map((p) => p.body.baseRev)).toEqual([100, 200]);
+    expect(await storedRev()).toBe(300);
+    await expect(getPushFailure()).resolves.toBeNull();
+  });
+
   it("a conflict writes nothing, is recorded, and is not retried by the automatic pushes", async () => {
     vi.useFakeTimers();
     reply = () => conflict(5000);

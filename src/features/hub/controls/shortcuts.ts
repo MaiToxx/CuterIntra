@@ -20,6 +20,20 @@ import {
  */
 export const SHORTCUTS_RELOAD_EVENT = "bi-shortcuts-reload";
 
+/** The save a panel still holds back while a field is being typed in. */
+let pendingSave: (() => Promise<void>) | null = null;
+
+/**
+ * Stores now what the editor was about to store, and says whether there was
+ * anything: the hub calls it before it closes or reloads the page.
+ */
+export async function flushShortcuts(): Promise<boolean> {
+  const save = pendingSave;
+  if (!save) return false;
+  await save();
+  return true;
+}
+
 export function renderShortcutsPanel(): HTMLElement {
   const container = document.createElement("div");
   container.setAttribute("data-shortcuts-panel", "true");
@@ -31,6 +45,7 @@ export function renderShortcutsPanel(): HTMLElement {
       clearTimeout(saveTimer);
       saveTimer = null;
     }
+    pendingSave = null;
     await chrome.storage.local.set({
       SHORTCUTS_LINKS: JSON.stringify(extractLinksFromForm(container)),
     });
@@ -39,6 +54,7 @@ export function renderShortcutsPanel(): HTMLElement {
   // button): the rows redraw from what they hold, so nothing typed is lost.
   const debouncedSave = () => {
     if (saveTimer) clearTimeout(saveTimer);
+    pendingSave = save;
     saveTimer = setTimeout(() => {
       void save();
       syncFromForm();
@@ -135,6 +151,7 @@ export function renderShortcutsPanel(): HTMLElement {
       clearTimeout(saveTimer);
       saveTimer = null;
     }
+    pendingSave = null;
     void getStoredLinks().then((stored) => {
       links = stored;
       update();

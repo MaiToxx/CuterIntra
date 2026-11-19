@@ -194,6 +194,61 @@ describe("visuals editor: the live preview", () => {
   });
 });
 
+describe("visuals editor: Save with the server out of reach", () => {
+  const FAILED = /Saved on this browser only/;
+
+  it("stays open and says the look is on this browser only; Save sends it again", async () => {
+    // it closed like a success, and the next open put the cloud's look back
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    account.syncMyVisuals.mockResolvedValueOnce(false as never);
+    const onSave = await openEditor();
+    editDecoration();
+    shadow().querySelector<HTMLElement>("#profile-save")!.click();
+    await settle();
+
+    expect(host()?.open).toBe(true);
+    expect(shadow().textContent).toMatch(FAILED);
+    // stored and painted all the same
+    expect(onSave).toHaveBeenCalledTimes(1);
+    const kept = await chrome.storage.local.get(["PROFILE_DECORATION", "PROFILE_LOOK_UNSENT"]);
+    expect(kept).toEqual({ PROFILE_DECORATION: "solid", PROFILE_LOOK_UNSENT: true });
+
+    shadow().querySelector<HTMLElement>("#profile-save")!.click();
+    await settle();
+    expect(host()).toBeNull();
+    expect(account.syncMyVisuals).toHaveBeenCalledTimes(2);
+    expect((await chrome.storage.local.get("PROFILE_LOOK_UNSENT")).PROFILE_LOOK_UNSENT).toBeUndefined();
+  });
+
+  it("a request that throws counts as not sent too, and Cancel keeps the stored look", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    account.syncMyVisuals.mockRejectedValueOnce(new Error("offline"));
+    await openEditor();
+    editDecoration();
+    shadow().querySelector<HTMLElement>("#profile-save")!.click();
+    await settle();
+    expect(shadow().textContent).toMatch(FAILED);
+
+    shadow().querySelector<HTMLElement>("#profile-close-btn")!.click();
+    await settle();
+    expect(host()).toBeNull();
+    // the look just stored, not the one from before the Save
+    expect(lastPainted()?.decoration).toBe("solid");
+  });
+
+  it("the next open keeps this browser's look and sends it, instead of copying the cloud's over it", async () => {
+    await chrome.storage.local.set({ PROFILE_DECORATION: "solid", PROFILE_LOOK_UNSENT: true });
+    account.fetchMySettings.mockResolvedValue({ PROFILE_DECORATION: "none" });
+    await openEditor();
+    await settle();
+    expect(account.fetchMySettings).not.toHaveBeenCalled();
+    expect((await chrome.storage.local.get("PROFILE_DECORATION")).PROFILE_DECORATION).toBe("solid");
+    expect(account.syncMyVisuals).toHaveBeenCalledTimes(1);
+    expect(account.syncMyVisuals.mock.calls[0][0]).toMatchObject({ decoration: "solid" });
+    expect((await chrome.storage.local.get("PROFILE_LOOK_UNSENT")).PROFILE_LOOK_UNSENT).toBeUndefined();
+  });
+});
+
 describe("visuals editor: Reset", () => {
   it("clears the cloud copy too, so visitors and the next open see the reset", async () => {
     vi.spyOn(window, "confirm").mockReturnValue(true);

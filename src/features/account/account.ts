@@ -607,12 +607,25 @@ async function pushEverything(force: boolean): Promise<PushResult> {
     (settings as Record<string, unknown>)[key] = await getConfig(key);
   }
 
-  const baseRev = force ? null : await revIfKnown();
-  const res = await workerFetch(PRIVATE_SETTINGS, {
-    method: "POST",
-    body: baseRev === null ? { settings } : { settings, baseRev },
-    auth,
-  });
+  let baseRev = force ? null : await revIfKnown();
+  const post = () =>
+    workerFetch(PRIVATE_SETTINGS, {
+      method: "POST",
+      body: baseRev === null ? { settings } : { settings, baseRev },
+      auth,
+    });
+  let res = await post();
+  if (res.error === "conflict" && baseRev !== null) {
+    // Another tab of this browser pushed while this push was out (two hubs
+    // open, each answering the same change): it stored its revision, and it
+    // sent these same settings, so there is nothing of another browser to
+    // lose. Once, with the revision it left.
+    const now = await revIfKnown();
+    if (now !== null && now > baseRev) {
+      baseRev = now;
+      res = await post();
+    }
+  }
   if (res.ok) {
     await chrome.storage.local.set({ LAST_CLOUD_SYNC: Date.now() });
     const rev = revIn(res);
@@ -757,8 +770,8 @@ export async function syncMyVisuals(visuals: {
   avatarPosY?: number;
   avatarScale?: number;
   badgeBg?: string;
-}): Promise<void> {
-  if (!(await cloudCredentials())) return;
+}): Promise<boolean> {
+  if (!(await cloudCredentials())) return true;
 
   const result = await pushPartial({
     PROFILE_IMAGE_URL: visuals.avatar,
@@ -783,6 +796,9 @@ export async function syncMyVisuals(visuals: {
   // Recorded by pushPartial when it fails, never cleared when it succeeds:
   // these few visual keys fitting says nothing about the full push.
   if (result !== "ok") console.error("Cloud Quick Sync Error:", result);
+  // false: the look is stored here only (the editor says so and sends it
+  // again). Nothing to send when signed out, which is not a failure.
+  return result === "ok";
 }
 
 /**
@@ -916,6 +932,7 @@ export async function wipeAllCloudData(): Promise<boolean> {
       // upload, and after a new sign-in they could take down an image
       // uploaded since from another browser
       "PENDING_IMAGE_CLEANUP",
+      "PROFILE_LOOK_UNSENT",
     ]);
     return true;
   }

@@ -63,6 +63,12 @@ const SLOT_HISTORY_KEY = {
  * The look as the page and the cloud take it. Every field, always:
  * syncMyVisuals() fills an omitted one with its default.
  */
+/**
+ * Set while a saved look has not reached the server. A plain storage key,
+ * outside the settings: it is neither synced nor written to a backup file.
+ */
+const UNSENT_LOOK_KEY = "PROFILE_LOOK_UNSENT";
+
 function toVisuals(look: FormState): VisualUrls {
   return {
     avatar: look.avatar || "",
@@ -308,7 +314,26 @@ export const createSettingsModal = async (
     if (saving) e.preventDefault();
   });
 
-  if (isConnected) {
+  // A Save the server never got (offline, a 429): the look of this browser
+  // is the newer one. Copying the cloud's over it, as below, put the old look
+  // back at the next open of the editor.
+  const unsent =
+    isConnected &&
+    (await chrome.storage.local.get(UNSENT_LOOK_KEY))[UNSENT_LOOK_KEY] === true;
+  /** Sends the look; remembers a failure for the next open. */
+  const sendLook = async (look: VisualUrls): Promise<boolean> => {
+    let sent = false;
+    try {
+      sent = (await syncMyVisuals(look)) !== false;
+    } catch (e) {
+      console.error("Failed to sync visuals:", e);
+    }
+    if (sent) await chrome.storage.local.remove(UNSENT_LOOK_KEY);
+    else await chrome.storage.local.set({ [UNSENT_LOOK_KEY]: true });
+    return sent;
+  };
+
+  if (isConnected && !unsent) {
     const cloudSettings = await fetchMySettings();
     if (cloudSettings) {
       const visualData: Record<string, unknown> = {};
@@ -344,6 +369,7 @@ export const createSettingsModal = async (
   };
 
   const state: FormState = { ...saved };
+  if (unsent) void sendLook(toVisuals(saved));
 
   // Every edit is previewed on the real page (liveApplyBannerBg), and nothing
   // else repaints it: the profile observer ignores our own dialog and stops
@@ -663,16 +689,28 @@ export const createSettingsModal = async (
 
         const updatedVisuals = toVisuals(state);
 
-        try {
-          await syncMyVisuals(updatedVisuals);
-        } catch (e) {
-          console.error("Failed to sync visuals:", e);
-        }
+        // read before a failed send makes the new look the saved one (below)
+        const previousUrls = [...savedUrls];
+        const sent = await sendLook(updatedVisuals);
         onSaveCallback(updatedVisuals);
         saving = false;
-        closeDialog();
+        if (sent) {
+          closeDialog();
+        } else if (!uploads.closed) {
+          // Closing here looked like a success, and the next open then put
+          // the cloud's old look back. The editor stays, says so, and Save
+          // sends again. The stored look is now the one a Cancel goes back to.
+          Object.assign(saved, state);
+          savedUrls.splice(0, savedUrls.length, saved.avatar, saved.banner, saved.background);
+          dirty = false;
+          committed = false;
+          saveError = t(
+            "Saved on this browser only: the server could not be reached. Save again, or it will be sent the next time you open this editor.",
+          );
+          rerender();
+        }
         // After the push: the check reads the cloud copy back.
-        void deleteUnusedUploads(savedUrls, uploads.uploaded, [
+        void deleteUnusedUploads(previousUrls, uploads.uploaded, [
           state.avatar,
           state.banner,
           state.background,

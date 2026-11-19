@@ -21,7 +21,7 @@ import { initPace } from "./cards/pace.ts";
 import { initCampusCard } from "./cards/campus.ts";
 import { ensureCampusData } from "../clusters/clusters.data.ts";
 import { tagDashboardCards } from "../customize/cards.ts";
-import { waitForElement } from "../../core/dom/dom-wait.ts";
+import { waitForElement, watchDom } from "../../core/dom/dom-wait.ts";
 import { isOwnId } from "../../core/lifecycle/own-ids.ts";
 import { holdAvatar, releaseAvatar } from "./header/visuals-apply.ts";
 
@@ -118,6 +118,57 @@ const waitForBody = async (): Promise<void> => {
   await waitForElement("body", { timeoutMs: 10000 });
 };
 
+const isProfilePath = (path: string): boolean =>
+  path === "/" || path.startsWith("/users/");
+
+const NAV_RELOAD_KEY = "ft-nav-reload";
+/** At most NAV_RELOAD_MAX reloads within this time: never a loop. */
+const NAV_RELOAD_GUARD_MS = 10_000;
+const NAV_RELOAD_MAX = 3;
+
+/**
+ * Loads the page again when the Intra moves to the dashboard or to a profile
+ * without loading one (it is a single-page app).
+ *
+ * WHY: the features below are written for one page each. They keep "done"
+ * flags, a per-login state, listeners and observers for the life of the
+ * script, and the watcher of initProfile() stops after a few seconds. After
+ * an in-app move from one profile to another, the first one's banner,
+ * background and published look stayed on the second, and none of its cards
+ * loaded. A reload gives the new page the same start as a typed address.
+ * The path is compared on each DOM burst (a route change always renders) and
+ * on popstate; an idle page does no work.
+ */
+export function watchProfileRoute(): void {
+  let path = location.pathname;
+  const check = () => {
+    if (location.pathname === path) return;
+    path = location.pathname;
+    if (!isProfilePath(path)) return;
+    try {
+      // whatever the page does with its own address (sessionStorage outlives
+      // the reload, this script does not)
+      const now = Date.now();
+      const recent = (sessionStorage.getItem(NAV_RELOAD_KEY) || "")
+        .split(",")
+        .map(Number)
+        .filter((at) => now - at < NAV_RELOAD_GUARD_MS);
+      if (recent.length >= NAV_RELOAD_MAX) return;
+      sessionStorage.setItem(NAV_RELOAD_KEY, [...recent, now].join(","));
+    } catch {
+      return;
+    }
+    location.reload();
+  };
+  const watch = () => watchDom(check, { timeoutMs: 0, immediate: false });
+  watch();
+  addEventListener("popstate", check);
+  // watchDom stops on pagehide: pick it up when the bfcache brings the page back
+  addEventListener("pageshow", (e) => {
+    if ((e as PageTransitionEvent).persisted) watch();
+  });
+}
+
 export async function initProfile() {
   injectCustomStyles();
   // Only this watcher paints the custom avatar, so the avatar is hidden only
@@ -137,6 +188,7 @@ export async function initProfile() {
     replaceMoulinetteImage();
   }
   if (!watchesProfile) return;
+  watchProfileRoute();
 
   void ensureCampusData();
 

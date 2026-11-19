@@ -34,6 +34,7 @@ import {
   pushSettings,
 } from "../account/account.ts";
 import { flushLookPublish } from "../customize/publish.ts";
+import { flushShortcuts } from "./controls/shortcuts.ts";
 import {
   FEATURE_DEFS,
   HUB_INFO,
@@ -874,7 +875,16 @@ async function bindCloudSync(
         // after a lapsed sign-in every push fails the same way until the
         // user signs in again (which reloads the page); a conflict and the
         // daily limit until the user settles it or the day ends
-        if (autoSelected() && !STOPS_AUTO.has(lastFailure ?? "")) schedulePush();
+        // A hub left open in a tab in the background hears the same change:
+        // its push raced the other tab's and came back as a conflict "from
+        // another browser". It keeps the change as not pushed (sent when it
+        // closes, a no-op by then) and leaves the push to the tab in use.
+        if (
+          autoSelected() &&
+          !STOPS_AUTO.has(lastFailure ?? "") &&
+          document.visibilityState !== "hidden"
+        )
+          schedulePush();
         showPushNow();
       }
     }
@@ -885,12 +895,18 @@ async function bindCloudSync(
   // and "Auto" must not depend on how the hub was closed.
   // Manual: the look's changes wait a few seconds before they are published;
   // the user is done, they go now (Auto's push above carries them).
-  dialog.addEventListener("close", () => {
+  // Text typed less than 300 ms before the close is stored first: its write
+  // used to land after this handler, on a closed hub that no longer listens,
+  // and stayed out of the cloud until the next change.
+  dialog.addEventListener("close", async () => {
+    const stored = await flushShortcuts();
     if (!autoSelected()) void flushLookPublish();
-    else if ((dirty || timer) && !STOPS_AUTO.has(lastFailure ?? "")) void push();
+    else if ((dirty || timer || stored) && !STOPS_AUTO.has(lastFailure ?? "")) void push();
   });
 
   reloadBtn?.addEventListener("click", async () => {
+    // A reload within those 300 ms lost the text for good.
+    if (await flushShortcuts()) dirty = true;
     // A push after a lapsed sign-in fails again: it would keep the user on
     // the hub for good, and the settings are already kept on this browser.
     // The same for a conflict and the daily limit.
