@@ -326,7 +326,10 @@ export async function colorTrackerBadge(): Promise<void> {
   badge.addEventListener("mouseleave", scheduleClose);
 
   let state = await getTrackerState();
-  if (!state) {
+  // A phase of the other programme too: a student who moved from Phoenix to
+  // Pegasus kept the Phoenix thresholds, and the list (Pegasus phases only)
+  // showed none selected.
+  if (!state || !state.mode.startsWith(found.type)) {
     const defaultMode =
       found.type === "phoenix" ? "phoenix-1" : "pegasus-bronze";
     await saveTrackerMode(defaultMode);

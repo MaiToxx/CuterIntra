@@ -78,6 +78,33 @@ function armLoadOlder(login: string | null, before: string | undefined): void {
   loadMoreBefore = login ? before : undefined;
 }
 
+/** Counts the logtime payloads: an answer for an older one is dropped. */
+let payloadSeq = 0;
+
+/**
+ * Draws `stats` at once, then offers "Load older months" when the worker can
+ * serve it. canLoadOlder() asks the worker (up to 5 s when it is slow): awaited
+ * before the first render, it left the calendar blank meanwhile, and its
+ * answer was drawn on whatever profile the student had opened by then.
+ */
+function renderThenOfferOlder(
+  login: string,
+  before: string | undefined,
+  stats: Record<string, string>,
+  stillThere: () => boolean,
+): void {
+  const seq = ++payloadSeq;
+  armLoadOlder(null, undefined);
+  renderLogtime(stats);
+  void canLoadOlder(login)
+    .then((ok) => {
+      if (!ok || seq !== payloadSeq || !stillThere()) return;
+      armLoadOlder(login, before);
+      renderLogtime(lastStats || stats);
+    })
+    .catch(() => {});
+}
+
 function extractLoginFromPath(): string | null {
   const m = location.pathname.match(/^\/users\/([^/]+)/);
   return m ? m[1] : null;
@@ -724,14 +751,17 @@ function installFetchHook() {
       // does behind its own cloud check) hid every event and exam marker
       // from students who never signed in.
       const cloudLogin = await getConfig("CLOUD_LOGIN");
+      if (!isOwnProfile()) return;
       const hasHistory = !!cloudLogin && historyCache.has(cloudLogin);
-      armLoadOlder(
-        cloudLogin && !hasHistory && (await canLoadOlder(cloudLogin)) ? cloudLogin : null,
-        before,
-      );
-      renderLogtime(
-        hasHistory ? mergeHistoryWithHook(detail, cloudLogin) : detail,
-      );
+      if (cloudLogin && !hasHistory) {
+        renderThenOfferOlder(cloudLogin, before, detail, isOwnProfile);
+      } else {
+        payloadSeq++;
+        armLoadOlder(null, undefined);
+        renderLogtime(
+          hasHistory ? mergeHistoryWithHook(detail, cloudLogin) : detail,
+        );
+      }
 
       void fetchEvents().then((events) => {
         // A failed read is not "no events": keep what is drawn.
@@ -748,18 +778,22 @@ function installFetchHook() {
 
     const targetLogin = extractLoginFromPath();
     if (targetLogin) {
-      const hasHistory = historyCache.has(targetLogin);
-      armLoadOlder(
-        !hasHistory && (await canLoadOlder(targetLogin)) ? targetLogin : null,
-        before,
-      );
-      const stats = hasHistory
-        ? mergeHistoryWithHook(detail, targetLogin)
-        : detail;
-      renderLogtime(stats);
+      if (historyCache.has(targetLogin)) {
+        payloadSeq++;
+        armLoadOlder(null, undefined);
+        renderLogtime(mergeHistoryWithHook(detail, targetLogin));
+      } else {
+        renderThenOfferOlder(
+          targetLogin,
+          before,
+          detail,
+          () => extractLoginFromPath() === targetLogin,
+        );
+      }
       return;
     }
 
+    payloadSeq++;
     armLoadOlder(null, undefined);
     renderLogtime(detail);
   });

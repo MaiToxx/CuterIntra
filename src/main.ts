@@ -27,6 +27,7 @@ import {
 import { AVATAR_SELECTOR } from "./core/intra/selectors.ts";
 import { initAnnouncementBanner } from "./features/announcement/announcement.ts";
 import { consumeAuthFlow } from "./features/account/auth-callback.ts";
+import { AUTH_MODE } from "./core/worker.ts";
 import { initCustomize } from "./features/customize/customize.ts";
 import { publishDefaultLookOnce } from "./features/customize/publish.ts";
 import { initPerfStyles } from "./features/performance/perf.ts";
@@ -181,16 +182,23 @@ void i18nReady.then(function v2Warning() {
   const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
   const oauthToken = oauthParams.get("token") ?? hashParams.get("token");
   const oauthLogin = oauthParams.get("login") ?? hashParams.get("login");
-  if (oauthToken && oauthLogin) {
-    // Only trust the callback if this extension started a login recently.
-    // Otherwise any intra link with ?token=&login= could hijack the account.
-    if (!(await consumeAuthFlow("cloud"))) {
+  // Only the OAuth sign-in ends on such a URL. With the Intra session there is
+  // no callback: an Intra link carrying ?token=&login= is an ordinary page.
+  // Only trust the callback if this extension started a login recently.
+  // Otherwise any intra link with ?token=&login= could hijack the account.
+  // Refused, the page starts as usual: returning here left every feature off
+  // and the avatar hidden for the whole tab.
+  let trusted = false;
+  if (AUTH_MODE === "oauth" && oauthToken && oauthLogin) {
+    trusted = await consumeAuthFlow("cloud");
+    if (!trusted) {
       console.warn(
         "Cuter Intra: ignoring unexpected auth callback (no login in progress).",
       );
       history.replaceState(null, "", window.location.pathname);
-      return;
     }
+  }
+  if (trusted) {
     await chrome.storage.local.set({
       CLOUD_TOKEN: oauthToken,
       CLOUD_LOGIN: oauthLogin,

@@ -586,11 +586,13 @@ export interface PushOptions {
  * answers 409 ("conflict") and writes nothing when the stored revision is
  * newer. A worker without revisions ignores it and answers "Saved".
  *
- * A browser that never learnt a revision (updated from 1.17.1 or older, or
- * signed in and declined the restore) has nothing to compare with: it pushes
+ * A browser that never learnt a revision (updated from 1.17.1 or older) has
+ * nothing to compare with: it pushes
  * without baseRev, as before revisions existed, and adopts the revision of
  * that write. Sending 0 made the first push of every student after the
  * update a conflict, and stopped their automatic pushes until they chose.
+ * Declining "Restore your settings?" is the one case that stores 0 on
+ * purpose: this browser holds defaults and the cloud a backup.
  */
 export function pushSettings(options: PushOptions = {}): Promise<PushResult> {
   return oneAtATime(() => pushEverything(!!options.force));
@@ -1001,9 +1003,11 @@ export async function maybePromptRestore(): Promise<void> {
   await settleConflict();
 
   // Nothing to restore, or restored: this browser now holds what the cloud
-  // does as far as a conflict goes. Cancel forgets the revision (it may even
-  // be another login's, from before this sign-in): the next full push is
-  // refused and asks, instead of replacing the backup.
+  // does as far as a conflict goes. Cancel sets the revision to 0 (the one
+  // stored may even be another login's, from before this sign-in): older than
+  // any cloud copy, so the next full push is refused and asks (Pull, or Push
+  // anyway) instead of replacing the backup with this browser's defaults.
+  // Removing it made that push go without baseRev, which the worker accepts.
   if (!hasCloudData(settings)) {
     if (rev !== null) await rememberRev(rev, true);
     await chrome.storage.local.remove(RESTORE_PENDING_KEY);
@@ -1020,6 +1024,6 @@ export async function maybePromptRestore(): Promise<void> {
     if (rev !== null) await rememberRev(rev, true);
     window.location.reload();
   } else {
-    await chrome.storage.local.remove(REV_KEY);
+    await chrome.storage.local.set({ [REV_KEY]: 0 });
   }
 }

@@ -33,7 +33,10 @@ export async function showConfirmDialog(
   let resolvePromise!: (value: boolean) => void;
   const promise = new Promise<boolean>((r) => (resolvePromise = r));
 
+  let settled = false;
   const resolve = (value: boolean) => {
+    if (settled) return;
+    settled = true;
     dialog.close();
     dialog.remove();
     resolvePromise(value);
@@ -90,6 +93,9 @@ export async function showConfirmDialog(
   dialog.addEventListener("click", (e) => {
     if (e.target === dialog) resolve(false);
   });
+  // Escape closes a modal dialog by itself: without an answer the caller
+  // waited for ever and the closed dialog stayed in the page.
+  dialog.addEventListener("close", () => resolve(false));
 
   return promise;
 }

@@ -21,6 +21,21 @@ describe("the .ics feed", () => {
     expect(ics.match(/^DTSTAMP:20260924T123456Z$/gm)).toHaveLength(2);
   });
 
+  it("gives an event without a usable end one hour, and leaves out one without a start", () => {
+    // the Intra sends a null end_at for some events: it used to throw, and
+    // the whole feed stopped being updated
+    const ics = generateIcs([
+      { ...EVENT, id: 1, end_at: null as unknown as string },
+      { ...EVENT, id: 2, end_at: "soon" },
+      { ...EVENT, id: 3, begin_at: "" },
+      { ...EVENT, id: 4 },
+    ]);
+    expect(ics.match(/^UID:/gm)).toHaveLength(3);
+    expect(ics).not.toContain("UID:3@better-intra");
+    expect(ics.match(/^DTEND:20261001T150000Z$/gm)).toHaveLength(2);
+    expect(ics.match(/^DTEND:20261001T160000Z$/gm)).toHaveLength(1);
+  });
+
   it("folds long lines at 75 octets, and unfolding gives the text back", () => {
     const ics = generateIcs([EVENT]);
     for (const line of ics.split("\r\n")) expect(bytes(line)).toBeLessThanOrEqual(75);

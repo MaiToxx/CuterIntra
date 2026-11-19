@@ -16,6 +16,11 @@ export const BACKUP_EXCLUDED_KEYS: ReadonlySet<string> = new Set<ConfigKey>([
   "CLOUD_AUTH_FAILED",
   // consent given on one browser, not carried to another in a file
   "SIGNIN_DISCLOSURE_ACCEPTED",
+  // likewise (as cloud sync leaves them out, core/config/keys.ts): someone
+  // else's file turned automatic pushes and subject sharing back on
+  "CLOUD_SYNC_ENABLED",
+  "SUBJECT_TRACKER_ENABLED",
+  "SUBJECT_TRACKER_SEND_DATA",
   "LAST_CLOUD_SYNC",
   // sync state of this browser: restored elsewhere, a revision would hide
   // another browser's changes from the conflict check

@@ -229,6 +229,9 @@ export interface WorkerFeatures {
 }
 
 let workerFeatures: Promise<WorkerFeatures> | null = null;
+/** When the last read failed (0: it did not). */
+let featuresFailedAt = 0;
+const FEATURES_RETRY_MS = 60_000;
 
 /**
  * GET /api/v1/public/features, once per page (the worker caches it 5
@@ -236,12 +239,21 @@ let workerFeatures: Promise<WorkerFeatures> | null = null;
  * offers nothing.
  */
 export function getWorkerFeatures(): Promise<WorkerFeatures> {
+  if (featuresFailedAt && Date.now() - featuresFailedAt >= FEATURES_RETRY_MS) {
+    workerFeatures = null;
+    featuresFailedAt = 0;
+  }
   workerFeatures ??= workerFetch("/api/v1/public/features", { timeoutMs: 5_000 }).then(
     (res) => {
       const features = (res.json as { features?: unknown } | null)?.features;
-      return res.ok && features && typeof features === "object"
-        ? (features as WorkerFeatures)
-        : {};
+      if (res.ok && features && typeof features === "object") {
+        return features as WorkerFeatures;
+      }
+      // Kept a minute only: one timeout used to hide "Load older months" and
+      // the Campus card until the page was reloaded. Not asked again at once
+      // either: every caller would wait for a worker that is down.
+      featuresFailedAt = Date.now();
+      return {};
     },
   );
   return workerFeatures;
@@ -250,4 +262,5 @@ export function getWorkerFeatures(): Promise<WorkerFeatures> {
 /** For the tests: forget the features read on this page. */
 export function resetWorkerFeatures(): void {
   workerFeatures = null;
+  featuresFailedAt = 0;
 }

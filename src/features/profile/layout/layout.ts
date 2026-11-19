@@ -139,10 +139,10 @@ export async function optimizeLayout() {
     document
       .querySelectorAll<HTMLElement>(DASHBOARD_CARD_SELECTOR)
       .forEach((c) => {
-        if (
-          getCardTitle(c) === cleanSearch ||
-          (c.textContent || "").toUpperCase().includes(cleanSearch)
-        ) {
+        // The title only, as reorderCards() matches it: the whole text of
+        // a card hid the agenda with PROJECTS as soon as an event was named
+        // "... projects ...".
+        if (getCardTitle(c).includes(cleanSearch)) {
           c.style.display = shouldHide ? "none" : "";
         }
       });

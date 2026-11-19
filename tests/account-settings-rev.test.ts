@@ -219,7 +219,7 @@ describe("pull and restore take the cloud's revision", () => {
     await expect(getPushFailure()).resolves.toBeNull();
   });
 
-  it("the restore question: restored or empty takes it, Cancel does not", async () => {
+  it("the restore question: restored or empty takes it, Cancel stores 0 so the next push asks", async () => {
     reply = () => json({ settings: { FRIENDS_LIST: ["bob"] }, activeSessions: 1, rev: 77 });
     const reload = vi.fn();
     const loc = window.location;
@@ -228,7 +228,15 @@ describe("pull and restore take the cloud's revision", () => {
       await chrome.storage.local.set({ PENDING_SETTINGS_RESTORE: true });
       dialog.answer.mockResolvedValueOnce(false);
       await maybePromptRestore();
-      expect(await storedRev()).toBeUndefined();
+      expect(await storedRev()).toBe(0);
+      // the next full push names revision 0: the worker refuses it (its copy
+      // is newer) instead of replacing the backup with this browser's defaults
+      const before = posts().length;
+      reply = () => json({ error: "conflict", rev: 77 }, 409);
+      await pushSettings();
+      expect(posts()[before].body.baseRev).toBe(0);
+      reply = () => json({ settings: { FRIENDS_LIST: ["bob"] }, activeSessions: 1, rev: 77 });
+      await chrome.storage.local.remove(PUSH_FAILURE_KEY);
 
       await chrome.storage.local.set({ PENDING_SETTINGS_RESTORE: true });
       dialog.answer.mockResolvedValueOnce(true);

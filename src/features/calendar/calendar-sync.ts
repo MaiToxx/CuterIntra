@@ -52,13 +52,22 @@ function escapeIcs(text: string): string {
     .replace(/\r\n|\r|\n/g, "\\n");
 }
 
-function formatIcsDate(iso: string): string {
+/** The instant of an Intra date (UTC, with or without its "Z"), or null. */
+function parseIcsDate(iso: unknown): Date | null {
+  if (typeof iso !== "string" || !iso) return null;
   const d = new Date(iso.endsWith("Z") ? iso : iso + "Z");
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function formatIcsDate(d: Date): string {
   return d
     .toISOString()
     .replace(/[-:]/g, "")
     .replace(/\.\d{3}/, "");
 }
+
+/** What an event with no usable end lasts in the feed. */
+const DEFAULT_EVENT_MS = 60 * 60_000;
 
 /**
  * RFC 5545 §3.1: a content line is at most 75 octets; a longer one goes on
@@ -110,7 +119,7 @@ function computeHash(events: IcsEvent[]): string {
  * still not uploaded again.
  */
 export function generateIcs(events: IcsEvent[], now: Date = new Date()): string {
-  const stamp = formatIcsDate(now.toISOString());
+  const stamp = formatIcsDate(now);
   const lines: string[] = [];
   lines.push(
     "BEGIN:VCALENDAR",
@@ -122,6 +131,16 @@ export function generateIcs(events: IcsEvent[], now: Date = new Date()): string 
   );
 
   for (const ev of events) {
+    // One event without a date the feed can write (the Intra sends a null
+    // end_at for some) used to throw here, and the whole feed stopped being
+    // updated without a word. No start: left out. No end: one hour.
+    const begin = parseIcsDate(ev.begin_at);
+    if (!begin) continue;
+    const parsedEnd = parseIcsDate(ev.end_at);
+    const end =
+      parsedEnd && parsedEnd.getTime() > begin.getTime()
+        ? parsedEnd
+        : new Date(begin.getTime() + DEFAULT_EVENT_MS);
     // An evaluation has its own UID space: its id is a scale team id, which
     // may equal an event id.
     const isEvaluation = ev.kind === EVALUATION_KIND;
@@ -135,8 +154,8 @@ export function generateIcs(events: IcsEvent[], now: Date = new Date()): string 
       "BEGIN:VEVENT",
       isEvaluation ? `UID:eval-${ev.id}@better-intra` : `UID:${ev.id}@better-intra`,
       `DTSTAMP:${stamp}`,
-      `DTSTART:${formatIcsDate(ev.begin_at)}`,
-      `DTEND:${formatIcsDate(ev.end_at)}`,
+      `DTSTART:${formatIcsDate(begin)}`,
+      `DTEND:${formatIcsDate(end)}`,
       `SUMMARY:${escapeIcs(ev.name)}`,
       ev.location ? `LOCATION:${escapeIcs(ev.location)}` : "",
       `URL:${url}`,

@@ -33,6 +33,17 @@ describe("sanitizeBackup", () => {
     expect(() => sanitizeBackup("x")).toThrow();
   });
 
+  it("does not carry this device's consents and push policy", () => {
+    // someone else's file turned automatic pushes and subject sharing back on
+    const out = sanitizeBackup({
+      CLOUD_SYNC_ENABLED: true,
+      SUBJECT_TRACKER_ENABLED: true,
+      SUBJECT_TRACKER_SEND_DATA: true,
+      LOGTIME_EMOJI: "🍕",
+    });
+    expect(out).toEqual({ LOGTIME_EMOJI: "🍕" });
+  });
+
   it("refuses to restore credentials from a backup file", () => {
     const out = sanitizeBackup({
       CLOUD_TOKEN: "attacker-token",

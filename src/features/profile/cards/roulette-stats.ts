@@ -12,7 +12,7 @@ import {
 import { getIsLight } from "../../../core/theme/theme-manager.ts";
 import { createSkeleton, createSkeletonLines } from "../../../core/dom/skeleton.ts";
 import { tickWhileVisible } from "../../../core/dom/dom-wait.ts";
-import { t } from "../../../core/i18n/i18n.ts";
+import { intlLocale, t } from "../../../core/i18n/i18n.ts";
 
 import { WORKER_URL, AUTH_MODE } from "../../../core/worker.ts";
 import {
@@ -126,8 +126,10 @@ function getNextRoulette(): {
   // The viewer's own clock, from the same instant as the countdown: 8:00 in
   // Paris, 7:00 in Lisbon, 11:00 in Abu Dhabi.
   const d = new Date(nextMs);
-  const time = d.toLocaleTimeString("en-GB", { hour: "numeric", minute: "2-digit" });
-  const dateLabel = `${d.toLocaleDateString("en-US", { weekday: "long" })} ${d.getDate()} ${d.toLocaleDateString("en-US", { month: "long" })}, ${time}`;
+  // In the extension's language: French students read "Friday 20 November".
+  const time = d.toLocaleTimeString(intlLocale("en-GB"), { hour: "numeric", minute: "2-digit" });
+  const locale = intlLocale("en-US");
+  const dateLabel = `${d.toLocaleDateString(locale, { weekday: "long" })} ${d.getDate()} ${d.toLocaleDateString(locale, { month: "long" })}, ${time}`;
 
   return { days, hours, minutes, dateLabel };
 }
