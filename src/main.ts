@@ -26,6 +26,7 @@ import {
 } from "./features/profile/header/visuals-apply.ts";
 import { AVATAR_SELECTOR } from "./core/intra/selectors.ts";
 import { initAnnouncementBanner } from "./features/announcement/announcement.ts";
+import { initEventPageAttendees } from "./features/profile/cards/events/attendees.ts";
 import { consumeAuthFlow } from "./features/account/auth-callback.ts";
 import { AUTH_MODE } from "./core/worker.ts";
 import { initCustomize } from "./features/customize/customize.ts";
@@ -60,6 +61,17 @@ void publishDefaultLookOnce();
 void initPerfStyles();
 void initEasterEggs();
 void i18nReady.then(() => initAnnouncementBanner());
+// "Who's going" on the page of an event (the old profile host): the page is
+// server-rendered, so one pass once its DOM is there.
+if (location.hostname === "profile.intra.42.fr" && location.pathname.startsWith("/events/")) {
+  void i18nReady.then(() => {
+    const mount = () =>
+      void initEventPageAttendees().catch((e) => console.warn("Cuter Intra: event attendees", e));
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", mount, { once: true });
+    } else mount();
+  });
+}
 initGlobalTooltips(getIsLight);
 
 // hook.js is declared in the manifests as a content script running in the

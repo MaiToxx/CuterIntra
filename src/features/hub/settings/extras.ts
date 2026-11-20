@@ -65,7 +65,7 @@ export const EXTRAS_SETTINGS: readonly HubSettingDef[] = [
         value: "PROFILE_SHOW_EVENT_ATTENDEES",
         color: "secondary",
         big: true,
-        desc: "Adds a button to the Agenda of your dashboard that lists who is registered to a coming event, your friends first.",
+        desc: "Adds a link to each event of your Agenda, and a list on the page of an event, showing who is registered, your friends first.",
         requiresCloud: true,
       },
       {

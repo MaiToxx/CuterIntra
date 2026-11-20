@@ -1,16 +1,14 @@
 {
   "Who's going": "Qui y va",
-  "Adds a button to the Agenda of your dashboard that lists who is registered to a coming event, your friends first.": "Ajoute à l’agenda de ton tableau de bord un bouton qui liste les inscrits d’un événement à venir, tes amis en premier.",
+  "Adds a link to each event of your Agenda, and a list on the page of an event, showing who is registered, your friends first.": "Ajoute un lien à chaque événement de ton agenda, et une liste sur la page d’un événement, pour voir qui est inscrit, tes amis en premier.",
   "This event is over.": "Cet événement est terminé.",
   "Too many requests for now. Try again in a few minutes.": "Trop de demandes pour l’instant. Réessaie dans quelques minutes.",
   "Sign in to see who is going.": "Connecte-toi pour voir qui y va.",
   "Couldn't load the list. Try again later.": "Impossible de charger la liste. Réessaie plus tard.",
-  "All events": "Tous les événements",
+  "Friend": "Ami",
   "Loading": "Chargement",
   "Nobody is registered yet.": "Personne n’est encore inscrit.",
   "{n} registered": "Inscrits : {n}",
   "{n} of your friends": "amis : {n}",
-  "Only the first 300 are listed.": "Seuls les 300 premiers sont listés.",
-  "No coming event.": "Aucun événement à venir.",
-  "Pick an event to see who is registered.": "Choisis un événement pour voir qui est inscrit."
+  "Only the first 300 are listed.": "Seuls les 300 premiers sont listés."
 }

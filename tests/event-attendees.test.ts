@@ -2,9 +2,9 @@
  * @vitest-environment jsdom
  * @vitest-environment-options { "url": "https://profile-v3.intra.42.fr/" }
  *
- * "Who's going" (cards/events/attendees.ts): a button in the Agenda of your
- * dashboard, a dialog listing the coming events, and for the one you pick
- * the people registered, read from the worker. Signed in only, on a worker
+ * "Who's going" (cards/events/attendees.ts): a link in each event card of
+ * your Agenda that opens the people registered, and the same list on the
+ * page of an event, read from the worker. Signed in only, on a worker
  * that has the route.
  */
 import { describe, it, expect, vi, beforeAll, beforeEach } from "vitest";
@@ -32,8 +32,9 @@ vi.mock("../src/core/theme/theme-manager.ts", () => ({ getEffectiveTheme: async 
 
 import {
   fetchEventAttendees,
-  initEventAttendees,
+  linkedEventId,
   listableEvents,
+  matchEvent,
   openAttendeesDialog,
   orderAttendees,
 } from "../src/features/profile/cards/events/attendees";
@@ -144,22 +145,32 @@ describe("fetchEventAttendees", () => {
   });
 });
 
+describe("matchEvent and linkedEventId", () => {
+  it("finds the event a card names: the longest name, the soonest of two", () => {
+    const list = [
+      event(1, HOUR, { name: "Talk" }),
+      event(2, 2 * HOUR, { name: "Talk about Rust" }),
+      event(3, 3 * HOUR, { name: "Talk about Rust" }),
+    ];
+    expect(matchEvent("conference  TALK about\n rust amphi", list)?.id).toBe(2);
+    expect(matchEvent("conference Talk amphi", list)?.id).toBe(1);
+    expect(matchEvent("something else", list)).toBeNull();
+  });
+
+  it("reads the id from a link to the event", () => {
+    const el = document.createElement("div");
+    el.innerHTML = '<a href="https://profile.intra.42.fr/events/45935">x</a>';
+    expect(linkedEventId(el)).toBe(45935);
+    expect(linkedEventId(document.createElement("div"))).toBeNull();
+  });
+});
+
 describe("the dialog", () => {
-  it("lists the coming events, then the people of the one picked, friends first", async () => {
-    vi.useFakeTimers({ now: NOW, toFake: ["Date"] });
-    events.mockResolvedValue([event(2, 26 * HOUR), event(1, HOUR, { is_subscribed: true })]);
+  it("shows the people of the event, friends first", async () => {
     workerFetch.mockResolvedValue(answer([person("bob"), person("zoe"), person("alice")]));
-    await openAttendeesDialog();
+    await openAttendeesDialog(event(2, HOUR));
     await settle();
 
-    const rows = [...root().querySelectorAll<HTMLButtonElement>("button[data-event]")];
-    expect(rows.map((b) => b.dataset.event)).toEqual(["1", "2"]);
-    expect(rows[0].textContent).toContain("Registered");
-    expect(rows[1].textContent).not.toContain("Registered");
-    expect(workerFetch).not.toHaveBeenCalled();
-
-    rows[1].click();
-    await settle();
     expect(workerFetch.mock.calls[0][0]).toContain("event=2");
     expect(text()).toContain("Event 2");
     expect(root().querySelector("[data-count]")!.textContent).toMatch(/3 registered · 1 of your friends/);
@@ -169,132 +180,152 @@ describe("the dialog", () => {
       "https://profile-v3.intra.42.fr/users/alice",
       "https://profile-v3.intra.42.fr/users/bob",
     ]);
-    expect(links[0].textContent).toContain("★");
+    expect(links[0].querySelector("[data-friend]")).not.toBeNull();
+    expect(links[1].querySelector("[data-friend]")).toBeNull();
     expect(links[0].querySelector("img")!.getAttribute("src")).toBe("https://cdn.intra.42.fr/zoe.jpg");
-
-    // back to the list
-    [...root().querySelectorAll("button")].find((b) => b.textContent!.includes("All events"))!.click();
-    expect(root().querySelectorAll("button[data-event]")).toHaveLength(2);
   });
 
   it("says so when nobody is registered, when the list is cut, and when the read fails", async () => {
-    vi.useFakeTimers({ now: NOW, toFake: ["Date"] });
-    events.mockResolvedValue([event(1, HOUR)]);
-    const pick = async () => {
-      await openAttendeesDialog();
-      await settle();
-      root().querySelector<HTMLButtonElement>("button[data-event]")!.click();
+    const open = async () => {
+      await openAttendeesDialog(event(1, HOUR));
       await settle();
     };
-
     workerFetch.mockResolvedValueOnce(answer([]));
-    await pick();
+    await open();
     expect(text()).toContain("Nobody is registered yet.");
 
     workerFetch.mockResolvedValueOnce(answer([person("bob")], true));
-    await pick();
+    await open();
     expect(text()).toContain("Only the first 300 are listed.");
 
     workerFetch.mockResolvedValueOnce(answer(null, false, 502));
-    await pick();
+    await open();
     expect(root().querySelector("[role=alert]")!.textContent).toContain("Couldn't load the list");
     expect(document.querySelectorAll("#ft-attendees-dialog")).toHaveLength(1);
   });
 
-  it("an answer that arrives after another event was picked is dropped", async () => {
-    vi.useFakeTimers({ now: NOW, toFake: ["Date"] });
-    events.mockResolvedValue([event(1, HOUR), event(2, 2 * HOUR)]);
-    let slow!: (v: unknown) => void;
-    workerFetch
-      .mockReturnValueOnce(new Promise((r) => (slow = r)))
-      .mockResolvedValueOnce(answer([person("carol")]));
-    await openAttendeesDialog();
+  it("closes with its button and leaves the page", async () => {
+    workerFetch.mockResolvedValue(answer([]));
+    await openAttendeesDialog({ id: 7 });
     await settle();
-    root().querySelector<HTMLButtonElement>('button[data-event="1"]')!.click();
-    await settle();
-    [...root().querySelectorAll("button")].find((b) => b.textContent!.includes("All events"))!.click();
-    root().querySelector<HTMLButtonElement>('button[data-event="2"]')!.click();
-    await settle();
-    slow(answer([person("bob")]));
-    await settle();
-    expect(text()).toContain("carol");
-    expect(text()).not.toContain("bob");
-  });
-
-  it("closes with its button and leaves the page; no event at all says so", async () => {
-    events.mockResolvedValue(null);
-    await openAttendeesDialog();
-    await settle();
-    expect(text()).toContain("No coming event.");
+    expect(text()).toContain("Who's going");
     root().querySelector<HTMLButtonElement>('button[aria-label="Close"]')!.click();
     expect(dialog()).toBeNull();
   });
 });
 
-describe("the Agenda's button", () => {
-  const agenda = () => {
-    const header = document.createElement("div");
-    const link = document.createElement("a");
-    link.href = "https://profile.intra.42.fr/events";
-    header.appendChild(link);
-    document.body.appendChild(header);
-    return header;
-  };
-  const button = () => document.getElementById("ft-attendees-button");
+const card = (label: string, href?: string) => {
+  const el = document.createElement("div");
+  el.className = "relative clear-both m-1 border rounded";
+  el.innerHTML = `<b>conference</b><span>${label}</span>${href ? `<a href="${href}">open</a>` : ""}`;
+  document.body.appendChild(el);
+  return el;
+};
+const load = async () => {
+  vi.resetModules();
+  return await import("../src/features/profile/cards/events/attendees");
+};
 
-  it("is added once on your dashboard, put back after a redraw, and opens the dialog", async () => {
-    const header = agenda();
+describe("the link in the Agenda's cards", () => {
+  it("is added once to each card that names a coming event, and opens its list", async () => {
+    vi.useFakeTimers({ now: NOW, toFake: ["Date"] });
+    events.mockResolvedValue([event(1, HOUR), event(2, 2 * HOUR), event(9, HOUR, { kind: "exam" })]);
+    const first = card("Event 1");
+    const linked = card("Renamed", "https://profile.intra.42.fr/events/777");
+    const unknown = card("Not in my events");
+    const exam = card("Event 9");
+    const { initEventAttendees } = await load();
     await initEventAttendees();
     await initEventAttendees();
-    expect(header.querySelectorAll("#ft-attendees-button")).toHaveLength(1);
 
-    button()!.remove();
+    expect(first.querySelectorAll(".ft-attendees-link")).toHaveLength(1);
+    expect(first.querySelector(".ft-attendees-link")!.textContent).toBe("Who's going");
+    expect(linked.querySelector(".ft-attendees-link")!.id).toBe("ft-attendees-link-777");
+    expect(unknown.querySelector(".ft-attendees-link")).toBeNull();
+    expect(exam.querySelector(".ft-attendees-link")).toBeNull();
+    expect(events).toHaveBeenCalledTimes(1);
+
+    // put back after a redraw
+    first.querySelector(".ft-attendees-link")!.remove();
     await initEventAttendees();
-    expect(button()).not.toBeNull();
+    expect(first.querySelector(".ft-attendees-link")).not.toBeNull();
 
-    events.mockResolvedValue([]);
-    button()!.click();
+    // the click opens the list and does not reach the card
+    const cardClick = vi.fn();
+    first.addEventListener("click", cardClick);
+    workerFetch.mockResolvedValue(answer([person("bob")]));
+    first.querySelector<HTMLButtonElement>(".ft-attendees-link")!.click();
     await settle();
-    expect(dialog()?.open).toBe(true);
+    expect(cardClick).not.toHaveBeenCalled();
+    expect(dialog()?.hasAttribute("open")).toBe(true);
+    expect(workerFetch.mock.calls[0][0]).toContain("event=1");
+  });
+
+  it("signed out or without the route: no link, asked once per page", async () => {
+    session.mockResolvedValue(null);
+    card("Event 1");
+    const { initEventAttendees } = await load();
+    await initEventAttendees();
+    await initEventAttendees();
+    expect(document.querySelector(".ft-attendees-link")).toBeNull();
+    expect(session).toHaveBeenCalledTimes(1);
+    expect(events).not.toHaveBeenCalled();
+  });
+
+  it("switched off in the Extras tab: no link, the worker is not even asked", async () => {
+    await chrome.storage.local.set({ PROFILE_SHOW_EVENT_ATTENDEES: false });
+    card("Event 1");
+    const { initEventAttendees } = await load();
+    await initEventAttendees();
+    expect(document.querySelector(".ft-attendees-link")).toBeNull();
+    expect(session).not.toHaveBeenCalled();
+  });
+
+  it("without an event card on the page: nothing", async () => {
+    const { initEventAttendees } = await load();
+    await initEventAttendees();
+    expect(session).not.toHaveBeenCalled();
   });
 });
 
-describe("the Agenda's button, when it must not show", () => {
-  const load = async () => {
-    vi.resetModules();
-    return (await import("../src/features/profile/cards/events/attendees")).initEventAttendees;
-  };
-  const agenda = () => {
-    const header = document.createElement("div");
-    const link = document.createElement("a");
-    link.href = "https://profile.intra.42.fr/events";
-    header.appendChild(link);
-    document.body.appendChild(header);
+describe("the page of an event", () => {
+  const panel = () => document.getElementById("ft-attendees-panel");
+  const visit = (path: string) => {
+    vi.stubGlobal("location", new URL(`https://profile.intra.42.fr${path}`));
   };
 
-  it("signed out or without the route: no button, asked once per page", async () => {
-    session.mockResolvedValue(null);
-    agenda();
-    const init = await load();
-    await init();
-    await init();
-    expect(document.getElementById("ft-attendees-button")).toBeNull();
-    expect(session).toHaveBeenCalledTimes(1);
+  it("draws the list under the event, once", async () => {
+    visit("/events/45935");
+    document.body.innerHTML = '<div class="page-content"><h4>Event</h4></div>';
+    workerFetch.mockResolvedValue(answer([person("bob"), person("zoe")]));
+    const { initEventPageAttendees } = await load();
+    await initEventPageAttendees();
+    await initEventPageAttendees();
+    await settle();
+    expect(document.querySelectorAll(".page-content > #ft-attendees-panel")).toHaveLength(1);
+    expect(workerFetch).toHaveBeenCalledTimes(1);
+    expect(workerFetch.mock.calls[0][0]).toContain("event=45935");
+    const shown = panel()!.shadowRoot!.textContent!.replace(/\s+/g, " ");
+    expect(shown).toContain("Who's going");
+    expect(shown).toContain("2 registered");
+    vi.unstubAllGlobals();
   });
 
-  it("switched off in the Extras tab: no button, the worker is not even asked", async () => {
-    await chrome.storage.local.set({ PROFILE_SHOW_EVENT_ATTENDEES: false });
-    agenda();
-    const init = await load();
-    await init();
-    expect(document.getElementById("ft-attendees-button")).toBeNull();
-    expect(session).not.toHaveBeenCalled();
-  });
+  it("leaves nothing for an event that is over, and nothing on other pages", async () => {
+    visit("/events/1");
+    workerFetch.mockResolvedValue(answer(null, false, 404));
+    let mod = await load();
+    await mod.initEventPageAttendees();
+    await settle();
+    expect(panel()).toBeNull();
 
-  it("without an Agenda on the page: nothing", async () => {
-    const init = await load();
-    await init();
-    expect(document.getElementById("ft-attendees-button")).toBeNull();
-    expect(session).not.toHaveBeenCalled();
+    visit("/events");
+    workerFetch.mockClear();
+    mod = await load();
+    await mod.initEventPageAttendees();
+    await settle();
+    expect(panel()).toBeNull();
+    expect(workerFetch).not.toHaveBeenCalled();
+    vi.unstubAllGlobals();
   });
 });

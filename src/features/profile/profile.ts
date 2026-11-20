@@ -36,6 +36,7 @@ const OWN_EPHEMERAL_IDS = new Set([
   "ft-egg-toast",
   "ft-visitor-look-badge",
   "ft-attendees-dialog",
+  "ft-attendees-panel",
   "profile-modal-host",
 ]);
 

@@ -83,7 +83,7 @@ The worker is deployed at `betterintra-remake.maitox.workers.dev`. Besides it an
 * **Clickable seat** — click someone's seat to open the cluster map with that seat highlighted.
 * **Thursday Roulette ☁️** — the profile's roulette history and points, with a countdown to the next draw (rebuilt from the Intra pages).
 * **Campus card** — on your dashboard: your next exam with a countdown and whether you are registered; signed in ☁️, your coalitions' standings and a graph of your correction points over 90 days.
-* **Who's going ☁️** — a button in your dashboard's Agenda: pick a coming event and see who is registered, your friends first (the Intra only shows a count).
+* **Who's going ☁️** — a link on each event of your dashboard's Agenda, and a list on the page of an event: see who is registered, your friends first (the Intra only shows a count).
 * **Correction stats ☁️** — monthly evaluations as a corrector: total, failures, success rate (rebuilt from the Intra pages).
 * **Moulinette robots** — the moulinette image on corrected pages becomes a robot (broken when failed).
 * **Info card badges** — wallet, level, rank, score and seat as coloured badges under the header; the wallet badge opens the shop.
