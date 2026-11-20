@@ -15,6 +15,9 @@ import { svgFromMarkup } from "../../core/dom/svg.ts";
 import { openClusterDialog } from "../clusters/map-dialog.ts";
 import { gearClicked } from "../eggs/eggs.ts";
 import { watchDom } from "../../core/dom/dom-wait.ts";
+// A static import: the bundle is one IIFE, where import() was inlined all the
+// same and only brought in Vite's preload helper (docs/CODE-SPLITTING.md).
+import { openHubModal } from "./hubSettings.ui.ts";
 
 function findSidebarMainGroup(): HTMLDivElement | null {
   const profileLink = document.querySelector<HTMLAnchorElement>(
@@ -168,7 +171,6 @@ export async function openHub(): Promise<void> {
     offerReload();
     return;
   }
-  const { openHubModal } = await import("./hubSettings.ui.ts");
   const active = await getActiveFeatures();
   await openHubModal(active);
 }

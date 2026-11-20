@@ -273,6 +273,12 @@ export interface ProfileStatsFetchResult extends ProfileStatsData {
    * because it is unknown, not because the student never won.
    */
   rouletteLoaded: boolean;
+  /**
+   * The corrector has more feedback pages than MAX_FEEDBACK_PAGES: no stats,
+   * and the next read would stop at the same page. Unlike a failed page,
+   * this may be remembered, or every visit reads those pages again.
+   */
+  capped: boolean;
 }
 
 /**
@@ -301,11 +307,13 @@ export async function fetchProfileStatsViaIntra(
       evalStats: null,
       complete: html !== null,
       rouletteLoaded: html !== null,
+      capped: false,
     };
   }
 
   const pages = new Map<number, CorrectorFeedback[]>();
   let feedbacksComplete = true;
+  let capped = false;
   const first = await fetchIntraPage(feedbackPageUrl(1));
   if (first) {
     pages.set(1, parseCorrectorFeedbacks(first));
@@ -347,6 +355,7 @@ export async function fetchProfileStatsViaIntra(
     // as the real total for an hour.
     if (endedAt === Infinity && advertised > MAX_FEEDBACK_PAGES) {
       feedbacksComplete = false;
+      capped = !failed;
     }
   } else {
     feedbacksComplete = false;
@@ -366,5 +375,6 @@ export async function fetchProfileStatsViaIntra(
     evalStats: feedbacksComplete ? computeEvalStats(feedbacks) : null,
     complete: feedbacksComplete && rouletteLoaded,
     rouletteLoaded,
+    capped,
   };
 }

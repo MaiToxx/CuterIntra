@@ -1,11 +1,8 @@
-import qrcodeGenerator from "qrcode-generator";
+import { qrModules } from "./qr-encode.ts";
 
 export function generateQrDataUrl(text: string, size = 200): string {
-  const qr = qrcodeGenerator(0, "M");
-  qr.addData(text);
-  qr.make();
-
-  const moduleCount = qr.getModuleCount();
+  const modules = qrModules(text);
+  const moduleCount = modules.length;
   const cellSize = Math.floor(size / moduleCount);
   const margin = Math.floor((size - cellSize * moduleCount) / 2);
 
@@ -20,7 +17,7 @@ export function generateQrDataUrl(text: string, size = 200): string {
   ctx.fillStyle = "#000000";
   for (let row = 0; row < moduleCount; row++) {
     for (let col = 0; col < moduleCount; col++) {
-      if (qr.isDark(row, col)) {
+      if (modules[row][col]) {
         ctx.fillRect(
           margin + col * cellSize,
           margin + row * cellSize,

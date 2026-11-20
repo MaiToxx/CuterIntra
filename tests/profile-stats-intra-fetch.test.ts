@@ -71,6 +71,7 @@ describe("fetchProfileStatsViaIntra", () => {
       evalStats: null,
       complete: true,
       rouletteLoaded: true,
+      capped: false,
     });
   });
 

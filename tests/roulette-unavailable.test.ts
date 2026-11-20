@@ -179,6 +179,33 @@ describe("roulette card: nothing shown that was not fetched", () => {
     expect(await cachedLogins()).toEqual([]);
   });
 
+  it("intra mode, more feedback pages than the cap: no stats, but remembered instead of read again", async () => {
+    history.replaceState({}, "", "/users/bob");
+    const sendMessage = vi.fn(async (msg: { type: string; url: string }) => {
+      if (msg.url.includes("correction_point_historics")) return { ok: true, text: historicsPage };
+      return { ok: true, text: feedbacksPage(feedbackItem("September 13, 2026 14:30", 80), 55) };
+    });
+    (globalThis as any).chrome.runtime = { sendMessage };
+
+    let initRouletteStats = await loadRoulette({ authMode: "intra", cloudLogin: "me", cloudToken: "token" });
+    await initRouletteStats();
+    await settle(200);
+    const card = document.getElementById("ft-roulette-card")!;
+    expect(counter(card, "Wins")).toBe("1");
+    expect(card.textContent).not.toContain("Evaluations as Corrector");
+    // 40 feedback pages and the history
+    expect(sendMessage).toHaveBeenCalledTimes(41);
+    expect(await cachedLogins()).toEqual(["bob"]);
+
+    // the next visit within the hour reads nothing
+    card.remove();
+    initRouletteStats = await loadRoulette({ authMode: "intra", cloudLogin: "me", cloudToken: "token" });
+    await initRouletteStats();
+    await settle();
+    expect(sendMessage).toHaveBeenCalledTimes(41);
+    expect(counter(document.getElementById("ft-roulette-card")!, "Wins")).toBe("1");
+  });
+
   it("colours failed counts and low success months in the corrector table", async () => {
     history.replaceState({}, "", "/users/bob");
     vi.stubGlobal(

@@ -90,6 +90,51 @@ describe("cluster SVG cache, bounded on write", () => {
     expect(all.CAMPUS_DATA_7).toEqual({ data: {}, timestamp: 0 });
   });
 
+  it("reads the whole storage area once, then only its index of the maps", async () => {
+    // get(null) copied every stored map, megabytes of SVG, into the tab on each write
+    await seed("9", "old", 10 * DAY);
+    await seed("9", "fresh", DAY);
+    const get = chrome.storage.local.get as unknown as ReturnType<typeof vi.fn>;
+    const wholeReads = () => get.mock.calls.filter(([keys]) => keys === null || keys === undefined).length;
+
+    get.mockClear();
+    await setCachedCluster("7", "k0", entry());
+    expect(wholeReads()).toBe(1);
+    // the maps stored before the index existed are in it, and still swept
+    expect(await svgKeys()).toEqual(["cluster_svg_7_k0", "cluster_svg_9_fresh"]);
+
+    get.mockClear();
+    await setCachedCluster("7", "k1", entry());
+    await setCachedCluster("7", "k2", entry());
+    expect(wholeReads()).toBe(0);
+    const index = (await chrome.storage.local.get("CLUSTER_SVG_INDEX")).CLUSTER_SVG_INDEX;
+    expect(Object.keys(index as object).sort()).toEqual([
+      "cluster_svg_7_k0",
+      "cluster_svg_7_k1",
+      "cluster_svg_7_k2",
+      "cluster_svg_9_fresh",
+    ]);
+  });
+
+  it("still keeps to the cap once it works from the index", async () => {
+    // one write a minute: the oldest are the ones to go
+    vi.useFakeTimers({ now: Date.now() });
+    const later = () => vi.advanceTimersByTime(60_000);
+    await setCachedCluster("7", "k0", entry());
+    for (let i = 0; i < SVG_CACHE_MAX_ENTRIES + 2; i++) {
+      later();
+      await setCachedCluster("9", `c${i}`, entry());
+    }
+    later();
+    await setCachedCluster("8", "z", entry());
+    vi.useRealTimers();
+    const keys = await svgKeys();
+    expect(keys).not.toContain("cluster_svg_7_k0");
+    expect(keys).not.toContain("cluster_svg_9_c0");
+    expect(keys).toHaveLength(SVG_CACHE_MAX_ENTRIES);
+    expect(keys).toContain("cluster_svg_8_z");
+  });
+
   it("still stores the map when the sweep itself fails", async () => {
     const get = chrome.storage.local.get as unknown as ReturnType<typeof vi.fn>;
     get.mockRejectedValueOnce(new Error("boom"));

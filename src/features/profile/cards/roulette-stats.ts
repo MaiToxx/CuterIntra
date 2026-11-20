@@ -183,7 +183,9 @@ async function fetchProfileStats(targetLogin: string): Promise<ProfileStats> {
     const data = await fetchProfileStatsViaIntra(targetLogin, { feedbacks: !api });
     const evalStats = api ? api.stats : data.evalStats;
     const outstanding = api ? api.outstanding : null;
-    if (data.complete) {
+    // A corrector past the page cap is remembered too, without stats: the
+    // same 40 pages were read again on every visit, to show nothing.
+    if (data.complete || (data.capped && data.rouletteLoaded)) {
       await writeProfileStatsCache(targetLogin, {
         roulette: data.roulette,
         evalStats,

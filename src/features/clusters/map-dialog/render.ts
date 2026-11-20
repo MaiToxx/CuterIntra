@@ -83,6 +83,13 @@ export function renderSeatOverlays(
   if (!svgEl) return;
 
   const oldOverlay = shadow.getElementById("seat-overlay");
+  // The poll redraws every minute: the link and the picture of someone still
+  // at the same seat are kept, instead of every avatar of the cluster being
+  // created and decoded again.
+  const kept = new Map<string, HTMLAnchorElement>();
+  for (const a of oldOverlay?.querySelectorAll<HTMLAnchorElement>("a.seat-link") ?? []) {
+    kept.set(`${a.dataset.host}|${a.dataset.login}`, a);
+  }
   if (oldOverlay) oldOverlay.remove();
 
   const svgRect = svgEl.getBoundingClientRect();
@@ -186,12 +193,15 @@ export function renderSeatOverlays(
   } of entries) {
     const timeStr = clockTime(seat.begin_at);
 
-    const a = Object.assign(document.createElement("a"), {
-      href: `${PROFILE_BASE}/${seat.login}`,
-      target: "_blank",
-      rel: "noopener noreferrer",
-      className: "seat-link",
-    });
+    const reused = kept.get(`${host}|${seat.login}`);
+    const a =
+      reused ??
+      Object.assign(document.createElement("a"), {
+        href: `${PROFILE_BASE}/${seat.login}`,
+        target: "_blank",
+        rel: "noopener noreferrer",
+      });
+    a.className = "seat-link";
     a.style.cssText = [
       "pointer-events:auto;",
       `left:${left}px;top:${top}px;`,
@@ -200,7 +210,9 @@ export function renderSeatOverlays(
       round ? "border-radius:50%;" : "",
     ].join("");
     if (round) a.dataset.round = "true";
+    else delete a.dataset.round;
     a.dataset.host = host;
+    a.dataset.login = seat.login;
     const friend = isMapFriend(seat.login);
     if (friend) a.classList.add("is-friend");
     a.setAttribute(
@@ -209,12 +221,14 @@ export function renderSeatOverlays(
     );
     a.setAttribute("data-tip-size", "15px");
 
-    const avatar = Object.assign(document.createElement("img"), {
-      src: seat.cdn_uri,
-      alt: seat.login,
-    });
-    if (round) avatar.style.borderRadius = "50%";
-    a.appendChild(avatar);
+    let avatar = a.querySelector("img");
+    if (!avatar) {
+      avatar = Object.assign(document.createElement("img"), { alt: seat.login });
+      a.appendChild(avatar);
+    }
+    // only a new address loads again
+    if (avatar.getAttribute("src") !== seat.cdn_uri) avatar.src = seat.cdn_uri;
+    avatar.style.borderRadius = round ? "50%" : "";
     frag.appendChild(a);
   }
   overlay.appendChild(frag);

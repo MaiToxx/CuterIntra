@@ -54,7 +54,27 @@ const CACHE_KEY = "FRIENDS_DATA_CACHE";
 // online count on the button is what goes stale and Refresh is the only way
 // to force it.
 export const FRIENDS_CACHE_TTL = AUTH_MODE === "intra" ? 5 * 60_000 : 30_000;
-const CACHE_TTL = FRIENDS_CACHE_TTL;
+/** A list up to this long is read again after FRIENDS_CACHE_TTL. */
+const FRIENDS_AT_BASE_TTL = 50;
+const FRIENDS_CACHE_TTL_MAX = 30 * 60_000;
+
+/**
+ * How long a cached list of `count` friends is served.
+ *
+ * WHY it grows with the list: in intra mode each friend is at least one
+ * request on the student's own Intra session, and nothing limits the list.
+ * At a flat 5 minutes, 300 friends were 300 requests on a page load every 5
+ * minutes. Past 50 friends the list is kept 6 s per friend (10 minutes for
+ * 100), half an hour at most: about one request every 6 s whatever its
+ * length. Refresh still reads it at once.
+ */
+export function friendsCacheTtl(count: number): number {
+  if (AUTH_MODE !== "intra" || count <= FRIENDS_AT_BASE_TTL) return FRIENDS_CACHE_TTL;
+  return Math.min(
+    (FRIENDS_CACHE_TTL / FRIENDS_AT_BASE_TTL) * count,
+    FRIENDS_CACHE_TTL_MAX,
+  );
+}
 /**
  * The worker's friends endpoint aggregates 42 API calls for up to 50 logins;
  * without a deadline a stalled connection kept the widget loading for good.
@@ -174,7 +194,10 @@ export async function cacheFriendData(friend: FriendData): Promise<void> {
 }
 
 function isFresh(cached: FriendsCache): boolean {
-  return cached.data.length > 0 && Date.now() - cached.timestamp < CACHE_TTL;
+  return (
+    cached.data.length > 0 &&
+    Date.now() - cached.timestamp < friendsCacheTtl(cached.data.length)
+  );
 }
 
 function cacheCovers(cached: FriendsCache, logins: string[]): boolean {

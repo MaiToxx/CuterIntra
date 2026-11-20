@@ -58,19 +58,15 @@ export const SVG_CACHE_MAX_ENTRIES = 12;
  * the cap. Failures are ignored: a sweep that cannot run must not stop a map
  * from being shown.
  */
-async function sweepSvgCache(keepCampusId: string): Promise<void> {
-  const all = (await chrome.storage.local.get(null)) as Record<string, unknown>;
+async function sweepSvgCache(keepCampusId: string, written: string): Promise<void> {
+  const index = await readSvgIndex();
   const now = Date.now();
-  const entries: { key: string; cachedAt: number; own: boolean }[] = [];
-  for (const [key, raw] of Object.entries(all)) {
-    if (!key.startsWith(SVG_CACHE_PREFIX)) continue;
-    const own = key.startsWith(`${SVG_CACHE_PREFIX}${keepCampusId}_`);
-    let cachedAt = 0;
-    try {
-      cachedAt = Number((JSON.parse(String(raw)) as CachedCluster).cachedAt) || 0;
-    } catch {}
-    entries.push({ key, cachedAt, own });
-  }
+  index[written] = now;
+  const entries = Object.entries(index).map(([key, cachedAt]) => ({
+    key,
+    cachedAt,
+    own: key.startsWith(`${SVG_CACHE_PREFIX}${keepCampusId}_`),
+  }));
   const remove = new Set<string>();
   for (const e of entries) {
     if (!e.own && now - e.cachedAt > CACHE_TTL) remove.add(e.key);
@@ -87,6 +83,41 @@ async function sweepSvgCache(keepCampusId: string): Promise<void> {
     remove.add(e.key);
   }
   if (remove.size > 0) await chrome.storage.local.remove([...remove]);
+  for (const key of remove) delete index[key];
+  await chrome.storage.local.set({ [SVG_INDEX_KEY]: index });
+}
+
+/** Which maps are stored, and when each was written: `{ [storage key]: ms }`. */
+export const SVG_INDEX_KEY = "CLUSTER_SVG_INDEX";
+
+/**
+ * The index of the stored maps.
+ *
+ * WHY an index: the sweep only needs each map's key and age, and used to get
+ * them with get(null), which copies the whole storage area into the tab,
+ * megabytes of SVG included, each time a map was written. The area is read
+ * whole once, for the maps stored before the index existed.
+ */
+async function readSvgIndex(): Promise<Record<string, number>> {
+  const stored = (await chrome.storage.local.get(SVG_INDEX_KEY))[SVG_INDEX_KEY];
+  if (stored && typeof stored === "object") {
+    const index: Record<string, number> = {};
+    for (const [key, at] of Object.entries(stored as Record<string, unknown>)) {
+      index[key] = Number(at) || 0;
+    }
+    return index;
+  }
+  const index: Record<string, number> = {};
+  const all = (await chrome.storage.local.get(null)) as Record<string, unknown>;
+  for (const [key, raw] of Object.entries(all)) {
+    if (!key.startsWith(SVG_CACHE_PREFIX)) continue;
+    let cachedAt = 0;
+    try {
+      cachedAt = Number((JSON.parse(String(raw)) as CachedCluster).cachedAt) || 0;
+    } catch {}
+    index[key] = cachedAt;
+  }
+  return index;
 }
 
 export async function setCachedCluster(
@@ -95,11 +126,10 @@ export async function setCachedCluster(
   data: CachedCluster,
 ) {
   data.cachedAt = Date.now();
-  await chrome.storage.local.set({
-    [`${SVG_CACHE_PREFIX}${campusId}_${clusterId}`]: JSON.stringify(data),
-  });
+  const key = `${SVG_CACHE_PREFIX}${campusId}_${clusterId}`;
+  await chrome.storage.local.set({ [key]: JSON.stringify(data) });
   try {
-    await sweepSvgCache(campusId);
+    await sweepSvgCache(campusId, key);
   } catch {}
 }
 

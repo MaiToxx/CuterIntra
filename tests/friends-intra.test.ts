@@ -11,7 +11,7 @@ import {
   hasProfilePicture,
   pickMainCursus,
 } from "../src/features/friends/friends-intra";
-import { FRIENDS_CACHE_TTL } from "../src/features/friends/friends";
+import { FRIENDS_CACHE_TTL, friendsCacheTtl } from "../src/features/friends/friends";
 
 describe("pickMainCursus", () => {
   it("prefers the main cursus, then the highest level", () => {
@@ -203,5 +203,15 @@ describe("fetchFriendsDataViaIntra", () => {
 describe("friends cache TTL", () => {
   it("is 5 minutes in the shipped intra mode (the tests' default)", () => {
     expect(FRIENDS_CACHE_TTL).toBe(5 * 60_000);
+  });
+
+  it("grows with a long list, so that it never costs more than a request every 6 s", () => {
+    // one request per friend at least: 300 friends were 300 requests every 5 minutes
+    expect(friendsCacheTtl(1)).toBe(5 * 60_000);
+    expect(friendsCacheTtl(50)).toBe(5 * 60_000);
+    expect(friendsCacheTtl(100)).toBe(10 * 60_000);
+    expect(friendsCacheTtl(200)).toBe(20 * 60_000);
+    expect(friendsCacheTtl(300)).toBe(30 * 60_000);
+    expect(friendsCacheTtl(5000)).toBe(30 * 60_000);
   });
 });

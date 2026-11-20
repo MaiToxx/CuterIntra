@@ -40,7 +40,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ==============================================================================
 qrcode-generator (https://github.com/kazuhikoarase/qrcode-generator)
-Bundled in content.js (calendar QR code). MIT.
+Not bundled since 1.21.3: content.js has its own QR encoder (calendar QR code),
+which chooses the mask with this library's scoring and is tested against it. MIT.
 The word 'QR Code' is a registered trademark of DENSO WAVE INCORPORATED.
 ==============================================================================
 

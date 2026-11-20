@@ -30,6 +30,10 @@ Two things did come out of it and shipped in 1.11.1:
 Worth re-measuring if Firefox changes how it loads moz-extension modules, or
 for a Chrome-only build. The original study follows.
 
+Since 1.21.3 two of its numbers no longer hold: qrcode-generator is replaced by
+`src/features/calendar/qr-encode.ts` (about 17 KB less), and the hub is imported
+statically, which drops Vite's preload helper from the bundle.
+
 ---
 
 # The study
