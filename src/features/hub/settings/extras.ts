@@ -61,6 +61,14 @@ export const EXTRAS_SETTINGS: readonly HubSettingDef[] = [
         desc: "Adds a card to your dashboard with your next exam and, when signed in, your coalition standings and correction points over time.",
       },
       {
+        label: "Who's going",
+        value: "PROFILE_SHOW_EVENT_ATTENDEES",
+        color: "secondary",
+        big: true,
+        desc: "Adds a button to the Agenda of your dashboard that lists who is registered to a coming event, your friends first.",
+        requiresCloud: true,
+      },
+      {
         label: "Thursday Roulette",
         value: "PROFILE_SHOW_ROULETTE",
         color: "info",

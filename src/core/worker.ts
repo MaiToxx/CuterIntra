@@ -226,6 +226,8 @@ export interface WorkerFeatures {
   correctionPoints?: boolean;
   /** The standings of your coalitions (the dashboard's Campus card). */
   coalitions?: boolean;
+  /** Who is registered to an event (the Agenda's "Who's going"). */
+  eventAttendees?: boolean;
 }
 
 let workerFeatures: Promise<WorkerFeatures> | null = null;

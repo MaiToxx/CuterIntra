@@ -65,7 +65,7 @@ export interface CoalitionBloc {
 }
 
 /** The session, when `user` is the signed-in login and the worker has the route. */
-async function ownSession(
+export async function ownSession(
   user?: string,
   feature: keyof WorkerFeatures = "evaluations",
 ): Promise<{ login: string; token: string } | null> {
@@ -162,7 +162,7 @@ export async function fetchCorrectionPoints(): Promise<PointsEntry[] | null> {
  * Only Intra's CDN over https: the card draws it as an image on an Intra
  * page. The worker checks it too; this does not trust it to.
  */
-function cdnImage(v: unknown): string | null {
+export function cdnImage(v: unknown): string | null {
   if (typeof v !== "string") return null;
   try {
     const u = new URL(v);

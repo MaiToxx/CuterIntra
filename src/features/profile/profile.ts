@@ -19,6 +19,7 @@ import { initBadges, applyTitleBadgeWrap } from "./header/badges.ts";
 import { initTranscript } from "./cards/transcript.ts";
 import { initPace } from "./cards/pace.ts";
 import { initCampusCard } from "./cards/campus.ts";
+import { initEventAttendees } from "./cards/events/attendees.ts";
 import { ensureCampusData } from "../clusters/clusters.data.ts";
 import { tagDashboardCards } from "../customize/cards.ts";
 import { waitForElement, watchDom } from "../../core/dom/dom-wait.ts";
@@ -34,6 +35,7 @@ const OWN_EPHEMERAL_IDS = new Set([
   "ft-confirm-dialog",
   "ft-egg-toast",
   "ft-visitor-look-badge",
+  "ft-attendees-dialog",
   "profile-modal-host",
 ]);
 
@@ -248,6 +250,7 @@ export async function initProfile() {
         // (offline, or down) the friends widget's campus lookup rejects.
         void initFreezeCard().catch((e) => console.warn("Cuter Intra: freeze card", e));
         void initCampusCard().catch((e) => console.warn("Cuter Intra: campus card", e));
+        void initEventAttendees().catch((e) => console.warn("Cuter Intra: event attendees", e));
         void injectFriendsWidget().catch((e) => console.warn("Cuter Intra: friends widget", e));
         if (location.pathname === "/") colorTrackerBadge();
       }
