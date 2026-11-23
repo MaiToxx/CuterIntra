@@ -197,6 +197,28 @@ export async function initProfile() {
 
   let isUpdating = false;
   let needsRerun = false;
+
+  /**
+   * Runs `init` outside the pass, one call at a time. Marks and achievements
+   * wait for the intrapy token (15 and 30 s at most) and then for intrapy
+   * itself: awaited in the pass, they held `isUpdating`, so every card React
+   * rendered meanwhile got nothing until intrapy answered. A pass that comes
+   * while one is still running skips it, as `isUpdating` did.
+   */
+  const background = (name: string, init: () => Promise<unknown>) => {
+    let running = false;
+    return () => {
+      if (running) return;
+      running = true;
+      void init()
+        .catch((e) => console.warn(`Cuter Intra: ${name}`, e))
+        .finally(() => {
+          running = false;
+        });
+    };
+  };
+  const marksInBackground = background("marks", initMarks);
+  const achievementsInBackground = background("achievements", initAchievements);
   // On /users/* the observer is disconnected after a pass, but only once the
   // profile card has actually been found: a first pass on a still-loading
   // page used to disconnect immediately and no feature ever initialised.
@@ -230,8 +252,6 @@ export async function initProfile() {
         await Promise.allSettled([
           initLayoutManager(),
           initProfileCardStyling(),
-          initAchievements(),
-          initMarks(),
           initProjectBadges(),
           initProjectsSort(),
           initRouletteStats(),
@@ -247,6 +267,8 @@ export async function initProfile() {
           initPace(),
         ]);
         // Fire-and-forget: features with >2s timeouts or slow network fetches
+        marksInBackground();
+        achievementsInBackground();
         // Fire-and-forget, but never unhandled: with the worker unreachable
         // (offline, or down) the friends widget's campus lookup rejects.
         void initFreezeCard().catch((e) => console.warn("Cuter Intra: freeze card", e));

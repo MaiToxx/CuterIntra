@@ -27,6 +27,7 @@ async function openTranscriptDialog(
     id: "ft-transcript-dialog",
     className: "bg-transparent",
   });
+  dialog.setAttribute("aria-label", t("Transcript"));
 
   const backdropStyle = document.createElement("style");
   backdropStyle.textContent = `#ft-transcript-dialog::backdrop { background: rgba(0,0,0,0.5); }`;
@@ -57,7 +58,10 @@ async function openTranscriptDialog(
     const endInput = shadow.querySelector<HTMLInputElement>(".ft-ts-end");
     if (!langInput || !startInput || !endInput) return;
 
+    // Part of the path the form posts to, with your Intra cookies: an id
+    // from the campus data file, digits only.
     const srId = langInput.value;
+    if (!/^\d+$/.test(srId)) return;
     const start = startInput.value || String(currentYear);
     const end = endInput.value || String(currentYear);
 

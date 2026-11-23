@@ -256,6 +256,7 @@ describe("PRIVACY.md says what the worker keeps, as the worker keeps it", () => 
     projects: null, // project names a 42 application once filled; read by nothing
     kv_write_budget: /\*\*A daily write counter\.\*\*/,
     ft_call_budget: /\*\*An hourly counter of 42 API calls\.\*\*/,
+    subject_reports: /the worker keeps who reported what: your login hash, the project slug, the link and the time/,
     public_visuals: /copied to the worker's database \(D1\)/,
   };
 
@@ -345,8 +346,13 @@ describe("PRIVACY.md says what the worker keeps, as the worker keeps it", () => 
     const workerSrc = code.join("\n");
     const wipe = line("- **Cloud data**");
     // "What stays": a DELETE on any of these tables would make the sentence false.
-    expect(wipe).toMatch(/What stays: the revoked calendar links/);
-    expect(workerSrc).not.toMatch(/DELETE FROM calendar_tokens/i);
+    expect(wipe).toMatch(/What stays: the revoked calendar links \(token, login hash and date, the 20 most recent/);
+    expect(workerSrc).toMatch(/MAX_REVOKED_LINKS = 20\b/);
+    // the only delete is the prune of a login's revoked links beyond the newest ones
+    const linkDeletes = [...workerSrc.matchAll(/DELETE FROM calendar_tokens[^"`]*/gi)].map((m) => m[0]);
+    expect(linkDeletes).toHaveLength(1);
+    expect(linkDeletes[0]).toMatch(/revoked_at IS NOT NULL AND token NOT IN \(SELECT token FROM calendar_tokens .* ORDER BY revoked_at DESC/);
+    expect(wipe).toMatch(/your subject reports \(30 days at most\)/);
     expect(wipe).toMatch(/a row saying your sessions were moved/);
     expect(workerSrc).not.toMatch(/DELETE FROM session_migrations/i);
     expect(wipe).toMatch(/the daily write counter \(two days at most\)/);

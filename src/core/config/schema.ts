@@ -188,6 +188,7 @@ export interface BetterIntraConfig {
   CUSTOM_SHARE_LOOK: boolean;
   /** Apply the look other users publish when I visit their profile. */
   CUSTOM_SHOW_OTHERS_LOOK: boolean;
+  PROFILE_SHOW_OTHERS_IMAGES: boolean;
 
   // Public profile extras (features/profile/extras): visible to every
   // Cuter Intra user who opens my profile.

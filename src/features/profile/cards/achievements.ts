@@ -1,5 +1,6 @@
 import { html, nothing, render } from "lit-html";
 import { unsafeHTML } from "lit-html/directives/unsafe-html.js";
+import { svgFromUntrustedMarkup } from "../../../core/dom/svg.ts";
 import { getConfig } from "../../../core/config.ts";
 import { getCloudLogin } from "../../account/account.ts";
 import { getLoginFromPage } from "../../../core/intra/profile-login.ts";
@@ -61,10 +62,24 @@ async function fetchAchievements(
 const findCard = () => findDashboardCard("LAST ACHIEVEMENTS");
 
 /**
- * The icons of one list, by URL: the SVG text, already stripped of its own
+ * The icons of one list, by URL: the SVG, scrubbed and stripped of its own
  * size, or null when it could not be loaded. A URL not in the map is on its way.
  */
-type Icons = Map<string, string | null>;
+type Icons = Map<string, SVGSVGElement | null>;
+
+/**
+ * Where an achievement icon may come from: an Intra host over https. The
+ * URL is intrapy's, and the SVG it names is drawn inline in the Intra page.
+ */
+export function achievementIconUrl(raw: unknown): string | null {
+  if (typeof raw !== "string" || !raw) return null;
+  try {
+    const u = new URL(raw, location.href);
+    return u.protocol === "https:" && /(^|\.)intra\.42\.fr$/.test(u.hostname) ? u.href : null;
+  } catch {
+    return null;
+  }
+}
 
 function iconTile(icons: Icons, url: string) {
   if (!icons.has(url)) {
@@ -76,7 +91,8 @@ function iconTile(icons: Icons, url: string) {
   // A lost icon leaves the tile empty: the placeholder used to pulse there
   // for the rest of the visit.
   if (!svg) return nothing;
-  return html`<div style="width:45px;height:45px">${unsafeHTML(svg)}</div>`;
+  // A copy per tile and per draw: one node cannot sit in two places.
+  return html`<div style="width:45px;height:45px">${svg.cloneNode(true)}</div>`;
 }
 
 function renderList(
@@ -174,15 +190,17 @@ function inject(achievements: Achievement[]) {
     });
   };
   for (const url of new Set(achievements.map((a) => a.svg))) {
-    if (!url) {
+    const from = achievementIconUrl(url);
+    if (!from) {
       icons.set(url, null);
       continue;
     }
-    fetch(url)
+    fetch(from)
       .then((r) => (r.ok ? r.text() : null))
       .catch(() => null)
       .then((svg) => {
-        icons.set(url, svg ? svg.replace(/(width|height)="[^"]*"/g, "") : null);
+        // Parsed and scrubbed, never inserted as HTML: an icon is remote markup.
+        icons.set(url, svg ? svgFromUntrustedMarkup(svg.replace(/(width|height)="[^"]*"/g, "")) : null);
         scheduleDraw();
       });
   }

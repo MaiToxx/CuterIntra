@@ -15,6 +15,7 @@ import { getConfig, getConfigMany } from "../../../core/config.ts";
 import { waitForElement } from "../../../core/dom/dom-wait.ts";
 import { AVATAR_SELECTOR, EDIT_VISUALS_HASH } from "../../../core/intra/selectors.ts";
 import { fetchUserVisuals } from "../../account/account.ts";
+import { WORKER_URL } from "../../../core/worker.ts";
 import { sanitizeVisualUrls } from "./visuals-sanitize.ts";
 import { applyOwnProfileExtras } from "../extras/extras-apply.ts";
 import type { VisualUrls } from "./visuals-types.ts";
@@ -67,6 +68,40 @@ const hasVisuals = (urls: VisualUrls): boolean =>
   );
 
 /**
+ * The viewer's PROFILE_SHOW_OTHERS_IMAGES, read on each pass over another
+ * student's profile.
+ */
+let peerExternalImages = true;
+
+/** An image the worker or the Intra serves, not a site the profile's owner chose. */
+function isHostedHere(url: string): boolean {
+  try {
+    const u = new URL(url);
+    return u.origin === new URL(WORKER_URL).origin || /(^|\.)intra\.42\.fr$/.test(u.hostname);
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * What this viewer shows of another student's visuals. An avatar, a banner
+ * or a background can be a link to any website, and that website then sees
+ * the IP address of everyone who opens the profile: with the switch off,
+ * only images uploaded through the extension (served by the worker) are
+ * loaded. Colours, modes and the rest are untouched.
+ */
+export function shownPeerVisuals(urls: VisualUrls): VisualUrls {
+  if (peerExternalImages) return urls;
+  const keep = <T extends string | null | undefined>(v: T): T | "" => (v && !isHostedHere(v) ? "" : v);
+  return { ...urls, avatar: keep(urls.avatar), banner: keep(urls.banner), background: keep(urls.background) };
+}
+
+/** For the tests. */
+export function setPeerExternalImages(allowed: boolean): void {
+  peerExternalImages = allowed;
+}
+
+/**
  * First look at a peer with nothing stored: ask the worker without holding up
  * the pass.
  *
@@ -84,14 +119,15 @@ const fetchPeerVisuals = (login: string, avatarEl: HTMLElement): void => {
     .then((cloudUrls) => {
       if (login !== pageState.lastUser) return;
       if (cloudUrls && hasVisuals(cloudUrls)) {
-        visualCache = cloudUrls;
+        const shown = shownPeerVisuals(cloudUrls);
+        visualCache = shown;
         setCachedVisuals(login, cloudUrls);
-        applyImgs(cloudUrls);
+        applyImgs(shown);
         lastAppliedUser = login;
-        lastAppliedKey = getVisualKey(cloudUrls);
+        lastAppliedKey = getVisualKey(shown);
         // React may have swapped the avatar element while the request was out.
         const avatar = document.querySelector<HTMLElement>(AVATAR_SELECTOR);
-        if (cloudUrls.avatar && avatar) {
+        if (shown.avatar && avatar) {
           attachToggleListener(avatar, () => visualCache);
         }
       } else if (cloudUrls) {
@@ -127,17 +163,19 @@ const revalidateVisuals = async (login: string, cached: VisualUrls) => {
       // listener, including the background service worker.
       return;
     }
-    visualCache = fresh;
+    const shown = shownPeerVisuals(fresh);
+    const shownKey = getVisualKey(shown);
+    visualCache = shown;
     setCachedVisuals(login, fresh);
     if (
       lastAppliedUser === login &&
-      lastAppliedKey === freshKey &&
-      !needsReapply(fresh)
+      lastAppliedKey === shownKey &&
+      !needsReapply(shown)
     )
       return;
-    applyImgs(fresh);
+    applyImgs(shown);
     lastAppliedUser = login;
-    lastAppliedKey = freshKey;
+    lastAppliedKey = shownKey;
   } finally {
     pendingRevalidations.delete(login);
   }
@@ -283,6 +321,7 @@ export const updateVisuals = async () => {
         avatarEl.style.setProperty("opacity", "1", "important");
         return;
       }
+      peerExternalImages = (await getConfig("PROFILE_SHOW_OTHERS_IMAGES")) !== false;
       const cached = await getCachedVisuals(targetLogin);
       // A record stored less than ten minutes ago (typically by the friends
       // widget, a click before this visit) is what the worker would answer:
@@ -290,7 +329,7 @@ export const updateVisuals = async () => {
       // a URL the browser's cache could not serve (?login= vs ?logins=).
       const fresh = visualsAreFresh(cached);
       if (cached && hasVisuals(cached)) {
-        visualCache = sanitizeVisualUrls(cached);
+        visualCache = shownPeerVisuals(sanitizeVisualUrls(cached));
         applyImgs(visualCache);
         lastAppliedUser = targetLogin;
         lastAppliedKey = getVisualKey(visualCache);

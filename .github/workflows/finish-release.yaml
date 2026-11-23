@@ -42,14 +42,14 @@ jobs:
       # main for the scripts and the manifests, the release tag (in release/)
       # for what is built
       - name: Checkout main
-        uses: actions/checkout@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           ref: main
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
-          node-version: "lts/*"
+          node-version: "26"
 
       - name: What the release lacks
         id: state
@@ -59,7 +59,7 @@ jobs:
 
       - name: Checkout the release
         if: steps.state.outputs.need_chrome == 'true'
-        uses: actions/checkout@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           ref: ${{ steps.state.outputs.tag }}
           path: release

@@ -14,7 +14,14 @@ interface EventTypesData {
   event_types: Record<string, { display: string; keywords: string[] }>;
 }
 
+/** The read is awaited by the profile pass: it must not hang on a dead worker. */
+const EVENT_TYPES_TIMEOUT_MS = 5_000;
+/** After a failed read, the cached copy (or nothing) serves this long. */
+const EVENT_TYPES_RETRY_MS = 60_000;
+let eventTypesFailedAt = 0;
+
 async function fetchEventTypesData(): Promise<EventTypesData | null> {
+  let stale: EventTypesData | null = null;
   try {
     const cached = await chrome.storage.local.get(EVENT_TYPES_CACHE_KEY);
     const cachedData = cached[EVENT_TYPES_CACHE_KEY] as
@@ -26,15 +33,23 @@ async function fetchEventTypesData(): Promise<EventTypesData | null> {
     ) {
       return cachedData.data;
     }
-    const res = await fetch(`${DATA_BASE}/event_types.json`);
-    if (!res.ok) return null;
+    // An expired copy is better than no filter: it serves when the worker
+    // fails, and while a failure is remembered (one request a minute at
+    // most, not one per pass).
+    stale = cachedData?.data ?? null;
+    if (Date.now() - eventTypesFailedAt < EVENT_TYPES_RETRY_MS) return stale;
+    const res = await fetch(`${DATA_BASE}/event_types.json`, {
+      signal: AbortSignal.timeout(EVENT_TYPES_TIMEOUT_MS),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = (await res.json()) as EventTypesData;
     await chrome.storage.local.set({
       [EVENT_TYPES_CACHE_KEY]: { data, timestamp: Date.now() },
     });
     return data;
   } catch {
-    return null;
+    eventTypesFailedAt = Date.now();
+    return stale;
   }
 }
 

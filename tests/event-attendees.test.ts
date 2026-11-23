@@ -34,7 +34,7 @@ import {
   fetchEventAttendees,
   linkedEventId,
   listableEvents,
-  matchEvent,
+  matchEvents,
   openAttendeesDialog,
   orderAttendees,
 } from "../src/features/profile/cards/events/attendees";
@@ -145,16 +145,16 @@ describe("fetchEventAttendees", () => {
   });
 });
 
-describe("matchEvent and linkedEventId", () => {
-  it("finds the event a card names: the longest name, the soonest of two", () => {
+describe("matchEvents and linkedEventId", () => {
+  it("finds the events a card names: the longest name, every date of it", () => {
     const list = [
       event(1, HOUR, { name: "Talk" }),
       event(2, 2 * HOUR, { name: "Talk about Rust" }),
       event(3, 3 * HOUR, { name: "Talk about Rust" }),
     ];
-    expect(matchEvent("conference  TALK about\n rust amphi", list)?.id).toBe(2);
-    expect(matchEvent("conference Talk amphi", list)?.id).toBe(1);
-    expect(matchEvent("something else", list)).toBeNull();
+    expect(matchEvents("conference  TALK about\n rust amphi", list).map((e) => e.id)).toEqual([2, 3]);
+    expect(matchEvents("conference Talk amphi", list).map((e) => e.id)).toEqual([1]);
+    expect(matchEvents("something else", list)).toEqual([]);
   });
 
   it("reads the id from a link to the event", () => {
@@ -261,15 +261,67 @@ describe("the link in the Agenda's cards", () => {
     expect(workerFetch.mock.calls[0][0]).toContain("event=1");
   });
 
-  it("signed out or without the route: no link, asked once per page", async () => {
+  it("a weekly event: each card opens its own date, in page order", async () => {
+    vi.useFakeTimers({ now: NOW, toFake: ["Date"] });
+    events.mockResolvedValue([
+      event(12, 8 * 24 * HOUR, { name: "Weekly talk" }),
+      event(11, 24 * HOUR, { name: "Weekly talk" }),
+      event(10, -6 * HOUR, { name: "Weekly talk" }),
+    ]);
+    const first = card("Weekly talk");
+    const second = card("Weekly talk");
+    const third = card("Weekly talk");
+    const { initEventAttendees } = await load();
+    await initEventAttendees();
+    // the one that ended this morning is not a card of the Agenda
+    expect(first.querySelector(".ft-attendees-link")!.id).toBe("ft-attendees-link-11");
+    expect(second.querySelector(".ft-attendees-link")!.id).toBe("ft-attendees-link-12");
+    expect(third.querySelector(".ft-attendees-link")).toBeNull();
+
+    // a redrawn second card gets its own date back, not the first
+    second.querySelector(".ft-attendees-link")!.remove();
+    await initEventAttendees();
+    expect(second.querySelector(".ft-attendees-link")!.id).toBe("ft-attendees-link-12");
+  });
+
+  it("signed out or without the route: no link, asked again a minute later only", async () => {
+    vi.useFakeTimers({ now: NOW, toFake: ["Date"] });
     session.mockResolvedValue(null);
-    card("Event 1");
+    const el = card("Event 1");
+    events.mockResolvedValue([event(1, HOUR)]);
     const { initEventAttendees } = await load();
     await initEventAttendees();
     await initEventAttendees();
     expect(document.querySelector(".ft-attendees-link")).toBeNull();
     expect(session).toHaveBeenCalledTimes(1);
     expect(events).not.toHaveBeenCalled();
+
+    // the first no may have been a /features read that timed out
+    session.mockResolvedValue({ login: "me", token: "sess" });
+    vi.setSystemTime(NOW + 61_000);
+    await initEventAttendees();
+    expect(el.querySelector(".ft-attendees-link")).not.toBeNull();
+  });
+
+  it("a failed read of your events is not repeated on every pass", async () => {
+    vi.useFakeTimers({ now: NOW, toFake: ["Date"] });
+    events.mockResolvedValue(null);
+    const el = card("Event 1");
+    const { initEventAttendees } = await load();
+    await initEventAttendees();
+    await initEventAttendees();
+    expect(events).toHaveBeenCalledTimes(1);
+    events.mockResolvedValue([event(1, HOUR)]);
+    vi.setSystemTime(NOW + 61_000);
+    await initEventAttendees();
+    expect(events).toHaveBeenCalledTimes(2);
+    expect(el.querySelector(".ft-attendees-link")).not.toBeNull();
+  });
+
+  it("two quick clicks leave one dialog", async () => {
+    workerFetch.mockResolvedValue(answer([]));
+    await Promise.all([openAttendeesDialog({ id: 1 }), openAttendeesDialog({ id: 1 })]);
+    expect(document.querySelectorAll("#ft-attendees-dialog")).toHaveLength(1);
   });
 
   it("switched off in the Extras tab: no link, the worker is not even asked", async () => {

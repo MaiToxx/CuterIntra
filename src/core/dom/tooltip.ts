@@ -1,4 +1,5 @@
 import { render } from "lit-html";
+import { isOwnId } from "../lifecycle/own-ids.ts";
 import { onThemeChange } from "../theme/theme-manager.ts";
 import { unsafeHTML } from "lit-html/directives/unsafe-html.js";
 
@@ -137,6 +138,23 @@ function isTip(el: Element): el is HTMLElement {
   return el instanceof HTMLElement && (!!el.dataset.tip || !!el.dataset.tipHtml);
 }
 
+/**
+ * Whether `tip` sits in something this extension drew: one of our shadow
+ * roots, or under a node with one of our ids. `data-tip-html` is rendered as
+ * HTML, so it is only honoured there; on any other element of the page it
+ * is ignored.
+ */
+function isOurs(tip: Element): boolean {
+  let el: Element | null = tip;
+  for (let depth = 0; el && depth < 64; depth++) {
+    if (isOwnId(el.id)) return true;
+    const root = el.getRootNode();
+    if (root instanceof ShadowRoot) return true;
+    el = el.parentElement;
+  }
+  return false;
+}
+
 function findTooltipContainer(tip: Element): HTMLElement {
   let el: Element | null = tip;
   while (el) {
@@ -210,7 +228,7 @@ export function bindTooltips(
       showTimer = window.setTimeout(() => {
         showTimer = null;
         if (hovered !== tip) return;
-        if (tip.dataset.tipHtml) {
+        if (tip.dataset.tipHtml && isOurs(tip)) {
           showFloatingTooltipHtml(
             tip,
             tip.dataset.tipHtml,

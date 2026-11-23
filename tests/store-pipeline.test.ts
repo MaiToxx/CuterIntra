@@ -128,13 +128,13 @@ describe("publish.yaml: Chrome Web Store", () => {
     expect(build.text).not.toContain("HAS_CWS");
     // Linux zip: forward slashes (Compress-Archive wrote backslash paths)
     expect(build.text).toContain(`zip -qr ../${STORE_ZIP} .`);
-    expect(keep.text).toContain("uses: actions/upload-artifact@v");
+    expect(keep.text).toContain("uses: actions/upload-artifact@");
     expect(keep.text).toContain(`path: ${STORE_ZIP}`);
     expect(keep.text).toContain("archive: false");
     expect(keep.text).toMatch(/retention-days: \d+/);
     // a rerun of the job keeps it again instead of failing on the taken name
     expect(keep.text).toContain("overwrite: true");
-    expect(attach.text).toContain("uses: softprops/action-gh-release@v");
+    expect(attach.text).toContain("uses: softprops/action-gh-release@");
     expect(attach.text).toContain(`files: ${STORE_ZIP}`);
     for (const s of [build, keep, attach]) expect(s.text, s.name).toContain("continue-on-error: true");
     for (const s of [keep, attach]) expect(s.text, s.name).toContain("steps.cws-build.outcome == 'success'");

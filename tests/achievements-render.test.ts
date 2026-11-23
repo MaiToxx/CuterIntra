@@ -37,10 +37,10 @@ function mountCard() {
 }
 
 const ACHIEVEMENTS = [
-  { name: "A", achieved_at: "2026-08-20T10:00:00Z", description: "", svg: "https://cdn.example.com/1.svg" },
-  { name: "B", achieved_at: "2026-08-19T10:00:00Z", description: "", svg: "https://cdn.example.com/1.svg" },
-  { name: "C", achieved_at: "2026-08-18T10:00:00Z", description: "", svg: "https://cdn.example.com/2.svg" },
-  { name: "D", achieved_at: "2026-08-17T10:00:00Z", description: "", svg: "https://cdn.example.com/lost.svg" },
+  { name: "A", achieved_at: "2026-08-20T10:00:00Z", description: "", svg: "https://cdn.intra.42.fr/1.svg" },
+  { name: "B", achieved_at: "2026-08-19T10:00:00Z", description: "", svg: "https://cdn.intra.42.fr/1.svg" },
+  { name: "C", achieved_at: "2026-08-18T10:00:00Z", description: "", svg: "https://cdn.intra.42.fr/2.svg" },
+  { name: "D", achieved_at: "2026-08-17T10:00:00Z", description: "", svg: "https://cdn.intra.42.fr/lost.svg" },
 ];
 
 beforeEach(() => {
@@ -75,9 +75,9 @@ describe("achievements list", () => {
     });
     // one request per distinct icon, not per achievement
     expect([...icons.keys()].sort()).toEqual([
-      "https://cdn.example.com/1.svg",
-      "https://cdn.example.com/2.svg",
-      "https://cdn.example.com/lost.svg",
+      "https://cdn.intra.42.fr/1.svg",
+      "https://cdn.intra.42.fr/2.svg",
+      "https://cdn.intra.42.fr/lost.svg",
     ]);
     expect(list.querySelectorAll(".animate-pulse")).toHaveLength(4);
     expect(list.textContent).toContain("Aug 20, 2026");
@@ -88,15 +88,15 @@ describe("achievements list", () => {
       frames.push(cb);
       return frames.length;
     });
-    icons.get("https://cdn.example.com/1.svg")!({
+    icons.get("https://cdn.intra.42.fr/1.svg")!({
       ok: true,
       text: async () => '<svg width="80" height="80" id="one"></svg>',
     });
-    icons.get("https://cdn.example.com/2.svg")!({
+    icons.get("https://cdn.intra.42.fr/2.svg")!({
       ok: true,
       text: async () => '<svg width="80" height="80" id="two"></svg>',
     });
-    icons.get("https://cdn.example.com/lost.svg")!({ ok: false, text: async () => "" });
+    icons.get("https://cdn.intra.42.fr/lost.svg")!({ ok: false, text: async () => "" });
     await new Promise((r) => setTimeout(r, 20));
     expect(frames).toHaveLength(1);
     frames[0](performance.now());

@@ -1,6 +1,276 @@
 # Changelog
 
+Cuter Intra is a fork of [Better Intra](https://github.com/nicopasla/better-intra) by nicopasla, started from its 1.8.6 on 2026-09-13 and called Better Intra Remake until 1.19.0. The entries from the fork's 1.8.6 rebuild up to today are the fork's own, summarised from its [GitHub releases](https://github.com/MaiToxx/CuterIntra/releases), which have the full notes. Upstream's history, 1.8.6 and older, follows unchanged further down.
+
 ## [Unreleased]
+
+## [1.23.0] - 2026-11-23
+
+### Features 🎉
+
+- Load images from other sites (Customize tab, on by default): turned off, other students' profiles only load the images uploaded through Cuter Intra.
+
+### Bug fixes 🐛
+
+- Who's going: two events of the same name each open their own list; after a network failure the link comes back within a minute; a double click no longer opens two dialogs.
+- Marks and achievements no longer hold back the rest of the profile page when the Intra is slow; the Agenda's event filter no longer hangs when the worker does not answer.
+- A restore prompt answered in one tab is ignored in the others.
+
+### Other Changes 🔄
+
+- One stricter clean-up for SVG from the network (cluster maps, achievement icons); HTML tooltips only on the extension's own elements; the background script only reads the two Intra pages the correction stats need.
+- PRIVACY.md corrected: friends' visuals are looked up without an account too, the subject tracker keeps who reported what for 30 days, Add to Google Calendar sends the private link to Google.
+- Worker: a subject's change of link needs a PDF the worker could read or a second student; Wipe all data fails when an image could not be deleted; errors answer a generic message.
+- Release chain: actions pinned by commit, only a commit of main is signed, the gate loads the Firefox build in Firefox.
+
+## [1.22.2] - 2026-11-23
+
+### Other Changes 🔄
+
+- Who's going: the list is only served for an event of one of your own campuses; the extension sends your login for that, checked against your session. 1.22.0 and 1.22.1 stop showing the list on 2026-12-07.
+- Worker: calls to the 42 API are counted per hour, per account and in total.
+- Release drafter: commit subjects reach its script as an environment variable.
+
+## [1.22.1] - 2026-11-20
+
+### Other Changes 🔄
+
+- Who's going moves into the event: a link on each event of the Agenda instead of a button in its header, and the list shown on the page of an event. Friends carry a "Friend" label.
+
+## [1.22.0] - 2026-11-20
+
+### Features 🎉
+
+- Who's going (signed in): who is registered to a coming event, friends first; the Intra only shows a count. Switch in the Extras tab, on by default. Exams are left out and the list stops at 300 people.
+- Worker: `/api/v1/private/events/attendees` answers login, name and picture only, stores nothing, and refuses an event over for more than a day.
+
+## [1.21.3] - 2026-11-20
+
+### Other Changes 🔄
+
+- `content.js` is 23 KB smaller: the calendar QR code is drawn by the extension's own encoder instead of qrcode-generator.
+- Fewer requests: correction stats of a very active corrector, a friends list of more than 50 (cached longer), cluster map avatars and map cache.
+
+## [1.21.2] - 2026-11-19
+
+### Bug fixes 🐛
+
+- Moving from one profile to another without a reload no longer keeps the first one's banner and look.
+- The visuals editor stays open and says so when the server cannot be reached.
+- No false "changed in another browser" message with the settings open in two tabs.
+- Shortcut text typed just before closing the settings is stored and pushed.
+
+## [1.21.1] - 2026-11-19
+
+### Bug fixes 🐛
+
+- Declining "Restore your settings?" no longer lets the next push overwrite the cloud backup; importing a backup no longer turns auto push or subject sharing back on.
+- Hiding a dashboard card no longer hides other cards that contain the same word.
+- The logtime calendar shows at once when the server is slow; features that need the server come back a minute after it was unreachable.
+- Phoenix/Pegasus tracker after a change of programme, a calendar event without an end time, the roulette date's language, an Intra link carrying `?token=…&login=…`.
+
+## [1.21.0] - 2026-11-06
+
+### Features 🎉
+
+- Campus card on the dashboard: next exam with a countdown, room and registration (signed out too); signed in, coalition standings and correction points over 90 days.
+- Worker: `part=points` on the evaluations route and `/api/v1/private/coalitions`.
+
+## [1.20.0] - 2026-11-04
+
+### Features 🎉
+
+- Booked evaluations of the next 14 days in the calendar feed, with a 15-minute reminder; optionally every campus event and exam.
+- Own correction stats in a request or two instead of up to 40 Intra pages, and the Outstanding flags received and given on the roulette card.
+- Worker: `/api/v1/private/evaluations`, read from the 42 API with the worker's own application; campus files are revalidated instead of downloaded again.
+
+## [1.19.0] - 2026-11-04
+
+### Features 🎉
+
+- Better Intra Remake is renamed Cuter Intra; technical identifiers and update channels keep `better-intra`. Backup and export files are named `cuter-intra-…`.
+- "Load older months" is back on your own profile (signed in): the whole logtime history, read by the worker's own read-only 42 application and not stored.
+
+## [1.18.0] - 2026-09-25
+
+### Features 🎉
+
+- Advanced → Cloud account: the signed-in browsers, "Sign out my other browsers", and a download of everything the server keeps about you.
+- A push over a newer cloud copy from another browser is refused: Pull, or Push anyway.
+- A second browser finds the current calendar link instead of creating a new one.
+- Worker: sessions stored hashed in D1 and refused after a year, a daily write budget, sign-in limited to the Intra's own client, public visuals served from D1.
+
+## [1.17.1] - 2026-09-25
+
+### Bug fixes 🐛
+
+- No more `<svg> attribute height` and "Extension context invalidated" errors in Chrome's error list.
+- One cloud push at a time, none doubled with Auto push, and a retry after a 429.
+
+## [1.17.0] - 2026-09-25
+
+### Features 🎉
+
+- Add friend, the event markers on the logtime calendar and the Transcript button work signed out.
+- Logtime streak and records; what is left this week on the Phoenix/Pegasus badge; seats and a search in the cluster map's Active list; a freeze indicator for friends; "Stop sharing" for the calendar feed.
+
+### Bug fixes 🐛
+
+- Another student's profile no longer waits for the server up to 8 s; marks and achievements retry; French and phone layouts.
+- The emoji counter's hourly rate is no longer public. Firefox asks to accept the declared data categories.
+
+## [1.16.0] - 2026-09-24
+
+### Features 🎉
+
+- Every text of the extension exists in French; Advanced → Language: Auto, Français or English.
+
+## [1.15.0] - 2026-09-24
+
+### Features 🎉
+
+- Logtime settings apply without a reload. Friends are ringed on the cluster map and listed first. One-click calendar subscription.
+
+### Bug fixes 🐛
+
+- A first sign-in on a new browser no longer overwrites the cloud backup before "Restore your settings?" is answered (since 1.14.0).
+- The seat shows again on profiles of 13 campuses; the roulette countdown is right in winter time.
+
+## [1.14.2] - 2026-09-24
+
+### Bug fixes 🐛
+
+- Typed easter eggs always hear the keyboard; the Easter eggs switch applies without a reload; the hub gear secret is reachable.
+
+## [1.14.1] - 2026-09-23
+
+1.14.0 re-issued: Mozilla's signing timed out and 1.14.0 has no files.
+
+### Features 🎉
+
+- 58 themes that colour the whole Intra, each with surfaces in its own hue; the theme is part of the public look, of theme codes and of presets.
+- Uploaded images are sent on Save only, stripped of location and camera metadata by the server, and big JPEGs are shrunk.
+- The hub and the profile editor work on a phone. Friends work without signing in.
+
+### Bug fixes 🐛
+
+- A big custom CSS or many presets no longer break cloud sync; a failed push is retried and shown.
+- The "Load images when needed" switch is removed. The server no longer stores the country of the first sign-in.
+
+### Maintenance 🧹
+
+- Publish workflow: Chrome files first, Firefox when Mozilla signs; `finish-release.yaml` completes a release later.
+
+## [1.13.2] - 2026-09-23
+
+### Features 🎉
+
+- Upload avatar, banner and background images (PNG, JPEG, GIF or WebP, 2 MB) to the fork's server.
+
+## [1.13.1] - 2026-09-23
+
+### Bug fixes 🐛
+
+- Other students' images load from any host again (1.13.0 limited them to a list of hosts).
+
+## [1.13.0] - 2026-09-22
+
+### Features 🎉
+
+- A search box in the hub; settings that need a reload say so; the hub reopens on the tab you left.
+
+### Bug fixes 🐛
+
+- Profile pages no longer ask the server twice per refresh; every network call has a time limit.
+- Back and reload keep the scroll position; the logtime calendar no longer captures the wheel.
+
+### Other Changes 🔄
+
+- No GitHub host permission any more; the update check runs every six hours.
+- Worker: rate limits, payload caps, a complete "Wipe all data", and upstream's OAuth, Discord, evaluations, students and logtime history routes and crons removed.
+
+## [1.12.1] - 2026-09-22
+
+### Bug fixes 🐛
+
+- The date tooltip of a pending evaluation shows again ("Skip off-screen blocks" no longer covers those rows).
+
+## [1.12.0] - 2026-09-21
+
+### Features 🎉
+
+- Keyboard and screen reader support in the hub, the profile and the friends panel; reduced motion and "Disable animations" still every animation.
+- The friends panel reports an Intra or network failure with Retry instead of an empty list.
+
+### Bug fixes 🐛
+
+- Profile editor, calendar feed (emptied, updated, revoked for good), logtime event markers, profile cards after hours in an open tab.
+- Tabs open during an update no longer keep a dead gear or a second friends panel.
+
+## [1.11.1] - 2026-09-21
+
+### Bug fixes 🐛
+
+- `hook.js` is a MAIN-world content script at `document_start`, so the Intra token is always caught in time.
+
+### Maintenance 🧹
+
+- A Firefox test harness (`scripts/firefox-smoke.mjs`).
+
+## [1.11.0] - 2026-09-21
+
+### Other Changes 🔄
+
+- `content.js` 607 → 557 KB, the stylesheet 301 → 127 KB; settings are read from memory; nothing polls in the background.
+- Code that needed upstream's 42 application removed: Discord reminders, the students directory, the Outstanding star.
+- `src/` reorganised around `core/`; CI fails on a size budget, an import cycle or an HTML string.
+
+### Bug fixes 🐛
+
+- The Clusters button appears on every campus; the popup and the events filter follow the theme.
+
+## [1.10.0] - 2026-09-20
+
+### Features 🎉
+
+- "Lighten the Intra" switches in Advanced: skip off-screen blocks, pause when the tab is hidden, connect early to the image server.
+
+### Other Changes 🔄
+
+- `content.js` 969 → 607 KB and the popup 335 → 34 KB: the Tailwind and daisyUI sheet and the themes are files, parsed once.
+- `npm run measure`, `npm run check:size` and docs/PERFORMANCE.md.
+
+## [1.9.1] - 2026-09-18
+
+### Bug fixes 🐛
+
+- Public profile: colour pickers only for the styles that use them, link fields say when a value is wrong, the published-key list is pinned by a test on both sides.
+
+## [1.9.0] - 2026-09-18
+
+### Features 🎉
+
+- Public profile: status, pronouns, bio, flair, greeting, links, name style, avatar frame, level bar, header gradient and page effects, shown to every user of the extension who opens your profile and validated in their browser.
+
+## [1.8.27] - 2026-09-15
+
+The fork's first releases, 1.8.6 (rebuilt on 2026-09-13) to 1.8.27, grouped.
+
+### Features 🎉
+
+- An update check against the fork's releases, Firefox auto-update (`updates.json`) and, from 1.8.17, a `.crx` for Chrome on Linux (`updates.xml`).
+- 1.8.14: the fork's own worker, with a sign-in from the Intra session instead of a 42 OAuth application. 1.8.15 and 1.8.16: friends, correction stats and Thursday Roulette rebuilt from the Intra itself.
+- 1.8.13 to 1.8.22: the Customize tab (accent, palette, backgrounds, card styles, presets, theme codes, custom CSS, per-card colours) and the published look.
+- 1.8.23 to 1.8.26: easter eggs.
+
+### Bug fixes 🐛
+
+- 1.8.6: security and stability fixes on top of upstream 1.8.6 (forged OAuth and Discord callbacks, other users' visuals validated before they become CSS, backups without credentials).
+- Firefox sign-in from the popup (host permissions asked there); minified builds.
+
+---
+
+Below: upstream [Better Intra](https://github.com/nicopasla/better-intra) by nicopasla, as its changelog had it. The links point at the upstream repository.
 
 ## [1.8.6] - 2026-09-08
 
@@ -1163,7 +1433,35 @@
 - chore(profile): Refactor profile visuals ([8aa3ff8](https://github.com/nicopasla/better-intra/commit/8aa3ff8))
 - chore: Update README ([773a0f2](https://github.com/nicopasla/better-intra/commit/773a0f2))
 
-[unreleased]: https://github.com/nicopasla/better-intra/compare/v1.8.6...HEAD
+[unreleased]: https://github.com/MaiToxx/CuterIntra/compare/v1.23.0...HEAD
+[1.23.0]: https://github.com/MaiToxx/CuterIntra/compare/v1.22.2...v1.23.0
+[1.22.2]: https://github.com/MaiToxx/CuterIntra/compare/v1.22.1...v1.22.2
+[1.22.1]: https://github.com/MaiToxx/CuterIntra/compare/v1.22.0...v1.22.1
+[1.22.0]: https://github.com/MaiToxx/CuterIntra/compare/v1.21.3...v1.22.0
+[1.21.3]: https://github.com/MaiToxx/CuterIntra/compare/v1.21.2...v1.21.3
+[1.21.2]: https://github.com/MaiToxx/CuterIntra/compare/v1.21.1...v1.21.2
+[1.21.1]: https://github.com/MaiToxx/CuterIntra/compare/v1.21.0...v1.21.1
+[1.21.0]: https://github.com/MaiToxx/CuterIntra/compare/v1.20.0...v1.21.0
+[1.20.0]: https://github.com/MaiToxx/CuterIntra/compare/v1.19.0...v1.20.0
+[1.19.0]: https://github.com/MaiToxx/CuterIntra/compare/v1.18.0...v1.19.0
+[1.18.0]: https://github.com/MaiToxx/CuterIntra/compare/v1.17.1...v1.18.0
+[1.17.1]: https://github.com/MaiToxx/CuterIntra/compare/v1.17.0...v1.17.1
+[1.17.0]: https://github.com/MaiToxx/CuterIntra/compare/v1.16.0...v1.17.0
+[1.16.0]: https://github.com/MaiToxx/CuterIntra/compare/v1.15.0...v1.16.0
+[1.15.0]: https://github.com/MaiToxx/CuterIntra/compare/v1.14.2...v1.15.0
+[1.14.2]: https://github.com/MaiToxx/CuterIntra/compare/v1.14.1...v1.14.2
+[1.14.1]: https://github.com/MaiToxx/CuterIntra/compare/v1.13.2...v1.14.1
+[1.13.2]: https://github.com/MaiToxx/CuterIntra/compare/v1.13.1...v1.13.2
+[1.13.1]: https://github.com/MaiToxx/CuterIntra/compare/v1.13.0...v1.13.1
+[1.13.0]: https://github.com/MaiToxx/CuterIntra/compare/v1.12.1...v1.13.0
+[1.12.1]: https://github.com/MaiToxx/CuterIntra/compare/v1.12.0...v1.12.1
+[1.12.0]: https://github.com/MaiToxx/CuterIntra/compare/v1.11.1...v1.12.0
+[1.11.1]: https://github.com/MaiToxx/CuterIntra/compare/v1.11.0...v1.11.1
+[1.11.0]: https://github.com/MaiToxx/CuterIntra/compare/v1.10.0...v1.11.0
+[1.10.0]: https://github.com/MaiToxx/CuterIntra/compare/v1.9.1...v1.10.0
+[1.9.1]: https://github.com/MaiToxx/CuterIntra/compare/v1.9.0...v1.9.1
+[1.9.0]: https://github.com/MaiToxx/CuterIntra/compare/v1.8.27...v1.9.0
+[1.8.27]: https://github.com/MaiToxx/CuterIntra/compare/v1.8.6...v1.8.27
 [1.8.6]: https://github.com/nicopasla/better-intra/compare/v1.8.5...v1.8.6
 [1.8.5]: https://github.com/nicopasla/better-intra/compare/v1.8.4...v1.8.5
 [1.8.4]: https://github.com/nicopasla/better-intra/compare/v1.8.3...v1.8.4

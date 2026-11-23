@@ -90,7 +90,9 @@ function showDisclosureDialog(theme: "light" | "dark"): Promise<boolean> {
 
   const dialog = document.createElement("dialog");
   dialog.id = DIALOG_ID;
-  dialog.setAttribute("aria-labelledby", "ft-signin-disclosure-title");
+  // Not aria-labelledby: the title is inside the shadow root, where an id
+  // of the page cannot point.
+  dialog.setAttribute("aria-label", t("Before you sign in"));
   dialog.className = "bg-transparent backdrop:bg-black/50";
   Object.assign(dialog.style, {
     padding: "0",

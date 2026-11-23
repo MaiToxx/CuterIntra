@@ -128,10 +128,14 @@ export async function setCachedCluster(
   data.cachedAt = Date.now();
   const key = `${SVG_CACHE_PREFIX}${campusId}_${clusterId}`;
   await chrome.storage.local.set({ [key]: JSON.stringify(data) });
-  try {
-    await sweepSvgCache(campusId, key);
-  } catch {}
+  // One sweep at a time: each reads the index, changes it and writes it
+  // back, and two overlapping ones lost a key that was then never swept.
+  const sweep = sweeping.then(() => sweepSvgCache(campusId, key)).catch(() => {});
+  sweeping = sweep;
+  await sweep;
 }
+
+let sweeping: Promise<void> = Promise.resolve();
 
 export function getSvgSlug(svgUrl: string): string {
   try {

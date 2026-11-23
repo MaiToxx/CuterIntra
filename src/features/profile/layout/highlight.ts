@@ -206,6 +206,8 @@ function checkRouteAndHighlight() {
 /** A WeakSet to keep track of labels that have already been processed. */
 const processedLabels = new WeakSet<HTMLElement>();
 
+const ON_PROFILE_HOST = /^profile(-v3)?\.intra\.42\.fr$/.test(location.hostname);
+
 const isSeatLike = (t: string) =>
   !!t &&
   t !== "unavailable" &&
@@ -229,7 +231,10 @@ function installSeatClickGuard() {
       for (const node of path) {
         if (!(node instanceof HTMLElement)) continue;
 
-        if (node.classList.contains("value")) {
+        // Only where the seat badge exists: this listener runs on every
+        // Intra host, and "ft-irc" or "2026-11-22" in a `.value` elsewhere
+        // looks like a seat too.
+        if (ON_PROFILE_HOST && node.classList.contains("value")) {
           const t = node.textContent?.trim().toLowerCase() || "";
           if (isSeatLike(t)) {
             e.preventDefault();

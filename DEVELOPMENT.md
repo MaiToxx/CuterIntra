@@ -8,8 +8,8 @@
 ## Setup
 
 ```bash
-git clone https://github.com/nicopasla/better-intra.git
-cd better-intra
+git clone https://github.com/MaiToxx/CuterIntra.git
+cd CuterIntra
 npm install
 ```
 
@@ -21,6 +21,7 @@ npm run dev:chrome      # watch + web-ext auto-reload in Chrome
 npm run dev:brave       # watch + web-ext auto-reload in Brave
 npm run build:firefox   # single production build for Firefox
 npm run build:chrome    # single production build for Chrome
+npm run build:chrome-store # the Chrome Web Store build (no release check, no alarms permission) -> dist-chrome-store/
 npm test                # vitest (jsdom)
 npm run measure         # size of every built file, and what fills the bundles
 npm run check:size      # fails when a built file is over its budget (CI)
@@ -45,7 +46,7 @@ cross-env TARGET=firefox BUILD_OUT_DIR=dist-firefox tsc && cross-env TARGET=fire
 
 - `content.js` is bundled as IIFE. `popup.js` is bundled separately. `background.js` is bundled as IIFE.
 - `manifest.json` is generated from `manifests/manifest.{chrome,firefox}.json` by `finalizeManifest()` in `vite.config.ts`: version from `package.json`, worker origin from `config.workerUrl`, Firefox id and update URL from `repository`, the `/callback` content script only in oauth mode. `tests/manifests.test.ts` checks it, and `tests/privacy-doc.test.ts` checks that PRIVACY.md names every permission and host the manifests ask for.
-- Host permissions are `https://*.intra.42.fr/*` and the worker. `api.github.com` (release check, About tab) is reached as a plain CORS request. The Chrome manifest sets `minimum_chrome_version` 111 (MAIN-world content scripts).
+- Host permissions are `https://*.intra.42.fr/*` and the worker. `api.github.com` is reached as a plain CORS request, by the release check in `src/background.ts` only (the About tab reads what that check stored and calls nothing; the Chrome Web Store build has no check). The Firefox manifest sets `strict_min_version` 140.0. The Chrome manifest sets `minimum_chrome_version` 111 (MAIN-world content scripts).
 - Icons are copied from `public/icons/` on build. To regenerate: `node scripts/generate-icons.js` (requires `sharp`).
 
 ## Project structure
@@ -73,7 +74,7 @@ cross-env TARGET=firefox BUILD_OUT_DIR=dist-firefox tsc && cross-env TARGET=fire
 ## Toolchain
 
 - **Vite 8** + `@tailwindcss/vite` plugin (Tailwind v4 CSS-driven config, no `tailwind.config.js`).
-- **daisyUI 5** — loaded via `@plugin "daisyui"` in `src/core/styles/style.css`. Scoped to shadow DOM roots. Only a subset of components included: button, toggle, input, select, radio, label, card, tabs, modal, divider, swap, fieldset, status, tooltip, badge, collapse, ring, avatar, indicator, list, loading, join, kbd, dropdown, menu.
+- **daisyUI 5** — loaded via `@plugin "daisyui"` in `src/core/styles/style.css`. Scoped to shadow DOM roots. Only a subset of components included (the `include` list of that block): alert, avatar, badge, button, card, countdown, divider, dropdown, indicator, input, join, label, list, loading, menu, modal, progress, select, skeleton, swap, tab, textarea, toggle.
 - **TypeScript 7** — `strict: true`, `moduleResolution: bundler`, `types: ["chrome"]`.
 - **lit-html** — DOM templating for settings UI and popup.
 - **web-ext** — running and signing the extension.
@@ -81,7 +82,7 @@ cross-env TARGET=firefox BUILD_OUT_DIR=dist-firefox tsc && cross-env TARGET=fire
 
 ## Worker
 
-The Cloudflare Worker (`../better-intra-worker`) handles the Intra-token sign-in and its sessions, settings sync, public visuals and looks, uploaded profile images, the calendar `.ics` feed, the subject tracker, the data export, the announcement and the public stats. It has its own `package.json`, and its README documents every route, limit and table. AGENTS.md has the short version, including the error codes and the compatibility rule: extension builds stay installed for weeks, so a worker change keeps the routes and success bodies they read.
+The Cloudflare Worker (`../better-intra-worker`) handles the Intra-token sign-in and its sessions, settings sync, public visuals and looks, uploaded profile images, the calendar `.ics` feed, the subject tracker, the data export, the announcement and the public stats. With its own 42 API application configured (optional secrets `FT_CLIENT_ID` and `FT_CLIENT_SECRET`), it also serves four read-only routes announced by `GET /api/v1/public/features`: `/api/v1/private/logtime/history` (your own logtime history), `/api/v1/private/evaluations` (your correction stats, Outstanding counts, booked evaluations and correction points), `/api/v1/private/coalitions` and `/api/v1/private/events/attendees` (*Who's going*, the only route that names other students); without the application they answer 404. It has its own `package.json`, and its README documents every route, limit and table. AGENTS.md has the short version, including the error codes and the compatibility rule: extension builds stay installed for weeks, so a worker change keeps the routes and success bodies they read.
 
 ### Commands
 
@@ -97,7 +98,7 @@ npm run deploy      # never without the user's explicit consent: see below
 ### Storage
 
 - **`BETTER_INTRA_KV`** — one record per login hash (`{settings, settingsRev}`), the uploaded images (`img:<hash>:<slot>`) and two small caches (JWKS, announcement). The free plan allows 1,000 writes a day for the whole namespace, so pushes, uploads and first sign-ins spend a daily budget counted in D1 (200 a day per login) before writing.
-- **D1** (`better_intra_d1`, database `better-intra-d1`) — `sessions` (a SHA-256 of each token, 10 per login, 365 days) and `session_migrations`, `users` (login hash, first sign-in; feeds `/api/v1/public/stats`), `calendar_ics`, `calendar_tokens`, `subjects`, `kv_write_budget`, `public_visuals` (what visitors are served, read before the KV record). The live database also keeps upstream tables that nothing reads; they are left alone.
+- **D1** (`better_intra_d1`, database `better-intra-d1`) — `sessions` (a SHA-256 of each token, 10 per login, 365 days) and `session_migrations`, `users` (login hash, first sign-in; feeds `/api/v1/public/stats`), `calendar_ics`, `calendar_tokens`, `subjects`, `kv_write_budget`, `ft_call_budget` (the hourly count of calls to the 42 API: 200 per login, 1,000 in all), `public_visuals` (what visitors are served, read before the KV record). The live database also keeps upstream tables that nothing reads; they are left alone.
 - **Migrations** — `migrations/NNNN_name.sql`, applied in order by `npx wrangler d1 migrations apply better-intra-d1 --remote`. They only add (`CREATE ... IF NOT EXISTS`) and are never edited once applied: a schema change is a new numbered file.
 
 ### Deploy and roll back
@@ -111,7 +112,7 @@ Both touch the live worker: only with the user's explicit consent.
 
 ### Removed upstream code
 
-Upstream's OAuth login (`/login`, `/callback`), evaluation notifications (Discord), the students directory, logtime history and every cron were removed from the worker in 1.13.0; its tests assert that those routes answer 404. The extension's `"oauth"` auth mode stays in the tree (see *Auth mode*) but would need upstream's worker.
+Upstream's OAuth login (`/login`, `/callback`), evaluation notifications (Discord), the students directory, logtime history (read with user tokens) and every cron were removed from the worker in 1.13.0; its tests assert that those routes answer 404. Two of them came back in another form, through the worker's own 42 application, without user tokens or crons: your own logtime history in 1.19.0 and your own evaluations in 1.20.0 (see *Worker* above). The extension's `"oauth"` auth mode stays in the tree (see *Auth mode*) but would need upstream's worker.
 
 ## Testing
 
@@ -122,7 +123,7 @@ npm test           # vitest run (single pass)
 npm run test:watch # vitest (watch mode)
 ```
 
-Test files: `tests/*.test.ts`, one per feature or concern (about a hundred). Global setup (the `chrome.storage` mock) is in `tests/setup.ts`. `tests/no-html-injection.test.ts` enforces the no-`innerHTML` rule, `tests/manifests.test.ts` the manifest build, `tests/privacy-doc.test.ts` keeps PRIVACY.md in step with the manifests and the sync key list and, when the worker repository sits next to this one, with the worker's D1 tables, session limits, write budget and export.
+Test files: `tests/*.test.ts`, one per feature or concern (about two hundred). Global setup (the `chrome.storage` mock) is in `tests/setup.ts`. `tests/no-html-injection.test.ts` enforces the no-`innerHTML` rule, `tests/manifests.test.ts` the manifest build, `tests/privacy-doc.test.ts` keeps PRIVACY.md in step with the manifests and the sync key list and, when the worker repository sits next to this one, with the worker's D1 tables, session limits, write budget and export.
 
 ## Coding conventions
 
@@ -133,7 +134,7 @@ Test files: `tests/*.test.ts`, one per feature or concern (about a hundred). Glo
 ## CI
 
 - **CI** (`ci.yaml`) — on push/PR: type-check, tests, generated themes, both builds, the Chrome smoke test in the runner's Chrome (soft-skipped only when none is found, exit code 3), size budgets, import cycles.
-- **Release drafter** — on push/PR to `main`; auto-categorizes commits.
+- **Release drafter** (`release-drafter.yaml`) — on push to `main`; sorts the commits since the last tag into a draft release.
 - **Publish** (`publish.yaml`) — on GitHub Release publish: the tag must name `package.json`'s version (`scripts/check-release-tag.mjs`, also worth running before `gh release create`), then `npm run release:check`, then the Chrome zip and `.crx`, the Chrome Web Store package (`chrome-web-store-upload.zip`, attached and kept as a run artifact), `updates.xml`, the store upload when its secrets exist, and last the AMO signing, the `.xpi` and `updates.json`. A submission Mozilla never created or refused turns the run red at its last step.
 - **Finish release** (`finish-release.yaml`) — every half hour and on `gh workflow run finish-release.yaml -f tag=vX`: completes the latest release (the Chrome files a failed publish run left out, for a day and after that only on a manual run; the signed `.xpi` once Mozilla approves it; an `updates.json`/`updates.xml` push that failed). Never while a publish run for the tag is going or in the release's first 30 minutes (`scripts/release-state.mjs`), and it runs the same `release:check` before attaching Chrome files. A publish run that stopped before the AMO submission is recovered with `gh run rerun <id> --failed`; after the submission, leave the rest to this workflow (a rerun resubmits a version AMO already has, and its signing step fails).
 

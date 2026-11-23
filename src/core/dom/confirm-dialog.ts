@@ -20,6 +20,7 @@ export async function showConfirmDialog(
 
   const dialog = document.createElement("dialog");
   dialog.id = DIALOG_ID;
+  dialog.setAttribute("aria-label", t("Restore cloud settings"));
   dialog.className = "bg-transparent backdrop:bg-black/50";
   dialog.style.padding = "0";
   dialog.style.border = "none";

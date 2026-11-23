@@ -16,6 +16,7 @@ beforeAll(async () => {
   (globalThis as any).chrome = {
     ...(globalThis as any).chrome,
     runtime: {
+      id: "ext-id",
       getManifest: () => ({ version: "1.0.0" }),
       onInstalled: noopEvent,
       onStartup: noopEvent,
@@ -39,10 +40,11 @@ afterEach(() => {
 });
 
 /** Ask the handler for a page; resolves with its answer, or "pending" after `ms`. */
-function ask(url: string, ms = 300): Promise<unknown> {
+const INTRA_TAB = { id: "ext-id", url: "https://profile-v3.intra.42.fr/users/bob" };
+function ask(url: string, ms = 300, sender: unknown = INTRA_TAB): Promise<unknown> {
   return new Promise((resolve) => {
     const timer = setTimeout(() => resolve("pending"), ms);
-    onMessage({ type: "FT_FETCH_INTRA_PAGE", url }, {}, (answer) => {
+    onMessage({ type: "FT_FETCH_INTRA_PAGE", url }, sender, (answer) => {
       clearTimeout(timer);
       resolve(answer);
     });
@@ -82,11 +84,11 @@ describe("background: FT_FETCH_INTRA_PAGE", () => {
       vi.fn(async () => ({
         ok: true,
         status: 200,
-        url: "https://profile.intra.42.fr/users/bob",
+        url: "https://projects.intra.42.fr/users/bob/feedbacks?as=corrector&page=2",
         text: async () => "<html>page</html>",
       })),
     );
-    const answer = await ask("https://profile.intra.42.fr/users/bob");
+    const answer = await ask("https://projects.intra.42.fr/users/bob/feedbacks?as=corrector&page=2");
     expect(answer).toEqual({ ok: true, status: 200, text: "<html>page</html>" });
   });
 
@@ -94,6 +96,30 @@ describe("background: FT_FETCH_INTRA_PAGE", () => {
     const fetchMock = vi.fn();
     vi.stubGlobal("fetch", fetchMock);
     expect(await ask("https://evil.example.com/")).toEqual({ ok: false });
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("serves the two pages the correction stats read, and no other Intra page", async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+    for (const other of [
+      "https://profile.intra.42.fr/users/bob",
+      "https://profile.intra.42.fr/oauth/applications",
+      "https://projects.intra.42.fr/users/bob/feedbacks?as=corrector&page=1&x=1",
+      "https://profile.intra.42.fr/users/bob/correction_point_historics/../../oauth",
+    ]) {
+      expect(await ask(other)).toEqual({ ok: false });
+    }
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("answers only a content script of this extension on an Intra page", async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+    const page = "https://profile.intra.42.fr/users/bob/correction_point_historics";
+    expect(await ask(page, 300, {})).toEqual({ ok: false });
+    expect(await ask(page, 300, { id: "other-extension", url: INTRA_TAB.url })).toEqual({ ok: false });
+    expect(await ask(page, 300, { id: "ext-id", url: "https://example.com/" })).toEqual({ ok: false });
     expect(fetchMock).not.toHaveBeenCalled();
   });
 });

@@ -2,7 +2,7 @@
 
 Browser extension that improves the 42 Intra (v3 profile pages): logtime calendar, cluster map, custom profiles and looks, shortcuts, friends widget, correction stats, and a few secrets.
 
-Cuter Intra is a fork of [Better Intra](https://github.com/nicopasla/better-intra) by nicopasla (MIT), renamed so the two cannot be confused, rebuilt for the **42 Mulhouse** campus and run on its own server. It keeps the upstream features that work without a 42 API application, reimplements the ones that used to need one on top of the Intra's own APIs, and adds a large customization layer. Nothing depends on the Belgium campus or on the upstream cloud any more.
+Cuter Intra is a fork of [Better Intra](https://github.com/nicopasla/better-intra) by nicopasla (MIT), renamed so the two cannot be confused, rebuilt for the **42 Mulhouse** campus and run on its own server. It keeps the upstream features that work without per-user 42 API tokens, reimplements the ones that used to need them on top of the Intra's own APIs (and, since 1.19, of its server's own read-only 42 application), and adds a large customization layer. Nothing depends on the Belgium campus or on the upstream cloud any more.
 
 ---
 
@@ -24,7 +24,7 @@ The release also carries `chrome-web-store-upload.zip`: not for installing. It i
 
 **Chrome on Linux**: drag `better-intra.crx` onto `chrome://extensions` (Developer mode on). This build updates itself.
 
-Then open your profile on https://profile-v3.intra.42.fr, click the extension icon and **Sign in with 42**: the extension signs you in with your current Intra session (no password, no OAuth page), after showing what it sends. Cloud features (settings sync, shared visuals and looks, image upload, calendar link) need this sign-in; everything else, friends included, works without it.
+Then open your profile on https://profile-v3.intra.42.fr, click the extension icon and **Sign in with 42**: the extension signs you in with your current Intra session (no password, no OAuth page), after showing what it sends. Cloud features (settings sync, shared visuals and looks, image upload, calendar link, and what the server reads from the 42 API for you: older logtime months, coalitions, correction points, Who's going) need this sign-in; everything else, friends included, works without it.
 
 ### Updates
 
@@ -56,7 +56,7 @@ Data that upstream fetched through the 42 API is rebuilt from what the Intra alr
 - correction statistics and Thursday Roulette history are parsed from the v2 Intra pages;
 - cluster occupancy comes from `meta.intra.42.fr`.
 
-Since 1.19.0 the worker also has its own 42 API application, used read-only and only where the Intra offers nothing: **Load older months** on your own profile (signed in) fetches your whole logtime history from 42's `locations_stats`. The worker keeps it in memory for an hour and stores nothing. Since 1.20.0 the same application gives your own **correction statistics** and **Outstanding counts** in a request or two (instead of up to 40 Intra pages) and puts your **booked evaluations** in your calendar feed, with a reminder 15 minutes before. The Calendar tab can also add every campus event and exam, not only the ones you registered for. Since 1.21.0 a **Campus card** on your own dashboard shows your next exam (from your Intra events, signed out too) and, signed in, your **coalition standings** and your **correction points** over the last 90 days. Since 1.22.0 **Who's going** lists the people registered to a coming event you pick; it is the only feature where the worker names other students, and it stores none of it (see PRIVACY.md).
+Since 1.19.0 the worker also has its own 42 API application, used read-only and only where the Intra offers nothing: **Load older months** on your own profile (signed in) fetches your whole logtime history from 42's `locations_stats`. The worker keeps it in memory for an hour and stores nothing. Since 1.20.0 the same application gives your own **correction statistics** and **Outstanding counts** in a request or two (instead of up to 40 Intra pages) and puts your **booked evaluations** in your calendar feed, with a reminder 15 minutes before. The Calendar tab can also add every campus event and exam, not only the ones you registered for. Since 1.21.0 a **Campus card** on your own dashboard shows your next exam (from your Intra events, signed out too) and, signed in, your **coalition standings** and your **correction points** over the last 90 days. Since 1.22.0 **Who's going** lists the people registered to an event of your own campus, when you ask for it; it is the only feature where the worker names other students, and it stores none of it (see PRIVACY.md).
 
 The worker is deployed at `betterintra-remake.maitox.workers.dev`. Besides it and `*.intra.42.fr`, the extension only contacts `api.github.com` (release check, not in the Chrome Web Store build), the image hosts other students chose for their visuals, and, for a shortcut without an emoji, that site's favicon (or DuckDuckGo's icon service when it has none).
 
@@ -81,10 +81,10 @@ The worker is deployed at `betterintra-remake.maitox.workers.dev`. Besides it an
 * **Projects sort** — by name or date on any profile.
 * **Freeze alerts** — a card with a live countdown on frozen students' profiles and on your own dashboard; a frozen friend's row in the friends widget says until when.
 * **Clickable seat** — click someone's seat to open the cluster map with that seat highlighted.
-* **Thursday Roulette ☁️** — the profile's roulette history and points, with a countdown to the next draw (rebuilt from the Intra pages).
+* **Thursday Roulette** — the profile's roulette history and points, with a countdown to the next draw (rebuilt from the Intra pages, no sign-in needed).
 * **Campus card** — on your dashboard: your next exam with a countdown and whether you are registered; signed in ☁️, your coalitions' standings and a graph of your correction points over 90 days.
-* **Who's going ☁️** — a link on each event of your dashboard's Agenda, and a list on the page of an event: see who is registered, your friends first (the Intra only shows a count).
-* **Correction stats ☁️** — monthly evaluations as a corrector: total, failures, success rate (rebuilt from the Intra pages).
+* **Who's going ☁️** — a link on each event of your dashboard's Agenda, and a list on the page of an event: see who is registered (login, name, picture), your friends first (the Intra only shows a count). Events of your own campus only, exams left out, the first 300 people.
+* **Correction stats** — monthly evaluations as a corrector: total, failures, success rate (rebuilt from the Intra pages, no sign-in needed); signed in ☁️, your own come from the 42 API in a request or two, with the Outstanding flags you received and gave.
 * **Moulinette robots** — the moulinette image on corrected pages becomes a robot (broken when failed).
 * **Info card badges** — wallet, level, rank, score and seat as coloured badges under the header; the wallet badge opens the shop.
 * **Campus flag** — the campus badge shows the country flag.
@@ -126,10 +126,11 @@ A **Customize** tab in the hub restyles every Intra page live, and syncs with yo
 * **Streak and records** — your days in a row next to the Active badge, with your longest streak, best day and best week (over the days shown) in its tooltip; *Show streak* turns it off.
 * **Emoji mode** — pick an emoji, give it a value, track monthly "earnings" with a cap.
 * **Custom colours** and rainbow palettes; calendar events overlaid on the days.
+* **Load older months ☁️** — on your own profile, your whole logtime history, not only the months the Intra loads.
 
 ### 📆 Calendar sync ☁️
 
-The **Calendar** tab of the hub generates a private `.ics` link (with a QR code for phones) that Google Calendar, Apple Calendar or Outlook can subscribe to. Every time you open your own profile, the Intra events you are subscribed to are pushed to the worker, each with a 15-minute reminder. *Regenerate* revokes the old link at once; *Stop sharing* revokes it and deletes the copy on the worker, and so does wiping your cloud data.
+The **Calendar** tab of the hub generates a private `.ics` link (with a QR code for phones) that Google Calendar, Apple Calendar or Outlook can subscribe to. Every time you open your own profile, the Intra events you are subscribed to are pushed to the worker, each with a 15-minute reminder. Your booked evaluations of the next 14 days are added with the same reminder (on by default), and an option adds every campus event and exam, the ones you are not registered for shown as free time. *Regenerate* revokes the old link at once; *Stop sharing* revokes it and deletes the copy on the worker, and so does wiping your cloud data.
 
 ### 🖥️ Clusters
 
@@ -141,9 +142,9 @@ The **Calendar** tab of the hub generates a private `.ics` link (with a QR code 
 
 Up to 8 quick links on the profile page with name, colour and emoji (or the site's icon), drag to reorder, optional hiding of the default links with left/center/right alignment.
 
-### 👥 Friends ☁️
+### 👥 Friends
 
-A panel in the bottom-right corner: add friends by login, see avatar, level, wallet, correction points, location and online status; follow/unfollow from any profile; sort by name, level, wallet, points or online; medal borders for the top 3; a badge with the number of friends online. Data refreshes every 5 minutes, or on demand. No sign-in needed: the data comes from the Intra with your own session.
+A panel in the bottom-right corner: add friends by login, see avatar, level, wallet, correction points, location and online status; follow/unfollow from any profile; sort by name, level, wallet, points or online; medal borders for the top 3; a badge with the number of friends online. There is no timer: the data is cached for 5 minutes (longer for a list of more than 50 friends, half an hour at most) and read again after that when a page loads, or at once with the refresh button. No sign-in needed: the data comes from the Intra with your own session.
 
 ### ☁️ Account
 
@@ -157,7 +158,7 @@ Three switches in the Advanced tab that make the **Intra page itself** cheaper, 
 * **Pause when the tab is hidden** — the page's animations and transitions stop while you are in another tab.
 * **Connect early to the image server** — saves the connection setup on the first avatar, usually 100 to 300 ms.
 
-The extension is also much lighter than it used to be. Its script went from 969 KB (1.9) to 576 KB, its popup from 335 KB to 40 KB, and a default-theme page parses 128 KB of CSS instead of 301 KB, once rather than once per widget. Settings are read from memory instead of one storage round trip each (about 50 reads down to 1 when a profile opens), and nothing polls in the background any more. Numbers and method in [docs/PERFORMANCE.md](docs/PERFORMANCE.md).
+The extension is also much lighter than it used to be. Its script went from 969 KB (1.9) to 694 KB today, with everything added since, its popup from 335 KB to 64 KB, and a default-theme page parses 131 KB of CSS instead of 301 KB, once rather than once per widget. Settings are read from memory instead of one storage round trip each (about 50 reads down to 1 when a profile opens), and nothing polls in the background any more. Numbers and method in [docs/PERFORMANCE.md](docs/PERFORMANCE.md).
 
 ### ⚙️ Settings hub
 
@@ -196,6 +197,7 @@ See [PRIVACY.md](./PRIVACY.md).
 - With the cloud account, the settings you push (friends list included), custom visuals and (if enabled) your public look are stored on the fork's worker under a hash of your login, plus a users row (login hash, first sign-in date) for the public counters and, for each signed-in browser, a hash of its session token (365 days at most). Signed in, you can download a copy of what the worker keeps about you; *Wipe All Data* deletes it (PRIVACY.md lists the few bookkeeping rows that stay).
 - Signing in sends your current Intra session token to the worker once, for verification against 42's public keys. It is not stored.
 - Other users' profiles: their public visuals and look are fetched from the worker when they use Cuter Intra; their images load from wherever they are hosted.
+- *Who's going* (signed in) is the one feature that shows other students' names: when you ask for an event of your own campus, the worker reads its registrations from the 42 API and answers the login, name and picture of each person, including students who never installed the extension. It stores none of it.
 - No analytics, tracking or advertising. Permissions: `storage`, `alarms` (not in the Chrome Web Store build), `activeTab` (Firefox only), and access to `*.intra.42.fr` and the worker. No host permission is needed for `api.github.com`: the update check is an ordinary cross-origin request.
 
 ## Self-hosting
@@ -226,4 +228,4 @@ Original project: [Better Intra](https://github.com/nicopasla/better-intra) by n
 
 ## License
 
-[MIT](./LICENSE). Every package also ships [THIRD_PARTY_NOTICES.txt](./THIRD_PARTY_NOTICES.txt), the licences of the code and icons it bundles (lit-html, qrcode-generator, daisyUI, Tailwind CSS, Improved Intra, Lucide, Font Awesome).
+[MIT](./LICENSE). Every package also ships [THIRD_PARTY_NOTICES.txt](./THIRD_PARTY_NOTICES.txt), the licences of the code and icons it bundles (lit-html, daisyUI, Tailwind CSS, Improved Intra, Lucide, Font Awesome). The calendar's QR code is drawn by the extension's own encoder since 1.21.3; qrcode-generator, which it replaced, is only used by the tests.

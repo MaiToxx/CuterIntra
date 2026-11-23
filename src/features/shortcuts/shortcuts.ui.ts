@@ -64,6 +64,20 @@ export const getFaviconUrl = (url: string): string => {
   }
 };
 
+/**
+ * Whether `url` names a site an icon can be asked from: http(s) and a host
+ * with a dot. An empty row used to ask example.com for its favicon, and a
+ * half-typed address asked whatever host it spelled so far.
+ */
+export const hasFaviconHost = (url: string): boolean => {
+  try {
+    const parsed = new URL(url);
+    return /^https?:$/.test(parsed.protocol) && parsed.hostname.includes(".");
+  } catch {
+    return false;
+  }
+};
+
 export const getContrastColor = (hex: string): string => {
   const safeHex = sanitizeColor(hex);
   const r = parseInt(safeHex.slice(1, 3), 16);
@@ -332,9 +346,11 @@ function renderLinkContent(
     >
       ${hasEmoji
         ? html`<span class="text-2xl">${link.emoji}</span>`
-        : html`
+        : !hasFaviconHost(link.url)
+          ? html`<span class="w-8 h-8"></span>`
+          : html`
             <img
-              src="${getFaviconUrl(link.url || "https://example.com")}"
+              src="${getFaviconUrl(link.url)}"
               class="w-8 h-8 object-contain"
               alt=""
               loading="lazy"

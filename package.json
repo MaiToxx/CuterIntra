@@ -1,7 +1,7 @@
 {
   "name": "better-intra",
   "private": true,
-  "version": "1.22.2",
+  "version": "1.23.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/MaiToxx/CuterIntra.git"
@@ -32,7 +32,7 @@
     "generate:themes": "node scripts/generate-themes.mjs",
     "check:themes": "node scripts/generate-themes.mjs --check",
     "check:cycles": "node scripts/check-cycles.mjs",
-    "release:check": "npm test && npm run check:themes && npm run check:cycles && npm run build:firefox && npm run build:chrome && npm run check:size && node scripts/firefox-smoke.mjs dist-chrome --browser chrome --runs 3 --cold 1 --no-sandbox",
+    "release:check": "npm test && npm run check:themes && npm run check:cycles && npm run build:firefox && npm run build:chrome && npm run check:size && node scripts/smoke-firefox.mjs && node scripts/firefox-smoke.mjs dist-chrome --browser chrome --runs 3 --cold 1 --no-sandbox",
     "smoke:firefox": "node scripts/firefox-smoke.mjs",
     "smoke:chrome": "node scripts/firefox-smoke.mjs --browser chrome"
   },

@@ -325,7 +325,8 @@ export function contrastForeground(
 /** A font-family value safe to interpolate into a declaration. */
 export function sanitizeFontFamily(value: unknown): string {
   if (typeof value !== "string") return "";
-  const v = value.trim().replace(/[;{}<>\\]/g, "").slice(0, 200);
+  // no comment opener and no function call either: a font list has neither
+  const v = value.trim().replace(/\/\*|\*\//g, "").replace(/[;{}<>\\()]/g, "").slice(0, 200);
   return v;
 }
 

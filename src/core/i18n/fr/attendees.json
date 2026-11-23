@@ -1,5 +1,7 @@
 {
   "Who's going": "Qui y va",
+  "Load images from other sites": "Charger les images d’autres sites",
+  "A student's avatar, banner or background can be a link to any website, which then sees your IP address when you open their profile. Turn off to only load the images uploaded through Cuter Intra.": "L’avatar, la bannière ou le fond d’un étudiant peut être un lien vers n’importe quel site, qui voit alors ton adresse IP quand tu ouvres son profil. Désactive pour ne charger que les images envoyées avec Cuter Intra.",
   "Adds a link to each event of your Agenda, and a list on the page of an event, showing who is registered, your friends first.": "Ajoute un lien à chaque événement de ton agenda, et une liste sur la page d’un événement, pour voir qui est inscrit, tes amis en premier.",
   "This event is over.": "Cet événement est terminé.",
   "Too many requests for now. Try again in a few minutes.": "Trop de demandes pour l’instant. Réessaie dans quelques minutes.",

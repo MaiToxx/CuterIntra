@@ -120,7 +120,13 @@
         .catch(function () {});
     }
 
-    if (url.indexOf(".intra.42.fr") !== -1) {
+    // The host itself, not a substring of the URL: a request to another
+    // site with ".intra.42.fr" in its path or query is not the Intra's.
+    var onIntra = false;
+    try {
+      onIntra = /(^|\.)intra\.42\.fr$/.test(new URL(url, location.href).hostname);
+    } catch (e) {}
+    if (onIntra) {
       var auth = getAuthHeader(args);
       if (auth && auth !== intrapyToken) {
         intrapyToken = auth;

@@ -262,8 +262,35 @@ async function fetchIntraPage(
   }
 }
 
-chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+/**
+ * The two pages the correction stats read (profile-stats-intra.ts), and
+ * nothing else: the fetch carries the user's Intra cookies.
+ */
+const INTRA_PAGE_PATHS = [
+  /^https:\/\/projects\.intra\.42\.fr\/users\/[a-z0-9_.-]+\/feedbacks\?as=corrector&page=\d+$/i,
+  /^https:\/\/profile\.intra\.42\.fr\/users\/[a-z0-9_.-]+\/correction_point_historics$/i,
+];
+
+/** One of our content scripts on an Intra page, not another context. */
+function fromIntraPage(sender: chrome.runtime.MessageSender): boolean {
+  if (sender.id !== chrome.runtime.id) return false;
+  try {
+    return /(^|\.)intra\.42\.fr$/.test(new URL(sender.url ?? sender.tab?.url ?? "").hostname);
+  } catch {
+    return false;
+  }
+}
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message?.type === "FT_FETCH_INTRA_PAGE") {
+    if (
+      !fromIntraPage(sender) ||
+      typeof message.url !== "string" ||
+      !INTRA_PAGE_PATHS.some((allowed) => allowed.test(message.url))
+    ) {
+      sendResponse({ ok: false });
+      return false;
+    }
     fetchIntraPage(message.url)
       .then(sendResponse)
       .catch(() => sendResponse({ ok: false }));

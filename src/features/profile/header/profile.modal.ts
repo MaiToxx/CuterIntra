@@ -240,6 +240,7 @@ export const createSettingsModal = async (
     id: "profile-modal-host",
     className: "bg-transparent backdrop:bg-black/50",
   });
+  dialog.setAttribute("aria-label", t("Edit my profile visuals"));
   Object.assign(dialog.style, {
     marginTop: "auto",
     // dvh: with the browser's toolbar at the bottom (Firefox for Android) a

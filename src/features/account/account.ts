@@ -1035,6 +1035,12 @@ export async function maybePromptRestore(): Promise<void> {
     confirmLabel: t("Restore"),
     cancelLabel: t("Cancel"),
   });
+  // The sign-in reloads every profile tab and each one asks. Once a tab has
+  // answered, the others' dialogs are stale: a late Cancel there set the
+  // revision to 0 after a Restore (a false conflict on the next push), and a
+  // late Restore put this tab's old copy over what was changed since.
+  const still = (await chrome.storage.local.get(RESTORE_PENDING_KEY)) as Record<string, unknown>;
+  if (!still[RESTORE_PENDING_KEY]) return;
   await chrome.storage.local.remove(RESTORE_PENDING_KEY);
   if (restore) {
     await applyCloudSettings(settings);

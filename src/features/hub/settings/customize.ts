@@ -40,6 +40,16 @@ export const CUSTOMIZE_SETTINGS: readonly HubSettingDef[] = [
     grid: true,
     colSpan: 1,
   },
+  {
+    feature: "customize",
+    key: "PROFILE_SHOW_OTHERS_IMAGES",
+    label: "Load images from other sites",
+    desc: "A student's avatar, banner or background can be a link to any website, which then sees your IP address when you open their profile. Turn off to only load the images uploaded through Cuter Intra.",
+    kind: "toggle",
+    defaultValue: CONFIG_DEFAULT.PROFILE_SHOW_OTHERS_IMAGES,
+    grid: true,
+    colSpan: 1,
+  },
   { feature: "customize", label: "Accent", kind: "divider" },
   {
     feature: "customize",

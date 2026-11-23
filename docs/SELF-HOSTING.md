@@ -67,8 +67,10 @@ No R2 bucket, no Discord bot. A 42 application is optional: with one (its UID
 and secret as the worker secrets `FT_CLIENT_ID` and `FT_CLIENT_SECRET`), the
 worker also serves your own logtime history ("Load older months") and your
 own evaluations (correction statistics, Outstanding counts, booked evaluations
-in the calendar feed, correction points over time) and your coalitions'
-standings for the dashboard's Campus card; without one those routes answer 404, the history card
+in the calendar feed, correction points over time), your coalitions'
+standings for the dashboard's Campus card and, for *Who's going*, the people
+registered to an event of the caller's own campus (login, name and picture,
+kept in memory only); without one those routes answer 404, the history card
 stays hidden and the statistics come from the Intra pages as before.
 
 ## 2. Get the worker code
@@ -123,16 +125,27 @@ the files after it add the new tables.
 
 ## 4. Secrets and variables
 
-One secret, and it is optional:
+Three secrets, all optional:
 
 ```bash
 npx wrangler secret put ANNOUNCEMENT_SECRET     # lets you publish banners to all users
+npx wrangler secret put FT_CLIENT_ID            # your 42 application's UID
+npx wrangler secret put FT_CLIENT_SECRET        # and its secret
 ```
 
-Give it a long random value (`openssl rand -base64 32`); running the command
-again replaces it. Without it the announcement route stays closed. For
-`npm run dev`, put `ANNOUNCEMENT_SECRET=<value>` in a `.dev.vars` file next to
-`wrangler.json` (the worker's `.gitignore` already excludes it).
+Give `ANNOUNCEMENT_SECRET` a long random value (`openssl rand -base64 32`);
+running the command again replaces it. Without it the announcement route
+stays closed. For `npm run dev`, put `ANNOUNCEMENT_SECRET=<value>` in a
+`.dev.vars` file next to `wrangler.json` (the worker's `.gitignore` already
+excludes it).
+
+`FT_CLIENT_ID` and `FT_CLIENT_SECRET` are the 42 application of section 1:
+set both or neither. Without them the routes that read the 42 API answer 404
+and the extension hides what depends on them. 42 changes the secret about
+every 30 days (the application's page shows the date and the next secret):
+put the new one with the same command before that date, and never write it
+in a file of the repository. The worker README (*42 API application*) has
+the details.
 
 One variable, in `wrangler.json` → `vars`: `JWT_ALLOWED_AZP`, the
 comma-separated Intra clients whose tokens may sign in. `"frontend-react"` is

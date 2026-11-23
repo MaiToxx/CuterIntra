@@ -112,7 +112,8 @@ export function sanitizePublicLook(raw: unknown): PublicLook | null {
     } else if (key === "CUSTOM_PAGE_BG_URL") {
       out[key] = sanitizeCssUrl(v);
     } else if (ENUMS[key]) {
-      if (v in ENUMS[key]!) out[key] = v;
+      // hasOwn, not `in`: "constructor" is `in` every object
+      if (Object.hasOwn(ENUMS[key]!, v)) out[key] = v;
     }
   }
   const visible = PUBLIC_LOOK_KEYS.some(

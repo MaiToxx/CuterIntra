@@ -109,21 +109,22 @@ export function linkedEventId(el: Element): number | null {
   return Number.isInteger(id) && id > 0 ? id : null;
 }
 
+const normal = (s: unknown): string => String(s ?? "").trim().toLowerCase().replace(/\s+/g, " ");
+
 /**
- * The event a card's text names: the longest name it contains, and for two
- * events of the same name the soonest (`events` is sorted that way).
+ * The events a card's text can stand for: those bearing the longest event
+ * name the text contains, in the order of `events` (soonest first). Several
+ * when an event repeats under one name (a weekly talk): the caller tells
+ * them apart by the order of the cards.
  */
-export function matchEvent(text: string, events: CalendarEvent[]): CalendarEvent | null {
-  const hay = text.toLowerCase().replace(/\s+/g, " ");
-  let best: CalendarEvent | null = null;
-  let bestLength = 0;
+export function matchEvents(text: string, events: CalendarEvent[]): CalendarEvent[] {
+  const hay = normal(text);
+  let best = "";
   for (const e of events) {
-    const name = String(e.name ?? "").trim().toLowerCase().replace(/\s+/g, " ");
-    if (name.length < 3 || name.length <= bestLength || !hay.includes(name)) continue;
-    best = e;
-    bestLength = name.length;
+    const name = normal(e.name);
+    if (name.length >= 3 && name.length > best.length && hay.includes(name)) best = name;
   }
-  return best;
+  return best ? events.filter((e) => normal(e.name) === best) : [];
 }
 
 function when(iso: string): string {
@@ -230,11 +231,13 @@ function loadList(
 
 /** Opens the list of one event; resolves once the dialog is on screen. */
 export async function openAttendeesDialog(event: EventRef): Promise<void> {
-  document.getElementById(DIALOG_ID)?.remove();
   const theme = await getEffectiveTheme();
+  // After the await, so that two quick clicks never leave two dialogs.
+  document.getElementById(DIALOG_ID)?.remove();
 
   const dialog = document.createElement("dialog");
   dialog.id = DIALOG_ID;
+  dialog.setAttribute("aria-label", event.name || t("Who's going"));
   dialog.className = "bg-transparent backdrop:bg-black/50";
   dialog.style.cssText =
     "padding:0;border:none;border-radius:1rem;max-width:28rem;width:calc(100dvw - 2rem);";
@@ -277,12 +280,32 @@ export async function openAttendeesDialog(event: EventRef): Promise<void> {
   loadList(event.id, () => dialog.isConnected, draw);
 }
 
-/** Asked once per page: the switch, the session and the worker's route. */
-let allowed: Promise<boolean> | null = null;
-const isAllowed = (): Promise<boolean> =>
-  (allowed ??= (async () =>
-    !!(await getConfig("PROFILE_SHOW_EVENT_ATTENDEES")) &&
-    !!(await ownSession(undefined, "eventAttendees")))().catch(() => false));
+/**
+ * The switch, the session and the worker's route. A yes is kept for the
+ * page; a no is asked again after RETRY_MS: it may come from a /features
+ * read that timed out, or from a student who has signed in since, and kept
+ * for good it hid the feature until the page was reloaded.
+ */
+const RETRY_MS = 60_000;
+let allowed: { at: number; answer: Promise<boolean> } | null = null;
+function isAllowed(): Promise<boolean> {
+  if (!allowed) {
+    const entry = {
+      at: Date.now(),
+      answer: (async () =>
+        !!(await getConfig("PROFILE_SHOW_EVENT_ATTENDEES")) &&
+        !!(await ownSession(undefined, "eventAttendees")))().catch(() => false),
+    };
+    allowed = entry;
+    void entry.answer.then((yes) => {
+      if (yes) entry.at = Infinity;
+    });
+  } else if (Date.now() - allowed.at >= RETRY_MS) {
+    allowed = null;
+    return isAllowed();
+  }
+  return allowed.answer;
+}
 
 let ownEvents: { at: number; list: Promise<CalendarEvent[]> } | null = null;
 function listableOwnEvents(): Promise<CalendarEvent[]> {
@@ -290,8 +313,9 @@ function listableOwnEvents(): Promise<CalendarEvent[]> {
     const list = fetchOwnEvents()
       .catch(() => null)
       .then((events) => {
-        // a failed read is not kept: the next pass tries again
-        if (!events && ownEvents?.list === list) ownEvents = null;
+        // A failed read is kept a minute only, not asked again on every
+        // pass: with intrapy down that was one request per redraw.
+        if (!events && ownEvents?.list === list) ownEvents.at = Date.now() - EVENTS_FRESH_MS + RETRY_MS;
         return listableEvents(events ?? []);
       });
     ownEvents = { at: Date.now(), list };
@@ -323,20 +347,37 @@ function cardLink(event: EventRef): HTMLButtonElement {
  */
 export async function initEventAttendees(): Promise<void> {
   if (location.hostname !== "profile-v3.intra.42.fr" || location.pathname !== "/") return;
-  const bare = () =>
-    [...document.querySelectorAll<HTMLElement>(CARD_SELECTOR)].filter(
-      (card) => !card.querySelector(`.${LINK_CLASS}`),
-    );
-  if (bare().length === 0) return;
+  const cards = () => [...document.querySelectorAll<HTMLElement>(CARD_SELECTOR)];
+  const bare = (card: HTMLElement) => !card.querySelector(`.${LINK_CLASS}`);
+  if (!cards().some(bare)) return;
   if (!(await isAllowed())) return;
-  const events = await listableOwnEvents();
-  for (const card of bare()) {
+  // The Agenda lists what is coming: an event that ended is not one of its cards.
+  const now = Date.now();
+  const events = (await listableOwnEvents()).filter(
+    (e) => !(asDate(e.end_at || e.begin_at).getTime() < now),
+  );
+  // Cards of one name are taken in page order, events in date order: the
+  // second card of a weekly talk is its second date, not the first again.
+  const seen = new Map<string, number>();
+  for (const card of cards()) {
     const id = linkedEventId(card);
-    const event: EventRef | null =
-      id !== null
-        ? (events.find((e) => e.id === id) ?? { id })
-        : matchEvent(card.textContent ?? "", events);
-    if (event) card.appendChild(cardLink(event));
+    let event: EventRef | null = null;
+    if (id !== null) {
+      event = events.find((e) => e.id === id) ?? { id };
+    } else {
+      const text = [...card.childNodes]
+        .filter((n) => !(n instanceof Element && n.classList.contains(LINK_CLASS)))
+        .map((n) => n.textContent ?? "")
+        .join(" ");
+      const same = matchEvents(text, events);
+      if (same.length > 0) {
+        const name = normal(same[0].name);
+        const rank = seen.get(name) ?? 0;
+        seen.set(name, rank + 1);
+        event = same[rank] ?? null;
+      }
+    }
+    if (event && bare(card)) card.appendChild(cardLink(event));
   }
 }
 
