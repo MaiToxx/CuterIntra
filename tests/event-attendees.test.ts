@@ -119,7 +119,7 @@ describe("fetchEventAttendees", () => {
       answer([person("bob"), person("eve", "https://evil.example/x.jpg"), { login: "../x" }, null], true),
     );
     const result = await fetchEventAttendees(45935);
-    expect(workerFetch.mock.calls[0][0]).toBe("/api/v1/private/events/attendees?event=45935");
+    expect(workerFetch.mock.calls[0][0]).toBe("/api/v1/private/events/attendees?user=me&event=45935");
     expect(workerFetch.mock.calls[0][1]).toMatchObject({ auth: { login: "me", token: "sess" } });
     expect(result).toEqual({
       ok: true,

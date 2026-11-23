@@ -8,8 +8,8 @@
  *
  * The Intra shows a count only. The list comes from the worker's 42
  * application (GET /api/v1/private/events/attendees, announced by /features
- * as `eventAttendees`): signed in only, three fields per person, nothing
- * stored (see the worker's handlers/event-attendees.ts and PRIVACY.md).
+ * as `eventAttendees`): signed in only, an event of your own campus only,
+ * three fields per person, nothing stored (see the worker's handlers/event-attendees.ts and PRIVACY.md).
  *
  * The Agenda's cards are the Intra's markup and carry no event id unless
  * they link to the event: a card is otherwise matched by name with your own
@@ -58,7 +58,9 @@ export interface EventRef {
 export async function fetchEventAttendees(eventId: number): Promise<AttendeesResult> {
   const session = await ownSession(undefined, "eventAttendees");
   if (!session) return { ok: false, reason: "signed-out" };
-  const res = await workerFetch(`/api/v1/private/events/attendees?event=${eventId}`, {
+  // `user`: the worker only answers for an event of one of your own campuses.
+  const user = encodeURIComponent(session.login.toLowerCase());
+  const res = await workerFetch(`/api/v1/private/events/attendees?user=${user}&event=${eventId}`, {
     auth: session,
     timeoutMs: 15_000,
   });

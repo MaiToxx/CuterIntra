@@ -255,6 +255,7 @@ describe("PRIVACY.md says what the worker keeps, as the worker keeps it", () => 
     subjects: /\*\*Subject tracker\*\*/,
     projects: null, // project names a 42 application once filled; read by nothing
     kv_write_budget: /\*\*A daily write counter\.\*\*/,
+    ft_call_budget: /\*\*An hourly counter of 42 API calls\.\*\*/,
     public_visuals: /copied to the worker's database \(D1\)/,
   };
 

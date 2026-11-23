@@ -1,11 +1,11 @@
 name: Release Drafter
 
+# On pushes to main only: the job holds a write token, and a pull request has
+# nothing to add to the draft before it is merged.
 on:
   push:
     branches:
       - main
-  pull_request:
-    types: [opened, synchronize, reopened, edited]
 
 permissions:
   contents: write
@@ -28,12 +28,23 @@ jobs:
           else
             COMMITS=$(git log $PREV_TAG..HEAD --format="%s|%h")
           fi
-          echo "commits<<EOF" >> $GITHUB_OUTPUT
-          echo "$COMMITS" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          # A delimiter no commit subject can contain: a subject "EOF" would
+          # otherwise end the value and write outputs of its own.
+          DELIM="commits_$(openssl rand -hex 16)"
+          {
+            echo "commits<<$DELIM"
+            echo "$COMMITS"
+            echo "$DELIM"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Categorize Changes
         id: categorize
+        # Commit subjects are untrusted text: they reach the script as an
+        # environment variable, never pasted into its source, where a quote,
+        # a backtick or $( ) in a subject would run as shell.
+        env:
+          COMMITS: ${{ steps.commits.outputs.commits }}
+          REPO: ${{ github.repository }}
         run: |
           BREAKING=""
           FEATURES=""
@@ -43,7 +54,7 @@ jobs:
           
           while IFS='|' read -r message hash; do
             [ -z "$message" ] && continue
-            LINK="https://github.com/${{ github.repository }}/commit/$hash"
+            LINK="https://github.com/$REPO/commit/$hash"
             ENTRY="- $message ([$hash]($LINK))"
             
             if echo "$message" | grep -qi "breaking\|BREAKING CHANGE"; then
@@ -58,10 +69,11 @@ jobs:
               OTHER+=$'\n'"$ENTRY"
             fi
 
-          done <<< "${{ steps.commits.outputs.commits }}"
+          done <<< "$COMMITS"
           
+          DELIM="changelog_$(openssl rand -hex 16)"
           {
-            echo "changelog<<EOF"
+            echo "changelog<<$DELIM"
             echo "## What's Changed"
             echo ""
             [ -n "$BREAKING" ] && echo "### Breaking Changes 🛠" && echo -e "$BREAKING" && echo ""
@@ -72,10 +84,10 @@ jobs:
             
             PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
             if [ -n "$PREV_TAG" ]; then
-              echo "**Full Changelog:** https://github.com/${{ github.repository }}/compare/$PREV_TAG...HEAD"
+              echo "**Full Changelog:** https://github.com/$REPO/compare/$PREV_TAG...HEAD"
             fi
-            echo "EOF"
-          } >> $GITHUB_OUTPUT
+            echo "$DELIM"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Update Draft Release
         uses: actions/github-script@v9
