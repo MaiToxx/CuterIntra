@@ -129,6 +129,10 @@ export interface BetterIntraConfig {
   CALENDAR_ALL_CAMPUS_EVENTS: boolean;
   /** The feed also lists your booked evaluations, with a reminder (worker with a 42 application). */
   CALENDAR_EVALUATIONS: boolean;
+  /** "Add a TIG" in the Agenda, and your TIGs on the logtime calendar and in the feed. */
+  CALENDAR_SHOW_TIG: boolean;
+  /** Your TIGs, typed in by hand (features/calendar/tig.ts). Never synced: this device only. */
+  CALENDAR_TIGS: { id: number; begin_at: string; hours: number; note: string }[];
   ADVANCED_OPEN_LINKS_NEW_TAB: boolean;
   /** Seven small secrets hidden in the Intra (see features/eggs). */
   EASTER_EGGS_ENABLED: boolean;

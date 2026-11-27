@@ -26,6 +26,7 @@ import {
 } from "../../core/theme/theme-manager.ts";
 import { bindTooltips } from "../../core/dom/tooltip.ts";
 import { fetchOwnEvents } from "../calendar/own-events.ts";
+import { shownTigs, tigEvents } from "../calendar/tig.ts";
 import { t } from "../../core/i18n/i18n.ts";
 import type { CalendarEvent, EventsByDate, LogtimeConfig } from "./types.ts";
 
@@ -296,8 +297,10 @@ function groupEventsByDate(
  * on its own: this widget only draws them.
  */
 async function fetchEvents(): Promise<EventsByDate | null> {
-  const events = await fetchOwnEvents();
-  return events ? groupEventsByDate(events) : null;
+  const [events, tigs] = await Promise.all([fetchOwnEvents(), shownTigs().then(tigEvents)]);
+  if (events) return groupEventsByDate([...events, ...tigs]);
+  // Your TIGs need no network: drawn alone when nothing is on the days yet.
+  return tigs.length > 0 && !lastEvents ? groupEventsByDate(tigs) : null;
 }
 
 const HEADER_OVERFLOW_TOLERANCE = 2;
@@ -904,6 +907,13 @@ export function initLogtime(): Promise<void> {
       chrome.storage.onChanged?.addListener((changes, area) => {
         if (area !== "local") return;
         const keys = Object.keys(changes);
+        // A TIG added from the Agenda shows on its day at once.
+        if (keys.includes("CALENDAR_TIGS") && isOwnProfile() && lastStats) {
+          const stats = lastStats;
+          void fetchEvents().then((events) => {
+            if (events && isOwnProfile()) renderLogtime(lastStats || stats, events);
+          });
+        }
         if (!keys.some((k) => LOGTIME_LIVE_KEYS.has(k))) return;
         void getConfigs().then((next) => {
           CONFIG = next;

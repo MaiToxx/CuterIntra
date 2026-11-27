@@ -4,6 +4,12 @@ Cuter Intra is a fork of [Better Intra](https://github.com/nicopasla/better-intr
 
 ## [Unreleased]
 
+## [1.24.0] - 2026-11-27
+
+### Features 🎉
+
+- TIG reminders (Extras tab, on by default): *Add a TIG* in the Agenda of your dashboard. A TIG you add shows above your events, on its day of the logtime calendar and, with a calendar link, in your calendar app with a reminder the day before. Kept in the browser, never pushed with your settings.
+
 ## [1.23.0] - 2026-11-23
 
 ### Features 🎉
@@ -1433,7 +1439,8 @@ Below: upstream [Better Intra](https://github.com/nicopasla/better-intra) by nic
 - chore(profile): Refactor profile visuals ([8aa3ff8](https://github.com/nicopasla/better-intra/commit/8aa3ff8))
 - chore: Update README ([773a0f2](https://github.com/nicopasla/better-intra/commit/773a0f2))
 
-[unreleased]: https://github.com/MaiToxx/CuterIntra/compare/v1.23.0...HEAD
+[unreleased]: https://github.com/MaiToxx/CuterIntra/compare/v1.24.0...HEAD
+[1.24.0]: https://github.com/MaiToxx/CuterIntra/compare/v1.23.0...v1.24.0
 [1.23.0]: https://github.com/MaiToxx/CuterIntra/compare/v1.22.2...v1.23.0
 [1.22.2]: https://github.com/MaiToxx/CuterIntra/compare/v1.22.1...v1.22.2
 [1.22.1]: https://github.com/MaiToxx/CuterIntra/compare/v1.22.0...v1.22.1

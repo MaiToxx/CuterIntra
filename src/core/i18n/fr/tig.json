@@ -1,0 +1,13 @@
+{
+  "Add a TIG": "Ajouter une TIG",
+  "Your TIGs": "Tes TIG",
+  "No TIG planned.": "Aucune TIG prévue.",
+  "Start": "Début",
+  "Today": "Aujourd’hui",
+  "Tomorrow": "Demain",
+  "Note (optional)": "Note (facultatif)",
+  "Pick a date, a start time and a number of hours.": "Choisis une date, une heure de début et un nombre d’heures.",
+  "Kept in this browser. It shows in your Agenda and on your logtime calendar; with a calendar link, it is added to your calendar app with a reminder the day before.": "Conservée dans ce navigateur. Elle apparaît dans ton agenda et sur ton calendrier de logtime ; avec un lien de calendrier, elle est ajoutée à ton application de calendrier avec un rappel la veille.",
+  "TIG reminders": "Rappels de TIG",
+  "Adds an Add a TIG link to your Agenda. A TIG you add shows above your events and on your logtime calendar, and goes to your calendar link if you have one.": "Ajoute un lien « Ajouter une TIG » à ton agenda. Une TIG ajoutée apparaît au-dessus de tes événements et sur ton calendrier de logtime, et part dans ton lien de calendrier si tu en as un."
+}

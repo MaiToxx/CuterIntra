@@ -20,6 +20,7 @@ import { initTranscript } from "./cards/transcript.ts";
 import { initPace } from "./cards/pace.ts";
 import { initCampusCard } from "./cards/campus.ts";
 import { initEventAttendees } from "./cards/events/attendees.ts";
+import { initTigAgenda } from "../calendar/tig.ui.ts";
 import { ensureCampusData } from "../clusters/clusters.data.ts";
 import { tagDashboardCards } from "../customize/cards.ts";
 import { waitForElement, watchDom } from "../../core/dom/dom-wait.ts";
@@ -274,6 +275,7 @@ export async function initProfile() {
         void initFreezeCard().catch((e) => console.warn("Cuter Intra: freeze card", e));
         void initCampusCard().catch((e) => console.warn("Cuter Intra: campus card", e));
         void initEventAttendees().catch((e) => console.warn("Cuter Intra: event attendees", e));
+        void initTigAgenda().catch((e) => console.warn("Cuter Intra: TIG", e));
         void injectFriendsWidget().catch((e) => console.warn("Cuter Intra: friends widget", e));
         if (location.pathname === "/") colorTrackerBadge();
       }

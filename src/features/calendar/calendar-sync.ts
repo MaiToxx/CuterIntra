@@ -1,6 +1,7 @@
 import { getWorkerFeatures, workerFetch } from "../../core/worker.ts";
 import { fetchOwnEvents, isOwnProfilePage } from "./own-events.ts";
 import type { CalendarEvent } from "../logtime/types.ts";
+import { TIG_KIND, shownTigs, tigEvents } from "./tig.ts";
 import {
   fetchUpcomingEvaluations,
   type UpcomingEvaluation,
@@ -144,7 +145,9 @@ export function generateIcs(events: IcsEvent[], now: Date = new Date()): string 
     // An evaluation has its own UID space: its id is a scale team id, which
     // may equal an event id.
     const isEvaluation = ev.kind === EVALUATION_KIND;
-    const url = isEvaluation
+    // A TIG too: its id is a time stamp of this browser.
+    const isTig = ev.kind === TIG_KIND;
+    const url = isEvaluation || isTig
       ? "https://profile.intra.42.fr/"
       : ev.kind === "exam"
         ? `https://profile.intra.42.fr/exams/${ev.id}`
@@ -152,7 +155,11 @@ export function generateIcs(events: IcsEvent[], now: Date = new Date()): string 
     const registered = ev.is_subscribed !== false;
     lines.push(
       "BEGIN:VEVENT",
-      isEvaluation ? `UID:eval-${ev.id}@better-intra` : `UID:${ev.id}@better-intra`,
+      isTig
+        ? `UID:tig-${ev.id}@better-intra`
+        : isEvaluation
+          ? `UID:eval-${ev.id}@better-intra`
+          : `UID:${ev.id}@better-intra`,
       `DTSTAMP:${stamp}`,
       `DTSTART:${formatIcsDate(begin)}`,
       `DTEND:${formatIcsDate(end)}`,
@@ -171,6 +178,10 @@ export function generateIcs(events: IcsEvent[], now: Date = new Date()): string 
             "DESCRIPTION:15 min before",
             "END:VALARM",
           ]
+        : []),
+      // A TIG is easy to forget: a second reminder the day before.
+      ...(isTig
+        ? ["BEGIN:VALARM", "TRIGGER:-P1D", "ACTION:DISPLAY", "DESCRIPTION:Tomorrow", "END:VALARM"]
         : []),
       "END:VEVENT",
     );
@@ -265,8 +276,9 @@ export async function maybeSyncCalendar(): Promise<void> {
     }
     // Absent means on: the default of the setting.
     const withEvaluations = store.CALENDAR_EVALUATIONS !== false;
-    const [events, evaluations] = await Promise.all([
+    const [events, tigs, evaluations] = await Promise.all([
       fetchOwnEvents(),
+      shownTigs(),
       withEvaluations ? fetchUpcomingEvaluations().catch(() => null) : Promise.resolve([]),
     ]);
     if (!events) return;
@@ -278,6 +290,7 @@ export async function maybeSyncCalendar(): Promise<void> {
     await syncCalendarIcs([
       ...feedEvents(events, store.CALENDAR_ALL_CAMPUS_EVENTS === true),
       ...evaluationEvents(evaluations ?? []),
+      ...tigEvents(tigs),
     ]);
   } catch {
     // The feed keeps serving what it had; the next visit tries again.

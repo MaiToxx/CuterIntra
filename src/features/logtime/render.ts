@@ -20,6 +20,7 @@ import type { LogtimeConfig, CalendarEvent, EventsByDate } from "./types.ts";
 import { recordsLines, type LogtimeRecords } from "./records.ts";
 import { sharedStylesLink } from "../../core/styles/shared-styles.ts";
 import { escapeHtml } from "../../core/dom/tooltip.ts";
+import { TIG_COLOR, TIG_KIND } from "../calendar/tig.ts";
 import LOGTIME_CSS from "./logtime.css?inline";
 import VIEW_NORMAL_SVG from "../../assets/svg/view-normal.svg?raw";
 import VIEW_COMPACT_SVG from "../../assets/svg/view-compact.svg?raw";
@@ -53,11 +54,12 @@ function buildDayTooltipHtml(
   if (hasData) parts.push(escapeHtml(fmtHours(secs)));
   if (events) {
     for (const e of events) {
+      const isTig = e.kind === TIG_KIND;
       const url =
         e.kind === "exam"
           ? `https://profile.intra.42.fr/exams/${e.id}`
           : `https://profile.intra.42.fr/events/${e.id}`;
-      const color = e.is_subscribed ? "rgb(34,197,94)" : "#ed8179";
+      const color = isTig ? TIG_COLOR : e.is_subscribed ? "rgb(34,197,94)" : "#ed8179";
       const time = new Date(
         e.begin_at.endsWith("Z") ? e.begin_at : e.begin_at + "Z",
       ).toLocaleTimeString(intlLocale("en-US"), {
@@ -65,6 +67,13 @@ function buildDayTooltipHtml(
         minute: "2-digit",
         hour12: false,
       });
+      // A TIG is yours alone: it has no page on the Intra to link to.
+      if (isTig) {
+        parts.push(
+          `<span style="color:${color};font-weight:600">${escapeHtml(e.name)} - ${escapeHtml(time)}</span>`,
+        );
+        continue;
+      }
       parts.push(
         `<a href="${escapeHtml(url)}" target="_blank" rel="noreferrer" style="color:${color};font-weight:600;text-decoration:none">${e.kind === "exam" ? "📚 " : "📅 "}${escapeHtml(e.name)} - ${escapeHtml(time)}</a>`,
       );
@@ -91,12 +100,15 @@ function renderDayCell(
       ? "var(--primary-foreground)"
       : "var(--muted-foreground)";
 
+  const hasTig = events?.some((e) => e.kind === TIG_KIND);
   const hasSubscribed = events?.some((e) => e.is_subscribed);
   const hasEvent = events && events.length > 0;
   const isFuture = dKey > todayStr;
 
   let borderStyle = "";
-  if (hasSubscribed) {
+  if (hasTig) {
+    borderStyle = `border-color: ${TIG_COLOR} !important; border-width: 2px !important;`;
+  } else if (hasSubscribed) {
     borderStyle =
       "border-color: rgb(34,197,94) !important; border-width: 2px !important;";
   } else if (hasEvent) {

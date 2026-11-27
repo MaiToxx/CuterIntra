@@ -80,6 +80,7 @@ export const CLOUD_SYNC_KEYS: ConfigKey[] = [
   "CALENDAR_EVENTS_HASH",
   "CALENDAR_ALL_CAMPUS_EVENTS",
   "CALENDAR_EVALUATIONS",
+  "CALENDAR_SHOW_TIG",
   "ADVANCED_OPEN_LINKS_NEW_TAB",
   "EASTER_EGGS_ENABLED",
   "UI_LANGUAGE",
@@ -203,6 +204,8 @@ export const LOCAL_ONLY_KEYS: ConfigKey[] = [
   "FRIENDS_DATA_CACHE",
   "EGGS_FOUND",
   "SUBJECT_TRACKER_STATE",
+  // typed in by hand on this browser; only the calendar feed carries them
+  "CALENDAR_TIGS",
   // consent given on this browser
   "SUBJECT_TRACKER_ENABLED",
   "SUBJECT_TRACKER_SEND_DATA",

@@ -69,6 +69,13 @@ export const EXTRAS_SETTINGS: readonly HubSettingDef[] = [
         requiresCloud: true,
       },
       {
+        label: "TIG reminders",
+        value: "CALENDAR_SHOW_TIG",
+        color: "warning",
+        big: true,
+        desc: "Adds an Add a TIG link to your Agenda. A TIG you add shows above your events and on your logtime calendar, and goes to your calendar link if you have one.",
+      },
+      {
         label: "Thursday Roulette",
         value: "PROFILE_SHOW_ROULETTE",
         color: "info",

@@ -83,6 +83,7 @@ The worker is deployed at `betterintra-remake.maitox.workers.dev`. Besides it an
 * **Clickable seat** — click someone's seat to open the cluster map with that seat highlighted.
 * **Thursday Roulette** — the profile's roulette history and points, with a countdown to the next draw (rebuilt from the Intra pages, no sign-in needed).
 * **Campus card** — on your dashboard: your next exam with a countdown and whether you are registered; signed in ☁️, your coalitions' standings and a graph of your correction points over 90 days.
+* **TIG reminders** — *Add a TIG* in your dashboard's Agenda: the date, the hours and a note. It shows above your events (with *Today* or *Tomorrow*), on its day of the logtime calendar, and in your calendar link with a reminder the day before. Typed in by hand: the 42 API does not let a student's application read TIGs.
 * **Who's going ☁️** — a link on each event of your dashboard's Agenda, and a list on the page of an event: see who is registered (login, name, picture), your friends first (the Intra only shows a count). Events of your own campus only, exams left out, the first 300 people.
 * **Correction stats** — monthly evaluations as a corrector: total, failures, success rate (rebuilt from the Intra pages, no sign-in needed); signed in ☁️, your own come from the 42 API in a request or two, with the Outstanding flags you received and gave.
 * **Moulinette robots** — the moulinette image on corrected pages becomes a robot (broken when failed).
